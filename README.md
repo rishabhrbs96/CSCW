@@ -29,7 +29,7 @@ Run database migrations
  python manage.py migrate
 ```
 
-Setup the following Config Vars on Heroku:
+## Setup the following Config Vars on Heroku:
 * ADMIN_USERNAME
 * ADMIN_PASSWORD
 * AWS_ACCESS_KEY_ID
@@ -40,6 +40,9 @@ Setup the following Config Vars on Heroku:
 * DATABASE_URL
 * ENV_HOST
 * DISABLE_COLLECTSTATIC
+
+## Link to web-app:
+https://cameron-rv-park.herokuapp.com/
 
 ## Authors
 1. Alekhya Duba
