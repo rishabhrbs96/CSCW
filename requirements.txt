@@ -1,0 +1,21 @@
+# Dependencies for generating/publishing Python binaries.
+bob-builder==0.0.19
+
+# Sub-dependencies of bob-builder.
+boto==2.49.0
+docopt==0.6.2
+
+# Other Dependencies
+# Python==3.9.10
+fontawesomefree==6.1.0
+boto3==1.21.19
+requests==2.27.1
+Django==4.0.3
+Pillow==9.0.1
+django-storages==1.12.3
+psycopg2==2.9.3
+gunicorn>=20.1.0
+django-heroku>=0.3.1
+coverage==6.3.2
+dj_database_url==0.5.0
+moto==3.1.0

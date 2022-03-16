@@ -1,0 +1,32 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+	<div class="container">
+		<a class="navbar-brand" href="{% url 'adminhome:index' %}">Cameron RV Park</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarResponsive">
+			<ul class="navbar-nav ms-auto">
+				{% if show_options %}
+					<li class="nav-item active">
+						<a class="nav-link" href="#">Home</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#about">About Us</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#ameneties">Ameneties</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#contact">Contact</a>
+					</li>
+				{% endif %}
+			</ul>
+			{% if user.is_authenticated %}
+				<a href="{% url 'adminhome:signout' %}"><button type="button" class="btn btn-outline-light me-2 btn-warning">Sign out</button></a>
+			{% else %}
+				<a href="{% url 'adminhome:signin' %}"><button type="button" class="btn btn-outline-light me-2">Signin</button></a>
+				<a href="{% url 'adminhome:signup' %}"><button type="button" class="btn btn-outline-light me-2 btn-warning">Create a new account</button></a>
+			{% endif %}
+		</div>
+	</div>
+</nav>
