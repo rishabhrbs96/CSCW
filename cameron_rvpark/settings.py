@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,3 +142,5 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 AWS_REGION_NAME = os.environ['AWS_REGION_NAME']
 AWS_BUCKET_NAME = os.environ['AWS_BUCKET_NAME']
 AWS_HOME_METADATA_KEY = os.environ['AWS_HOME_METADATA_KEY']
+
+django_heroku.settings(locals())
