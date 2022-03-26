@@ -1,0 +1,5 @@
+.coverage
+adminhome/__pycache__
+.idea
+features/.Rhistory
+cameron_rvpark/__pycache__
