@@ -67,7 +67,7 @@ def edithome(request):
 def edithome_createcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/edithome.html", {"form": CreateParkingSpotForm(request.POST or None, extra=get_home_metedata())})
+    return render(request, "adminhome/edithome.html", {"form": CreateParkingSpotForm(request.POST or None)})
 
 def doedit(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
