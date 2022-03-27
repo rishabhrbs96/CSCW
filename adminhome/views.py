@@ -64,7 +64,7 @@ def edithome(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
 
-def edithome_createcategory(request):
+def createnewparkingspotcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html", {"form": CreateParkingSpotForm(request.POST or None)})
@@ -112,7 +112,7 @@ def doedit(request):
 
     return HttpResponseRedirect(reverse('adminhome:edithome'))
 
-def createparkingspot(request):
+def docreatecategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     
@@ -127,7 +127,7 @@ def createparkingspot(request):
     new_parking_spot_category['cancellation_time_window'] = request.POST['cancellation_time_window']
     new_parking_spot_category['cancellation_penalty'] = request.POST['cancellation_penalty']
 
-    return HttpResponseRedirect(reverse('adminhome:edithome_createcategory'))
+    return HttpResponseRedirect(reverse('adminhome:edithome'))
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata":get_home_metedata()})
