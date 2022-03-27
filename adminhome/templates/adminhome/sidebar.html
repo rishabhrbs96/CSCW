@@ -1,27 +1,114 @@
-<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>Upcoming Bookings</span>
-	</h6>
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>Previous Bookings</span>
-	</h6>
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>Parking Spot Listings</span>
-	</h6>
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>Received Notifications</span>
-	</h6>
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>Home Page Contents</span>
-	</h6>
-	<ul class="nav flex-column mb-2">
-		<li class="nav-item">
-			<a class="nav-link active" href="#">
-				Edit Home Page Contents
-			</a>
-		</li>
-	</ul>
-	<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-		<span>User Profiles</span>
-	</h6>
-</nav>
+<div class="accordion accordion-flush col-md-3 col-lg-2 d-md-block bg-light sidebar" id="sidebarAccordion">
+  	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-upcomingBookings">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseUpcomingBookings" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Upcoming Bookings
+      	</button>
+    	</h2>
+    	<div id="flush-collapseUpcomingBookings" class="accordion-collapse collapse" aria-labelledby="flush-upcomingBookings" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				Upcoming Bookings Items
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-previousBookings">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsePreviousBookings" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Previous Bookings
+      	</button>
+    	</h2>
+    	<div id="flush-collapsePreviousBookings" class="accordion-collapse collapse" aria-labelledby="flush-previousBookings" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				Previous Bookings Items
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-ps">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseps" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Parking Spots
+      	</button>
+    	</h2>
+    	<div id="flush-collapseps" class="accordion-collapse collapse" aria-labelledby="flush-ps" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+							List All
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+							Create New
+						</a>
+					</li>
+				</ul>
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-pc">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsepc" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Parking Categories
+      	</button>
+    	</h2>
+    	<div id="flush-collapsepc" class="accordion-collapse collapse" aria-labelledby="flush-pc" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+							List All
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'adminhome:createparkingspotcategory' %}">
+							Create New
+						</a>
+					</li>
+				</ul>
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-rn">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsern" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Received Notifications
+      	</button>
+    	</h2>
+    	<div id="flush-collapsern" class="accordion-collapse collapse" aria-labelledby="flush-rn" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				Received Notifications Items
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-editHome">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseEditHome" aria-expanded="false" aria-controls="flush-collapseOne">
+        	Home Page Contents
+      	</button>
+    	</h2>
+    	<div id="flush-collapseEditHome" class="accordion-collapse collapse" aria-labelledby="flush-editHome" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'adminhome:edithome' %}">
+							Edit Contents
+						</a>
+					</li>
+				</ul>
+			</div>
+    	</div>
+  	</div>
+	<div class="accordion-item">
+    	<h2 class="accordion-header" id="flush-up">
+      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseup" aria-expanded="false" aria-controls="flush-collapseOne">
+        	User Profiles
+      	</button>
+    	</h2>
+    	<div id="flush-collapseup" class="accordion-collapse collapse" aria-labelledby="flush-up" data-bs-parent="#sidebarAccordion">
+      		<div class="accordion-body">
+				User Profiles Items
+			</div>
+    	</div>
+  	</div>
+</div>

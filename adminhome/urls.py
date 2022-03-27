@@ -14,4 +14,6 @@ urlpatterns = [
     
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
+
+    path('createparkingspotcategory/', views.createparkingspotcategory, name='createparkingspotcategory'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
