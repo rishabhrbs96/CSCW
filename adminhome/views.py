@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .forms import HomeForm, CustomUserForm, CustomUserCreationForm
+from .forms import CreateParkingSpotForm, HomeForm, CustomUserForm, CustomUserCreationForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -64,6 +64,11 @@ def edithome(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
 
+def edithome_createcategory(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/edithome.html", {"form": CreateParkingSpotForm(request.POST or None, extra=get_home_metedata())})
+
 def doedit(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -106,6 +111,23 @@ def doedit(request):
         s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=('media/%s.jpg' % c), Body=request.FILES[c])
 
     return HttpResponseRedirect(reverse('adminhome:edithome'))
+
+def createparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    
+    new_parking_spot_category = {}
+    new_parking_spot_category['name'] = request.POST['name']
+    new_parking_spot_category['size'] = request.POST['size']
+    new_parking_spot_category['daily_rate'] = request.POST['daily_rate']
+    new_parking_spot_category['weekly_rate'] = request.POST('weekly_rate')
+    new_parking_spot_category['monthly_rate'] = request.POST('monthly_rate')
+    new_parking_spot_category['utility_conversion_rate'] = request.POST['utility_conversion_rate']
+    new_parking_spot_category['is_active'] = request.POST['is_active']
+    new_parking_spot_category['cancellation_time_window'] = request.POST['cancellation_time_window']
+    new_parking_spot_category['cancellation_penalty'] = request.POST['cancellation_penalty']
+
+    return HttpResponseRedirect(reverse('adminhome:edithome_createcategory'))
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata":get_home_metedata()})
