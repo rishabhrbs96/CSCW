@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .forms import CreateParkingSpotForm, HomeForm, CustomUserForm, CustomUserCreationForm
+from .forms import CreateParkingSpotCategoryForm, HomeForm, CustomUserForm, CustomUserCreationForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -64,10 +64,10 @@ def edithome(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
 
-def createnewparkingspotcategory(request):
+def createparkingspotcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/edithome.html", {"form": CreateParkingSpotForm(request.POST or None)})
+    return render(request, "adminhome/createparkingspotcategory.html", {"form": CreateParkingSpotCategoryForm(request.POST or None)})
 
 def doedit(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -127,7 +127,7 @@ def docreatecategory(request):
     new_parking_spot_category['cancellation_time_window'] = request.POST['cancellation_time_window']
     new_parking_spot_category['cancellation_penalty'] = request.POST['cancellation_penalty']
 
-    return HttpResponseRedirect(reverse('adminhome:edithome'))
+    return HttpResponseRedirect(reverse('adminhome:createparkingspotcategory'))
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata":get_home_metedata()})

@@ -34,9 +34,9 @@ class HomeForm(forms.Form):
             self.fields['carousel_body_%s' % i] = forms.CharField(label=('Carousel %s Contents: ' % (i+1)), initial=c["body"], widget= forms.Textarea(attrs={'class':'form-control'}))
             self.fields['carousel_image_%s' % i] = forms.ImageField(label=('Carousel %s Image: ' % (i+1)), required=False)
 
-class CreateParkingSpotForm(forms.Form):
+class CreateParkingSpotCategoryForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(CreateParkingSpotForm, self).__init__(*args, **kwargs)
+        super(CreateParkingSpotCategoryForm, self).__init__(*args, **kwargs)
 
         self.fields["name"] = forms.CharField(label='Category Name', widget=forms.TextInput(attrs={'class':'form-control'}))
         self.fields["size"] = forms.IntegerField(label='Size of Parking Spot(s) in this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
@@ -44,7 +44,7 @@ class CreateParkingSpotForm(forms.Form):
         self.fields["weekly_rate"] = forms.IntegerField(label='Weekly rate of each Parking Spot in this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
         self.fields["monthly_rate"] = forms.IntegerField(label='Monthly rate of each Parking Spot in this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
         self.fields["utility_conversion_rate"] = forms.IntegerField(label='Utility conversion rate for this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["is_active"] = forms.BooleanField(label='Set this Category as Active?', widget=forms.RadioSelect(choices=YES_NO))
+        self.fields["is_active"] = forms.BooleanField(label='Set this Category as Active?', widget=forms.RadioSelect(choices=[('1','YES'), ('2','NO')]))
         self.fields["cancellation_time_window"] = forms.IntegerField(label='Cancellation Time Window (in hours) for this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
         self.fields["cancellation_penalty"] = forms.IntegerField(label='Cancellation Penalty for this Category', widget=forms.NumberInput(attrs={'class': 'form-control'}))
         
