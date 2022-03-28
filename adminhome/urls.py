@@ -15,6 +15,9 @@ urlpatterns = [
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
 
+    path('createparkingspot/', views.createparkingspot, name='createparkingspot'),
+    path('viewparkingspot/', views.viewparkingspot, name='viewparkingspot'),
     path('createparkingspotcategory/', views.createparkingspotcategory, name='createparkingspotcategory'),
+    path('viewparkingspotcategory/', views.viewparkingspotcategory, name='viewparkingspotcategory'),
     path('docreatecategory/', views.docreatecategory, name='docreatecategory'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

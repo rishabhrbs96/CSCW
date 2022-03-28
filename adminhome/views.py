@@ -58,16 +58,30 @@ def signup(request):
                     template_name="adminhome/signup.html",
                     context={"form": form})
 
+def createparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/createparkingspot.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
+def viewparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/viewparkingspot.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
+def createparkingspotcategory(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/createparkingspotcategory.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
+def viewparkingspotcategory(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/viewparkingspotcategory.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
 
 def edithome(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
-
-def createparkingspotcategory(request):
-    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/createparkingspotcategory.html", {"form": CreateParkingSpotCategoryForm(request.POST or None)})
 
 def doedit(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -126,6 +140,8 @@ def docreatecategory(request):
     new_parking_spot_category['is_active'] = request.POST['is_active']
     new_parking_spot_category['cancellation_time_window'] = request.POST['cancellation_time_window']
     new_parking_spot_category['cancellation_penalty'] = request.POST['cancellation_penalty']
+
+    # TODO: Add input to DB
 
     return HttpResponseRedirect(reverse('adminhome:createparkingspotcategory'))
 
