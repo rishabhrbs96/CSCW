@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .forms import CreateParkingSpotCategoryForm, HomeForm, CustomUserForm, CustomUserCreationForm
+from .forms import CreateParkingSpotCategoryForm, CreateParkingSpotForm, HomeForm, CustomUserForm, CustomUserCreationForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -61,7 +61,7 @@ def signup(request):
 def createparkingspot(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/createparkingspot.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+    return render(request, "adminhome/createparkingspot.html", {"form": CreateParkingSpotForm(request.POST or None)})
 
 def viewparkingspot(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -71,7 +71,7 @@ def viewparkingspot(request):
 def createparkingspotcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/createparkingspotcategory.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+    return render(request, "adminhome/createparkingspotcategory.html", {"form": CreateParkingSpotCategoryForm(request.POST or None)})
 
 def viewparkingspotcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -144,6 +144,19 @@ def docreatecategory(request):
     # TODO: Add input to DB
 
     return HttpResponseRedirect(reverse('adminhome:createparkingspotcategory'))
+
+def docreateparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    new_parking_spot = {}
+    new_parking_spot['parking_spot_name'] = request.POST['parking_spot_name']
+    new_parking_spot['is_active'] = request.POST['is_active']
+    new_parking_spot['category_name'] = request.POST['category_name']
+
+    # TODO: Add input to DB
+
+    return HttpResponseRedirect(reverse('adminhome:createparkingspot'))
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata":get_home_metedata()})

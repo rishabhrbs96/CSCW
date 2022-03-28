@@ -47,4 +47,13 @@ class CreateParkingSpotCategoryForm(forms.Form):
         self.fields["is_active"] = forms.BooleanField(label='Set this Category as Active?', widget=forms.RadioSelect(choices=[('1','YES'), ('2','NO')]))
         self.fields["cancellation_time_window"] = forms.IntegerField(label='Cancellation Time Window (in hours)', widget=forms.NumberInput(attrs={'class': 'form-control'}))
         self.fields["cancellation_penalty"] = forms.IntegerField(label='Cancellation Penalty', widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+class CreateParkingSpotForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(CreateParkingSpotForm, self).__init__(*args, **kwargs)
+
+        self.fields["parking_spot_name"] = forms.CharField(label='Parking Spot Name', widget=forms.TextInput(attrs={'class':'form-control'}))
+        self.fields["is_active"] = forms.BooleanField(label='Set this Parking Spot as Active?', widget=forms.RadioSelect(choices=[('1','YES'), ('2','NO')]))
+        self.fields["category_name"] = forms.CharField(label='Category Name', widget=forms.TextInput(attrs={'class':'form-control'}))
+        
         
