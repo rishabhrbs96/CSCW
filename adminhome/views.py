@@ -120,8 +120,8 @@ def docreatecategory(request):
     new_parking_spot_category['name'] = request.POST['name']
     new_parking_spot_category['size'] = request.POST['size']
     new_parking_spot_category['daily_rate'] = request.POST['daily_rate']
-    new_parking_spot_category['weekly_rate'] = request.POST('weekly_rate')
-    new_parking_spot_category['monthly_rate'] = request.POST('monthly_rate')
+    new_parking_spot_category['weekly_rate'] = request.POST['weekly_rate']
+    new_parking_spot_category['monthly_rate'] = request.POST['monthly_rate']
     new_parking_spot_category['utility_conversion_rate'] = request.POST['utility_conversion_rate']
     new_parking_spot_category['is_active'] = request.POST['is_active']
     new_parking_spot_category['cancellation_time_window'] = request.POST['cancellation_time_window']
