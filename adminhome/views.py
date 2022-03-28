@@ -58,10 +58,25 @@ def signup(request):
                     template_name="adminhome/signup.html",
                     context={"form": form})
 
+def createparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/createparkingspot.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
+def viewparkingspot(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/viewparkingspot.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
 def createparkingspotcategory(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/createparkingspotcategory.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
+def viewparkingspotcategory(request):
+    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/viewparkingspotcategory.html", {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
 
 def edithome(request):
     if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
