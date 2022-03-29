@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .forms import CreateParkingSpotCategoryForm, CreateParkingSpotForm, HomeForm, CustomUserForm, \
+from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
     CustomUserCreationForm
 import boto3
 
@@ -67,14 +67,14 @@ def createparkingspot(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if (request.method == "POST"):
-        form = CreateParkingSpotForm(request.POST or None)
+        form = ParkingSpotForm(request.POST or None)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
         else:
             messages.error(request, f"Error Signing Up, Please try again")
 
-    form = CreateParkingSpotForm
+    form = ParkingSpotForm
     return render(request=request,
                   template_name="adminhome/createparkingspot.html",
                   context={"form": form})
@@ -102,46 +102,46 @@ def viewoneparkingspot(request, pk):
     context["parkingspot"] = ParkingSpot.objects.get(id = pk)
     return render(request, "adminhome/viewoneparkingspot.html", context)
 
-def createparkingspotcategory(request):
+def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if (request.method == "POST"):
-        form = CreateParkingSpotCategoryForm(request.POST or None)
+        form = ParkingCategoryForm(request.POST or None)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('adminhome:viewoneparkingspotcategory', args=(form.instance.id,)))
+            return HttpResponseRedirect(reverse('adminhome:viewoneparkingcategory', args=(form.instance.id,)))
         else:
             messages.error(request, f"Error Signing Up, Please try again")
 
-    form = CreateParkingSpotCategoryForm
+    form = ParkingCategoryForm
     return render(request=request,
-                  template_name="adminhome/createparkingspotcategory.html",
+                  template_name="adminhome/createparkingcategory.html",
                   context={"form": form})
 
-def viewparkingspotcategory(request):
+def viewparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     
-    parkingspotcategory_list = ParkingCategory.objects.all()
+    parkingcategory_list = ParkingCategory.objects.all()
     
     page = request.GET.get('page', 1)
-    paginator = Paginator(parkingspotcategory_list, 2)
+    paginator = Paginator(parkingcategory_list, 2)
     
     try:
-        parkingspotcategory_paginated = paginator.page(page)
+        parkingcategory_paginated = paginator.page(page)
     except PageNotAnInteger:
-        parkingspotcategory_paginated = paginator.page(1)
+        parkingcategory_paginated = paginator.page(1)
     except EmptyPage:
-        parkingspotcategory_paginated = paginator.page(paginator.num_pages)
-    return render(request, "adminhome/viewparkingspotcategory.html", { 'parkingspotcategory_paginated': parkingspotcategory_paginated })
+        parkingcategory_paginated = paginator.page(paginator.num_pages)
+    return render(request, "adminhome/viewparkingcategory.html", { 'parkingcategory_paginated': parkingcategory_paginated })
 
-def viewoneparkingspotcategory(request, pk):
+def viewoneparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     context ={}
-    context["parkingspotcategory"] = ParkingCategory.objects.get(id = pk)
-    return render(request, "adminhome/viewoneparkingspotcategory.html", context)
+    context["parkingcategory"] = ParkingCategory.objects.get(id = pk)
+    return render(request, "adminhome/viewoneparkingcategory.html", context)
 
 def edithome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
