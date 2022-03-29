@@ -1,0 +1,12 @@
+
+.idea/Cameron-RV-Park.iml
+.idea/inspectionProfiles/profiles_settings.xml
+*.xml
+*.pyc
+*.pyc
+.coverage
+adminhome/__pycache__
+.idea
+features/.Rhistory
+cameron_rvpark/__pycache__
+adminhome/migrations/__pycache__
