@@ -35,7 +35,7 @@ class HomeForm(forms.Form):
             self.fields['carousel_body_%s' % i] = forms.CharField(label=('Carousel %s Contents: ' % (i+1)), initial=c["body"], widget= forms.Textarea(attrs={'class':'form-control'}))
             self.fields['carousel_image_%s' % i] = forms.ImageField(label=('Carousel %s Image: ' % (i+1)), required=False)
 
-class CreateParkingSpotCategoryForm(forms.Form):
+class CreateParkingSpotCategoryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotCategoryForm, self).__init__(*args, **kwargs)
 
@@ -44,7 +44,7 @@ class CreateParkingSpotCategoryForm(forms.Form):
         model = ParkingCategory
         fields = "__all__"
 
-class CreateParkingSpotForm(forms.Form):
+class CreateParkingSpotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotForm, self).__init__(*args, **kwargs)
 
