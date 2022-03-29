@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class ParkingCategory(models.Model):
     name = models.CharField(max_length=200, unique=True)
     size = models.DecimalField(max_digits=1000, decimal_places=2)
@@ -14,7 +13,6 @@ class ParkingCategory(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class ParkingSpot(models.Model):
     name = models.CharField(max_length=200, unique=True)

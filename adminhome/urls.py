@@ -12,13 +12,18 @@ urlpatterns = [
     path('signout/', views.signout, name='signout'),
     path('signup/', views.signup, name='signup'),
     
+    path('adminhome/', views.adminhome, name='adminhome'),
+
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
 
-    path('createparkingspot/', views.createparkingspot, name='createparkingspot'),
-    path('viewparkingspot/', views.viewparkingspot, name='viewparkingspot'),
-    path('createparkingspotcategory/', views.createparkingspotcategory, name='createparkingspotcategory'),
-    path('viewparkingspotcategory/', views.viewparkingspotcategory, name='viewparkingspotcategory'),
-    path('docreatecategory/', views.docreatecategory, name='docreatecategory'),
-    path('docreateparkingspot/', views.docreateparkingspot, name='docreateparkingspot'),
+    path('parkingspot/create/', views.createparkingspot, name='createparkingspot'),
+    path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),
+    path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
+    
+
+    path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
+    path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),
+    path('parkingcategory/<int:pk>/', views.viewoneparkingcategory, name='viewoneparkingcategory'),
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

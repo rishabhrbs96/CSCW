@@ -1,4 +1,4 @@
-<div class="accordion accordion-flush col-md-3 col-lg-2 d-md-block bg-light sidebar" id="sidebarAccordion">
+<div class="accordion accordion-flush col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarAccordion">
   	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-upcomingBookings">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseUpcomingBookings" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -56,12 +56,12 @@
       		<div class="accordion-body">
 				<ul class="nav flex-column mb-2">
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:viewparkingspotcategory' %}">
+						<a class="nav-link" href="{% url 'adminhome:viewparkingcategory' %}">
 							List All
 						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:createparkingspotcategory' %}">
+						<a class="nav-link" href="{% url 'adminhome:createparkingcategory' %}">
 							Create New
 						</a>
 					</li>

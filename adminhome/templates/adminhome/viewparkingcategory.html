@@ -1,0 +1,47 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">View Parking Categories</h1>
+</div> 
+
+{% for parkingcategory in parkingcategory_paginated %}
+	<div class="card cardhover mb-2">
+		<div class="card-body">
+			<h5 class="card-title d-flex justify-content-between align-items-center">
+				{{ parkingcategory.name }}
+				<a href="{% url 'adminhome:viewoneparkingcategory' parkingcategory.id %}" class="btn btn-outline-dark me-2 stretched-link">
+					View Details
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
+						<path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
+					</svg>
+				</a>
+			</h5>
+			<h6 class="card-subtitle mb-2 text-muted">Active: {{ parkingcategory.is_active }}</h6>
+			<div class="card-text">
+				<!-- <table class="table">
+					<tbody>
+						<tr>
+							<td>size: {{ parkingcategory.size }}</td>
+							<td colspan="2">utility_conversion_rate: {{ parkingcategory.utility_conversion_rate }}</td>
+						</tr>
+						<tr>
+							<td>daily_rate: {{ parkingcategory.daily_rate }}</td>
+							<td>weekly_rate: {{ parkingcategory.weekly_rate }}</td>
+							<td>monthly_rate: {{ parkingcategory.monthly_rate }}</td>
+						</tr>
+						<tr>
+							<td>cancellation_penalty: {{ parkingcategory.cancellation_penalty }}</td>
+							<td colspan="2">cancellation_time_window: {{ parkingcategory.cancellation_time_window }}</td>
+						</tr>
+					</tbody>
+				</table> -->
+			</div>
+		</div>
+	</div>
+{% endfor %} 
+
+{% include "adminhome/paginator.html" with paginator=parkingcategory_paginated%}
+
+{% endblock content %}

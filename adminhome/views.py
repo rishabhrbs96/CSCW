@@ -2,12 +2,14 @@ import json, requests
 
 from django.http import HttpResponseRedirect
 from django.core.files import File
+from django.core.paginator import Paginator
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .forms import CreateParkingSpotCategoryForm, CreateParkingSpotForm, HomeForm, CustomUserForm, \
+from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
     CustomUserCreationForm
 import boto3
 
@@ -18,13 +20,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .models import ParkingSpot, ParkingCategory
 
-
 def signout(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     logout(request)
     return redirect("adminhome:index")
-
 
 def signin(request):
     if request.method == "POST":
@@ -35,7 +35,9 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("adminhome:edithome")
+                if (request.user.is_staff or request.user.is_superuser):
+                    return redirect("adminhome:adminhome")
+                return redirect("adminhome:index")
         else:
             messages.error(request, f"Incorrect credentials! Please try again.")
             return redirect("adminhome:signin")
@@ -43,7 +45,6 @@ def signin(request):
     return render(request=request,
                   template_name="adminhome/signin.html",
                   context={"form": form})
-
 
 def signup(request):
     if request.method == "POST":
@@ -54,7 +55,7 @@ def signup(request):
             messages.success(request, f"Created New Account: {username}")
             login(request, user)
             messages.info(request, f"you are now logged in as {username}")
-            return redirect("adminhome:edithome")
+            return redirect("adminhome:index")
         else:
             messages.error(request, f"Error Signing Up, Please try again")
 
@@ -63,43 +64,97 @@ def signup(request):
                   template_name="adminhome/signup.html",
                   context={"form": form})
 
-
 def createparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
-    return render(request, "adminhome/createparkingspot.html", {"form": CreateParkingSpotForm(request.POST or None)})
+    if (request.method == "POST"):
+        form = ParkingSpotForm(request.POST or None)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
+        else:
+            messages.error(request, f"Error Signing Up, Please try again")
 
+    form = ParkingSpotForm
+    return render(request=request,
+                  template_name="adminhome/createparkingspot.html",
+                  context={"form": form})
 
 def viewparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
+    parkingspot_list = ParkingSpot.objects.all()
+    
+    page = request.GET.get('page', 1)
+    paginator = Paginator(parkingspot_list, 2)
+    
+    try:
+        parkingspot_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        parkingspot_paginated = paginator.page(1)
+    except EmptyPage:
+        parkingspot_paginated = paginator.page(paginator.num_pages)
+    return render(request, "adminhome/viewparkingspot.html", { 'parkingspot_paginated': parkingspot_paginated })
+
+def viewoneparkingspot(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
     context = {}
-    context['parkingspot'] = ParkingSpot.objects.all()
-    return render(request, "adminhome/viewparkingspot.html", context)
+    context["parkingspot"] = ParkingSpot.objects.get(id = pk)
+    return render(request, "adminhome/viewoneparkingspot.html", context)
 
-
-def createparkingspotcategory(request):
+def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
-    return render(request, "adminhome/createparkingspotcategory.html", {"form": CreateParkingSpotCategoryForm(request.POST or None)})
+    if (request.method == "POST"):
+        form = ParkingCategoryForm(request.POST or None)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('adminhome:viewoneparkingcategory', args=(form.instance.id,)))
+        else:
+            messages.error(request, f"Error Signing Up, Please try again")
 
+    form = ParkingCategoryForm
+    return render(request=request,
+                  template_name="adminhome/createparkingcategory.html",
+                  context={"form": form})
 
-def viewparkingspotcategory(request):
+def viewparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    context = {}
-    context['parkingcategories'] = ParkingCategory.objects.all()
-    return render(request, "adminhome/viewparkingspotcategory.html", context)
+    
+    parkingcategory_list = ParkingCategory.objects.all()
+    
+    page = request.GET.get('page', 1)
+    paginator = Paginator(parkingcategory_list, 2)
+    
+    try:
+        parkingcategory_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        parkingcategory_paginated = paginator.page(1)
+    except EmptyPage:
+        parkingcategory_paginated = paginator.page(paginator.num_pages)
+    return render(request, "adminhome/viewparkingcategory.html", { 'parkingcategory_paginated': parkingcategory_paginated })
 
+def viewoneparkingcategory(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    context ={}
+    context["parkingcategory"] = ParkingCategory.objects.get(id = pk)
+    return render(request, "adminhome/viewoneparkingcategory.html", context)
+
+def adminhome(request):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/adminhome.html")
 
 def edithome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html",
                   {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
-
 
 def doedit(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -143,40 +198,6 @@ def doedit(request):
         s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=('media/%s.jpg' % c), Body=request.FILES[c])
 
     return HttpResponseRedirect(reverse('adminhome:edithome'))
-
-
-def docreatecategory(request):
-    if(not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    form = CreateParkingSpotCategoryForm(request.POST or None)
-
-    context = {}
-    if form.is_valid():
-        form.save()
-    context['form'] = form
-
-    view_context = {}
-    view_context['parkingcategories'] = ParkingCategory.objects.all()
-
-    return render(request,'adminhome/viewparkingspotcategory.html',view_context)
-
-def docreateparkingspot(request):
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    form = CreateParkingSpotForm(request.POST or None)
-
-    context = {}
-    if form.is_valid():
-        form.save()
-    context['form'] = form
-
-    view_context = {}
-    view_context['parkingspot'] = ParkingSpot.objects.all()
-
-    return render(request,'adminhome/viewparkingspot.html',view_context)
-
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
