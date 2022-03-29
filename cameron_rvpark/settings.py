@@ -24,11 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--ucfwqkr)$@@#aygpx(_k0x-*8ot@9)v$u@74m0p&bugqiov(8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    '.herokuapp.com',
-    '127.0.0.1',
+    '.herokuapp.com'
 ]
 
 # Application definition
@@ -89,6 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'test_park_db',
+
     }
 }
 
