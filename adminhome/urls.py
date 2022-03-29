@@ -16,13 +16,11 @@ urlpatterns = [
     path('doedit/', views.doedit, name='doedit'),
 
     path('createparkingspot/', views.createparkingspot, name='createparkingspot'),
-    path('docreateparkingspot/', views.docreateparkingspot, name='docreateparkingspot'),
     path('viewparkingspot/', views.viewparkingspot, name='viewparkingspot'),
     path('viewparkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
     
 
     path('createparkingspotcategory/', views.createparkingspotcategory, name='createparkingspotcategory'),
-    path('docreateparkingspotcategory/', views.docreateparkingspotcategory, name='docreateparkingspotcategory'),
     path('viewparkingspotcategory/', views.viewparkingspotcategory, name='viewparkingspotcategory'),
     path('viewparkingspotcategory/<int:pk>/', views.viewoneparkingspotcategory, name='viewoneparkingspotcategory'),
     

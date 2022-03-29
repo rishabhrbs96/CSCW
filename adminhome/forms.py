@@ -39,7 +39,6 @@ class CreateParkingSpotCategoryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotCategoryForm, self).__init__(*args, **kwargs)
 
-
     class Meta:
         model = ParkingCategory
         fields = "__all__"
@@ -47,7 +46,6 @@ class CreateParkingSpotCategoryForm(forms.ModelForm):
 class CreateParkingSpotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotForm, self).__init__(*args, **kwargs)
-
 
     class Meta:
         model = ParkingSpot
