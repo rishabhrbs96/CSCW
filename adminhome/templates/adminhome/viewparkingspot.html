@@ -4,4 +4,12 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">View Parking Spots</h1>
 </div>
+<div class = 'main'>
+		{% for spot in parkingspot %}
+		{{spot.name}}</br>
+		{{spot.parking_category_id}}</br>
+    <hr/>
+
+    {% endfor %}
+	</div>
 {% endblock content %}
