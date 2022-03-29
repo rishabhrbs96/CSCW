@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import ParkingSpot, ParkingCategory
   
 class CustomUserForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -38,22 +39,16 @@ class CreateParkingSpotCategoryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotCategoryForm, self).__init__(*args, **kwargs)
 
-        self.fields["name"] = forms.CharField(label='Category Name', widget=forms.TextInput(attrs={'class':'form-control'}))
-        self.fields["size"] = forms.IntegerField(label='Size of each Parking Spot (in inches)', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["daily_rate"] = forms.IntegerField(label='Daily Rate of each Parking Spot', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["weekly_rate"] = forms.IntegerField(label='Weekly Rate of each Parking Spot', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["monthly_rate"] = forms.IntegerField(label='Monthly Rate of each Parking Spot', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["utility_conversion_rate"] = forms.IntegerField(label='Utility Conversion Rate', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["is_active"] = forms.BooleanField(label='Set this Category as Active?', widget=forms.RadioSelect(choices=[('1','YES'), ('2','NO')]))
-        self.fields["cancellation_time_window"] = forms.IntegerField(label='Cancellation Time Window (in hours)', widget=forms.NumberInput(attrs={'class': 'form-control'}))
-        self.fields["cancellation_penalty"] = forms.IntegerField(label='Cancellation Penalty', widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = ParkingCategory
+        fields = "__all__"
 
 class CreateParkingSpotForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CreateParkingSpotForm, self).__init__(*args, **kwargs)
 
-        self.fields["parking_spot_name"] = forms.CharField(label='Parking Spot Name', widget=forms.TextInput(attrs={'class':'form-control'}))
-        self.fields["is_active"] = forms.BooleanField(label='Set this Parking Spot as Active?', widget=forms.RadioSelect(choices=[('1','YES'), ('2','NO')]))
-        self.fields["category_name"] = forms.CharField(label='Category Name', widget=forms.TextInput(attrs={'class':'form-control'}))
-        
-        
+
+    class Meta:
+        model = ParkingSpot
+        fields = "__all__"
