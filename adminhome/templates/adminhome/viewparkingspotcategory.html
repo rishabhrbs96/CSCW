@@ -3,13 +3,43 @@
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">View Parking Spot Categories</h1>
-
 </div>
-<div class = 'main'>
-		{% for parkingcategory in parkingcategories %}
-		{{parkingcategory.name}}</br>
-    <hr/>
-
-    {% endfor %}
+{% for parkingspotcategory in parkingspotcategory_paginated %}
+	<div class="card mb-2 cardhover">
+		<div class="card-body">
+			<h5 class="card-title">{{ parkingspotcategory.name }}</h5>
+    		<h6 class="card-subtitle mb-2 text-muted">Active: {{ parkingspotcategory.is_active }}</h6>
+		    <div class="card-text">
+				<button type="submit" class="btn btn-primary">
+  					Sign in
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
+						<path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
+					</svg>
+				</button>
+				
+				
+				<!-- <table class="table">
+					<tbody>
+						<tr>
+							<td>size: {{ parkingspotcategory.size }}</td>
+							<td colspan="2">utility_conversion_rate: {{ parkingspotcategory.utility_conversion_rate }}</td>
+						</tr>
+						<tr>
+							<td>daily_rate: {{ parkingspotcategory.daily_rate }}</td>
+							<td>weekly_rate: {{ parkingspotcategory.weekly_rate }}</td>
+							<td>monthly_rate: {{ parkingspotcategory.monthly_rate }}</td>
+						</tr>
+						<tr>
+							<td>cancellation_penalty: {{ parkingspotcategory.cancellation_penalty }}</td>
+							<td colspan="2">cancellation_time_window: {{ parkingspotcategory.cancellation_time_window }}</td>
+						</tr>
+					</tbody>
+				</table> -->
+			</div>
+		</div>
 	</div>
+{% endfor %}
+
+{% include "adminhome/paginator.html" with paginator=parkingspotcategory_paginated%}
+
 {% endblock content %}

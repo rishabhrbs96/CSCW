@@ -1,0 +1,49 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">View Parking Spot Categories</h1>
+</div>
+	<div class="card mb-2">
+		<div class="card-body">
+			<h5 class="card-title">{{ parkingspotcategory.name }}</h5>
+    		<h6 class="card-subtitle mb-2 text-muted">Active: {{ parkingspotcategory.is_active }}</h6>
+		    <div class="card-text">
+				<table class="table table-striped">
+					<tbody>
+						<tr>
+							<td style="font-weight: bold">Size</td>
+                            <td>{{ parkingspotcategory.size }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Daily Rate</td>
+                            <td>{{ parkingspotcategory.daily_rate }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Weekly Rate</td>
+                            <td>{{ parkingspotcategory.weekly_rate }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Monthly Rate</td>
+                            <td>{{ parkingspotcategory.monthly_rate }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Utility Conversion Rate</td>
+                            <td>{{ parkingspotcategory.utility_conversion_rate }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Cancellation Penalty</td>
+                            <td>{{ parkingspotcategory.cancellation_penalty }}</td>
+						</tr>
+                        <tr>
+							<td style="font-weight: bold">Cancellation Time Window</td>
+                            <td>{{ parkingspotcategory.cancellation_time_window }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock content %}

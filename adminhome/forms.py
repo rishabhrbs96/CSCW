@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-  
+from .models import ParkingSpot, ParkingCategory
+
 class CustomUserForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
