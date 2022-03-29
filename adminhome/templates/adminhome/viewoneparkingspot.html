@@ -10,18 +10,20 @@
 			<h5 class="card-title d-flex justify-content-between align-items-center">
 				{{ parkingspot.name }}
 				<div>
-					<a href="{% url 'adminhome:viewoneparkingcategory' parkingspot.parking_category_id.id %}" class="btn btn-outline-dark me-2">
-						View Parking Category {{ parkingspot.parking_category_id }}
-					</a>
-                    <a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark me-2">
+                    <a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark m-2">
 						Edit
 					</a>
-					<a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark me-2">
+					<a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark m-2">
 						Delete
 					</a>
 				</div>
 			</h5>
-    		<h6 class="card-subtitle mb-2 text-muted">Category: {{ parkingspot.parking_category_id }}</h6>
+    		<h6 class="card-subtitle mb-2 text-muted">
+				Category: {{ parkingspot.parking_category_id }}
+				<a href="{% url 'adminhome:viewoneparkingcategory' parkingspot.parking_category_id.id %}" class="btn btn-outline-dark m-2">
+					View Parking Category {{ parkingspot.parking_category_id }}
+				</a>
+			</h6>
 			<h6 class="card-subtitle mb-2 text-muted">Active: {{ parkingspot.is_active }}</h6>
 		    <div class="card-text">
 				<table class="table table-striped">
