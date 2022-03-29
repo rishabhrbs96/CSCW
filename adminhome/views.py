@@ -35,7 +35,9 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("adminhome:edithome")
+                if (request.user.is_staff or request.user.is_superuser):
+                    return redirect("adminhome:adminhome")
+                return redirect("adminhome:index")
         else:
             messages.error(request, f"Incorrect credentials! Please try again.")
             return redirect("adminhome:signin")
@@ -53,7 +55,7 @@ def signup(request):
             messages.success(request, f"Created New Account: {username}")
             login(request, user)
             messages.info(request, f"you are now logged in as {username}")
-            return redirect("adminhome:edithome")
+            return redirect("adminhome:index")
         else:
             messages.error(request, f"Error Signing Up, Please try again")
 
@@ -143,12 +145,16 @@ def viewoneparkingcategory(request, pk):
     context["parkingcategory"] = ParkingCategory.objects.get(id = pk)
     return render(request, "adminhome/viewoneparkingcategory.html", context)
 
+def adminhome(request):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/adminhome.html")
+
 def edithome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html",
                   {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
-
 
 def doedit(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
