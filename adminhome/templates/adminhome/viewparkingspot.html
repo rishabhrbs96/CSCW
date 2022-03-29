@@ -1,15 +1,31 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">View Parking Spots</h1>
-</div>
-{% for spot in parkingspot_paginated %}
-	<div class="card">
-		{{spot.name}}
-		{{spot.parking_category_id}}
+</div> 
+
+{% for parkingspot in parkingspot_paginated %}
+	<div class="card cardhover mb-2">
+		<div class="card-body">
+			<h5 class="card-title d-flex justify-content-between align-items-center">
+				{{ parkingspot.name }}
+				<a href="{% url 'adminhome:viewoneparkingspot' parkingspot.id %}" class="btn btn-outline-dark me-2 stretched-link">
+					View Details
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
+						<path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
+					</svg>
+				</a>
+			</h5>
+			<h6 class="card-subtitle mb-2 text-muted">Category: {{ parkingspot.parking_category_id }}</h6>
+			<h6 class="card-subtitle mb-2 text-muted">Active: {{ parkingspot.is_active }}</h6>
+			<div class="card-text">
+				<!-- Details -->
+			</div>
+		</div>
 	</div>
-{% endfor %}
+{% endfor %} 
 
 {% include "adminhome/paginator.html" with paginator=parkingspot_paginated%}
 
