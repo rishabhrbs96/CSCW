@@ -136,7 +136,6 @@ def deleteparkingspot(request, pk):
 
     return render(request, "deleteparkingspot.html", context=context)
 
-
 def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -211,14 +210,6 @@ def deleteparkingcatergory(request, pk):
 
     return render(request, "deleteparkingcategory.html", context=context)
 
-
-
-
-
-
-
-
-
 def adminhome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -275,7 +266,6 @@ def doedit(request):
 
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
-
 
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
