@@ -40,13 +40,6 @@
 					<label for="{{ field.auto_id }}">{{ field.label }}</label>
 				</div>
 				{% endfor %}
-				{% if messages %}
-				<ul class="messages">
-					{% for message in messages %}
-					<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-					{% endfor %}
-				</ul>
-				{% endif %}
 				<button class="w-100 btn btn-lg btn-primary mb-2" type="submit" id="id_sign_up_button">Sign Up</button>
 				Already have an account? <a href="{% url 'adminhome:signin' %}">Sign In</a>
 			</form>
