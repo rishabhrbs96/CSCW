@@ -149,6 +149,44 @@ def viewoneparkingcategory(request, pk):
     context["parkingcategory"] = ParkingCategory.objects.get(id = pk)
     return render(request, "adminhome/viewoneparkingcategory.html", context)
 
+def updateparkingcategory(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    parkingcategory = get_object_or_404(ParkingCategory, id=pk)
+    form = ParkingCategoryForm(request.POST or None, instance=parkingcategory)
+
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(reverse('adminhome:viewoneparkingcategory', args=(form.instance.id,)))
+
+    else:
+        return render(request=request,
+                      template_name=f"adminhome/updateparkingcategory.html",
+                      context={"form": form}
+                      )
+
+
+def updateparkingspot(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    parkingspot = get_object_or_404(ParkingSpot, id=pk)
+    form = ParkingSpotForm(request.POST or None, instance=parkingspot)
+
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
+
+    else:
+        return render(request=request,
+                      template_name=f"adminhome/updateparkingspot.html",
+                      context={"form": form}
+                      )
+
+
+
+
+
+
 def adminhome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))

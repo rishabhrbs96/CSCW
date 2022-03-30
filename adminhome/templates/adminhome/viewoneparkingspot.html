@@ -10,7 +10,7 @@
 			<h5 class="card-title d-flex justify-content-between align-items-center">
 				{{ parkingspot.name }}
 				<div>
-                    <a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark m-2">
+                    <a href="{% url 'adminhome:updateparkingspot' parkingspot.id %}" class="btn btn-outline-dark m-2">
 						Edit
 					</a>
 					<a href="{% url 'adminhome:index' %}" class="btn btn-outline-dark m-2">

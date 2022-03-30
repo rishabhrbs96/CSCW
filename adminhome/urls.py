@@ -20,10 +20,12 @@ urlpatterns = [
     path('parkingspot/create/', views.createparkingspot, name='createparkingspot'),
     path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),
     path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
+    path('parkingspot/<int:pk>/edit', views.updateparkingspot, name='updateparkingspot'),
     
 
     path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
     path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),
     path('parkingcategory/<int:pk>/', views.viewoneparkingcategory, name='viewoneparkingcategory'),
+    path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

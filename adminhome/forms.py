@@ -24,10 +24,10 @@ class HomeForm(forms.Form):
 
         self.fields["about_header"] = forms.CharField(label='About Us Header', initial=extra["about"]["about_header"], widget= forms.TextInput(attrs={'class':'form-control'}))
         self.fields["about_body"] = forms.CharField(label='About Us Body', initial=extra["about"]["about_body"], widget= forms.Textarea(attrs={'class':'form-control'}))
-        
+
         self.fields["ameneties_header"] = forms.CharField(label='Ameneties Header', initial=extra["ameneties"]["ameneties_header"], widget= forms.TextInput(attrs={'class':'form-control'}))
         self.fields["ameneties_body"] = forms.CharField(label='Ameneties Body', initial=extra["ameneties"]["ameneties_body"], widget= forms.Textarea(attrs={'class':'form-control'}))
-        
+
         self.fields["phone"] = forms.CharField(label='Phone', initial=extra["contact"]["phone"], widget= forms.TextInput(attrs={'class':'form-control'}))
         self.fields["email"] = forms.CharField(label='Email', initial=extra["contact"]["email"], widget= forms.TextInput(attrs={'class':'form-control'}))
         self.fields["location"] = forms.CharField(label='Location', initial=extra["contact"]["location"], widget= forms.TextInput(attrs={'class':'form-control'}))
@@ -45,13 +45,6 @@ class ParkingCategoryForm(forms.ModelForm):
         model = ParkingCategory
         fields = "__all__"
 
-    def clean_name(self):
-        name = self.cleaned_data['name']
-        if ParkingCategory.objects.filter(name=name).exists():
-            self._errors['name'] = self.error_class(['Parking Category already exists!'])
-        return name
-
-
 class ParkingSpotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ParkingSpotForm, self).__init__(*args, **kwargs)
@@ -60,16 +53,4 @@ class ParkingSpotForm(forms.ModelForm):
         model = ParkingSpot
         fields = "__all__"
 
-    def clean(self):
-        super(ParkingSpotForm, self).clean()
 
-        name = self.cleaned_data.get('name')
-        parking_category_id = self.cleaned_data.get('parking_category_id')
-
-        if ParkingSpot.objects.filter(name=name).exists():
-            parking_spot = ParkingSpot.objects.get(name=name)
-            if parking_spot.parking_category_id == parking_category_id:
-                self._errors['name'] = self.error_class([
-                    'This Parking Spot already exists under the selected Parking Category'])
-
-        return self.cleaned_data
