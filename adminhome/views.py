@@ -59,8 +59,8 @@ def signup(request):
             return redirect("adminhome:index")
         else:
             messages.error(request, f"Error Signing Up, Please try again")
-
-    form = CustomUserCreationForm
+    else:
+        form = CustomUserCreationForm
     return render(request=request,
                   template_name="adminhome/signup.html",
                   context={"form": form})

@@ -24,6 +24,16 @@
 			<form method = "POST">
 				<h1 class="h3 mb-3 fw-normal">Please sign up</h1>
 				{% csrf_token %}
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
 				{% for field in form %}
 				<div class="form-floating">
 					{{ field }}
