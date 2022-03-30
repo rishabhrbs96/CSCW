@@ -20,3 +20,4 @@ coverage==6.3.2
 dj_database_url==0.5.0
 moto==3.1.0
 whitenoise==6.0.0
+django-filter==21.1

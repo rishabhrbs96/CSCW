@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure--ucfwqkr)$@@#aygpx(_k0x-*8ot@9)v$u@74m0p&bugqiov(8
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '.herokuapp.com'
+    '.herokuapp.com',
 ]
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'adminhome',
     # 'fontawesomefree',
     'storages',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

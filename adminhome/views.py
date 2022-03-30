@@ -19,6 +19,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .models import ParkingSpot, ParkingCategory
+from .filters import ParkingCatergoryFilter, ParkingSpotFilter
 
 def signout(request):
     if (not request.user.is_authenticated):
@@ -86,10 +87,10 @@ def createparkingspot(request):
 def viewparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    parkingspot_list = ParkingSpot.objects.all()
-    
+    parkingspot_list = ParkingSpotFilter(request.GET, queryset=ParkingSpot.objects.all())
+
     page = request.GET.get('page', 1)
-    paginator = Paginator(parkingspot_list, 2)
+    paginator = Paginator(parkingspot_list.qs, 2)
     
     try:
         parkingspot_paginated = paginator.page(page)
@@ -97,7 +98,8 @@ def viewparkingspot(request):
         parkingspot_paginated = paginator.page(1)
     except EmptyPage:
         parkingspot_paginated = paginator.page(paginator.num_pages)
-    return render(request, "adminhome/viewparkingspot.html", { 'parkingspot_paginated': parkingspot_paginated })
+    return render(request, "adminhome/viewparkingspot.html", { 'parkingspot_paginated': parkingspot_paginated ,
+                                                               'filter': parkingspot_list})
 
 def viewoneparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -159,10 +161,12 @@ def viewparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     
-    parkingcategory_list = ParkingCategory.objects.all()
+    parkingcategory_list = ParkingCatergoryFilter(request.GET, queryset=ParkingCategory.objects.all())
+
+
     
     page = request.GET.get('page', 1)
-    paginator = Paginator(parkingcategory_list, 2)
+    paginator = Paginator(parkingcategory_list.qs, 2)
     
     try:
         parkingcategory_paginated = paginator.page(page)
@@ -170,7 +174,8 @@ def viewparkingcategory(request):
         parkingcategory_paginated = paginator.page(1)
     except EmptyPage:
         parkingcategory_paginated = paginator.page(paginator.num_pages)
-    return render(request, "adminhome/viewparkingcategory.html", { 'parkingcategory_paginated': parkingcategory_paginated })
+    return render(request, "adminhome/viewparkingcategory.html", { 'parkingcategory_paginated': parkingcategory_paginated,
+                                                                   'filter': parkingcategory_list})
 
 def viewoneparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
