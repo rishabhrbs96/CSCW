@@ -38,6 +38,10 @@ body {
     border-top-right-radius: 0;
 }
 
+.form-margin {
+    margin-bottom: 10px;
+}
+
 .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;

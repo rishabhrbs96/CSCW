@@ -57,8 +57,6 @@ def signup(request):
             login(request, user)
             messages.info(request, f"you are now logged in as {username}")
             return redirect("adminhome:index")
-        else:
-            messages.error(request, f"Error Signing Up, Please try again")
     else:
         form = CustomUserCreationForm
     return render(request=request,
