@@ -2,7 +2,7 @@ import json, requests
 
 from django.http import HttpResponseRedirect
 from django.core.files import File
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
@@ -114,7 +114,11 @@ def createparkingcategory(request):
             form.save()
             return HttpResponseRedirect(reverse('adminhome:viewoneparkingcategory', args=(form.instance.id,)))
         else:
-            messages.error(request, f"Error Signing Up, Please try again")
+            return render(request=request,
+                          template_name="adminhome/createparkingcategory.html",
+                          context={"form": form})
+
+            # messages.error(request, f"Error Creating Category, Please try again")
 
     form = ParkingCategoryForm
     return render(request=request,

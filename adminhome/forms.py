@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.core.exceptions import ValidationError
+
 from .models import ParkingSpot, ParkingCategory
 
 class CustomUserForm(AuthenticationForm):
@@ -42,6 +44,14 @@ class ParkingCategoryForm(forms.ModelForm):
     class Meta:
         model = ParkingCategory
         fields = "__all__"
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        print(name)
+        if ParkingCategory.objects.filter(name=name).exists():
+            self._errors['name'] = self.error_class(['Name already exists!'])
+        return self.cleaned_data
+
 
 class ParkingSpotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
