@@ -132,7 +132,7 @@ def deleteparkingspot(request, pk):
 
     if request.method == 'POST':
         parkingspot.delete()
-        return HttpResponseRedirect(reverse("adminhome:index"))
+        return HttpResponseRedirect(reverse("adminhome:viewparkingspot"))
 
     return render(request, "deleteparkingspot.html", context=context)
 
@@ -206,7 +206,7 @@ def deleteparkingcatergory(request, pk):
 
     if request.method == 'POST':
         parkingcategory.delete()
-        return HttpResponseRedirect(reverse("adminhome:index"))
+        return HttpResponseRedirect(reverse("adminhome:viewparkingcategory"))
 
     return render(request, "deleteparkingcategory.html", context=context)
 
