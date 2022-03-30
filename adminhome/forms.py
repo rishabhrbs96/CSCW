@@ -60,3 +60,17 @@ class ParkingSpotForm(forms.ModelForm):
     class Meta:
         model = ParkingSpot
         fields = "__all__"
+
+    def clean(self):
+        super(ParkingSpotForm, self).clean()
+
+        name = self.cleaned_data.get('name')
+        parking_category_id = self.cleaned_data.get('parking_category_id')
+
+        if ParkingSpot.objects.filter(name=name).exists():
+            parking_spot = ParkingSpot.objects.get(name=name)
+            if parking_spot.parking_category_id == parking_category_id:
+                self._errors['name'] = self.error_class([
+                    'This Parking Spot already exists under the selected Parking Category'])
+
+        return self.cleaned_data

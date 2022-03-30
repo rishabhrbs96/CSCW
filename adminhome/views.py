@@ -74,7 +74,9 @@ def createparkingspot(request):
             form.save()
             return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
         else:
-            messages.error(request, f"Error Signing Up, Please try again")
+            return render(request=request,
+                          template_name="adminhome/createparkingspot.html",
+                          context={"form": form})
 
     form = ParkingSpotForm
     return render(request=request,
@@ -117,8 +119,6 @@ def createparkingcategory(request):
             return render(request=request,
                           template_name="adminhome/createparkingcategory.html",
                           context={"form": form})
-
-            # messages.error(request, f"Error Creating Category, Please try again")
 
     form = ParkingCategoryForm
     return render(request=request,
