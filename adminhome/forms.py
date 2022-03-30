@@ -47,10 +47,9 @@ class ParkingCategoryForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data['name']
-        print(name)
         if ParkingCategory.objects.filter(name=name).exists():
             self._errors['name'] = self.error_class(['Parking Category already exists!'])
-        return self.cleaned_data
+        return name
 
 
 class ParkingSpotForm(forms.ModelForm):
