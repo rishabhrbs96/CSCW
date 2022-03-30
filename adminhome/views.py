@@ -106,6 +106,37 @@ def viewoneparkingspot(request, pk):
     context["parkingspot"] = ParkingSpot.objects.get(id = pk)
     return render(request, "adminhome/viewoneparkingspot.html", context)
 
+def updateparkingspot(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    parkingspot = get_object_or_404(ParkingSpot, id=pk)
+    form = ParkingSpotForm(request.POST or None, instance=parkingspot)
+
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
+
+    else:
+        return render(request=request,
+                      template_name=f"adminhome/updateparkingspot.html",
+                      context={"form": form}
+                      )
+
+def deleteparkingspot(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    parkingspot = get_object_or_404(ParkingSpot, id=pk)
+    context["parkingspot"] = parkingspot
+
+    if request.method == 'POST':
+        parkingspot.delete()
+        return HttpResponseRedirect(reverse("adminhome:index"))
+
+    return render(request, "deleteparkingspot.html", context=context)
+
+
 def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -152,6 +183,7 @@ def viewoneparkingcategory(request, pk):
 def updateparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
+
     parkingcategory = get_object_or_404(ParkingCategory, id=pk)
     form = ParkingCategoryForm(request.POST or None, instance=parkingcategory)
 
@@ -165,22 +197,22 @@ def updateparkingcategory(request, pk):
                       context={"form": form}
                       )
 
-
-def updateparkingspot(request, pk):
+def deleteparkingcatergory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    parkingspot = get_object_or_404(ParkingSpot, id=pk)
-    form = ParkingSpotForm(request.POST or None, instance=parkingspot)
 
-    if form.is_valid():
-        form.save()
-        return HttpResponseRedirect(reverse('adminhome:viewoneparkingspot', args=(form.instance.id,)))
+    context = {}
+    parkingcategory = get_object_or_404(ParkingCategory, id=pk)
+    context["parkingcategory"] = parkingcategory
 
-    else:
-        return render(request=request,
-                      template_name=f"adminhome/updateparkingspot.html",
-                      context={"form": form}
-                      )
+    if request.method == 'POST':
+        parkingcategory.delete()
+        return HttpResponseRedirect(reverse("adminhome:index"))
+
+    return render(request, "deleteparkingcategory.html", context=context)
+
+
+
 
 
 

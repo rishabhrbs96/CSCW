@@ -21,11 +21,11 @@ urlpatterns = [
     path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),
     path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
     path('parkingspot/<int:pk>/edit', views.updateparkingspot, name='updateparkingspot'),
-    
+    path('parkingspot/<int:pk>/delete', views.deleteparkingspot, name='deleteparkingspot'),
 
     path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
     path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),
     path('parkingcategory/<int:pk>/', views.viewoneparkingcategory, name='viewoneparkingcategory'),
     path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
-    
+    path('parkingcategory/<int:pk>/delete', views.deleteparkingcatergory, name='deleteparkingcategory'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
