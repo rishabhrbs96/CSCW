@@ -12,11 +12,20 @@ urlpatterns = [
     path('signout/', views.signout, name='signout'),
     path('signup/', views.signup, name='signup'),
     
+    path('adminhome/', views.adminhome, name='adminhome'),
+
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
 
-    path('createparkingspot/', views.createparkingspot, name='createparkingspot'),
-    path('viewparkingspot/', views.viewparkingspot, name='viewparkingspot'),
-    path('createparkingspotcategory/', views.createparkingspotcategory, name='createparkingspotcategory'),
-    path('viewparkingspotcategory/', views.viewparkingspotcategory, name='viewparkingspotcategory'),
+    path('parkingspot/create/', views.createparkingspot, name='createparkingspot'),
+    path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),
+    path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
+    path('parkingspot/<int:pk>/edit', views.updateparkingspot, name='updateparkingspot'),
+    path('parkingspot/<int:pk>/delete', views.deleteparkingspot, name='deleteparkingspot'),
+
+    path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
+    path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),
+    path('parkingcategory/<int:pk>/', views.viewoneparkingcategory, name='viewoneparkingcategory'),
+    path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
+    path('parkingcategory/<int:pk>/delete', views.deleteparkingcatergory, name='deleteparkingcategory'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
