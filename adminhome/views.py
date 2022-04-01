@@ -201,7 +201,7 @@ def updateparkingcategory(request, pk):
                       context={"form": form}
                       )
 
-def deleteparkingcatergory(request, pk):
+def deleteparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 

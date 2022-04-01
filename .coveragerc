@@ -1,0 +1,5 @@
+[run]
+ omit =
+  */features/*
+  */cameron_rvpark/asgi.py
+  */cameron_rvpark/wsgi.py
