@@ -397,6 +397,7 @@ class TestParkingCategoryView(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_create_parking_category_valid(self):
+        count = ParkingCategory.objects.count()
         parking_category_data = {'name': "test",
                                 'size': '1.00',
                                 'daily_rate': '1.00',
@@ -406,16 +407,20 @@ class TestParkingCategoryView(TestCase):
                                 'is_active': True,
                                 'cancellation_penalty': '1.00',
                                 'cancellation_time_window': '1.00'}
-        request = self.factory.post('/adminhome/createparkingcategory/', parking_category_data,
-                                    content_type="application/x-www-form-urlencoded")
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        request = self.client.post(reverse('adminhome:createparkingcategory'), parking_category_data)
         request.user = self.super_user
-        response = createparkingcategory(request)
-        print(request.method)
-        print(request.POST)
-        self.assertEqual(response.status_code, 200)
-        print(response)
+
+        # response = createparkingcategory(request)
+        self.assertEqual(ParkingCategory.objects.count(), count+1)
+        self.assertRedirects(request, "/parkingcategory/")
 
     def test_create_parking_category_invalid(self):
+        count = ParkingCategory.objects.count()
+
         parking_category_data = {'name': "test",
                                 'size': '1',
                                 'daily_rate': '1',
@@ -425,13 +430,14 @@ class TestParkingCategoryView(TestCase):
                                 'is_active': True,
                                 'cancellation_penalty': '',
                                 'cancellation_time_window': '1'}
-        request = self.factory.post(reverse('adminhome:createparkingcategory'), parking_category_data)
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        request = self.client.post(reverse('adminhome:createparkingcategory'), parking_category_data)
         request.user = self.super_user
-        print(type(request.method))
-        print(request.POST)
-        response = createparkingcategory(request)
-        print(response)
-        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(ParkingCategory.objects.count(), count)
 
     def test_view_parking_category_admin(self):
 
@@ -439,17 +445,6 @@ class TestParkingCategoryView(TestCase):
         request.user = self.super_user
         response = viewparkingcategory(request)
         self.assertEqual(response.status_code, 200)
-
-
-
-
-
-
-
-
-
-
-
 
 # model Tests
 class TesetParkingSpotModel(TestCase):
@@ -468,7 +463,6 @@ class TesetParkingSpotModel(TestCase):
 
         self.assertTrue(isinstance(parking_spot, ParkingSpot))
         self.assertEqual(str(parking_spot), parking_spot.name)
-
 
 class TesetParkingCategoryModel(TestCase):
 
