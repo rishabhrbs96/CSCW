@@ -1,0 +1,31 @@
+coverage run --source="." manage.py test adminhome; coverage report
+
+Found 21 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+.....................
+----------------------------------------------------------------------
+Ran 21 tests in 6.276s
+
+OK
+Destroying test database for alias 'default'...
+Name                                   Stmts   Miss  Cover
+----------------------------------------------------------
+adminhome/__init__.py                      0      0   100%
+adminhome/admin.py                         1      0   100%
+adminhome/apps.py                          4      0   100%
+adminhome/forms.py                        28      0   100%
+adminhome/migrations/0001_initial.py       5      0   100%
+adminhome/migrations/__init__.py           0      0   100%
+adminhome/models.py                        1      0   100%
+adminhome/tests.py                       185      4    98%
+adminhome/urls.py                          4      0   100%
+adminhome/views.py                        81      5    94%
+cameron_rvpark/__init__.py                 0      0   100%
+cameron_rvpark/asgi.py                     4      4     0%
+cameron_rvpark/settings.py                24      0   100%
+cameron_rvpark/urls.py                     3      0   100%
+cameron_rvpark/wsgi.py                     4      4     0%
+manage.py                                 12      2    83%
+----------------------------------------------------------
+TOTAL                                    356     19    95%
