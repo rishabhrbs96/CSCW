@@ -40,7 +40,7 @@ def signin(request):
                 login(request, user)
                 if request.user.is_staff or request.user.is_superuser:
                     return redirect("adminhome:adminhome")
-                return redirect("adminhome:index")
+                return redirect("adminhome:userhome")
     else:
         form = CustomUserForm
     return render(request=request,
@@ -287,3 +287,10 @@ def index(request):
 
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
+
+def userhome(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+    return render(request, "adminhome/userhome.html")
