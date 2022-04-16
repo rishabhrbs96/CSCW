@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from .models import ParkingSpot, ParkingCategory
 from django.contrib.auth.models import User
 
-
 class CustomUserForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
@@ -79,3 +78,10 @@ class ParkingSpotForm(forms.ModelForm):
     class Meta:
         model = ParkingSpot
         fields = "__all__"
+
+class DatePickerInput(forms.DateInput):
+        input_type = 'date'
+
+class DateRangeForm(forms.Form):
+    start_date = forms.DateField(widget=DatePickerInput)
+    end_date = forms.DateField(widget=DatePickerInput)

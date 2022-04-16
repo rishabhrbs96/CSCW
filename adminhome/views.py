@@ -10,7 +10,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm
+    CustomUserCreationForm, DateRangeForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -315,3 +315,33 @@ def editvehicle(request):
     if (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editvehicle.html")
+
+def checkavailability(request):
+    parking_categories_all = ParkingCategory.objects.all()
+    parking_categories_available = []
+    start_date = ''
+    end_date = ''
+
+    if(request.method == "POST"):
+        start_date = request.POST['start_date']
+        end_date = request.POST['end_date']
+        for parking_category in parking_categories_all:
+            _count = 0
+            for parking_spot in parking_category.parking_spot.all():
+                bookings = parking_spot.booking.exclude(start_time__date__gt=request.POST['end_date'],).exclude(end_time__date__lt=request.POST['start_date'],)
+                if(not bookings.exists()):
+                    _count = _count + 1
+            if(_count > 0):
+                parking_categories_available.append(parking_category)
+
+    form = DateRangeForm
+    return render(
+                    request, 
+                    "adminhome/checkavailability.html", 
+                    {
+                        'parking_categories_available': parking_categories_available,
+                        'form': form,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                    }
+                )
