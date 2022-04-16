@@ -294,3 +294,24 @@ def userhome(request):
     if (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/userhome.html")
+
+def editprofile(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+    return render(request, "adminhome/user_editprofile.html")
+
+def addvehicle(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+    return render(request, "adminhome/user_addvehicle.html")
+
+def editvehicle(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+    return render(request, "adminhome/user_editvehicle.html")

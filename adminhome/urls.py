@@ -29,4 +29,8 @@ urlpatterns = [
     path('parkingcategory/<int:pk>/', views.viewoneparkingcategory, name='viewoneparkingcategory'),
     path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
     path('parkingcategory/<int:pk>/delete', views.deleteparkingcategory, name='deleteparkingcategory'),
+
+    path('userhome/editprofile', views.editprofile, name='editprofile'),
+    path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
+    path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
