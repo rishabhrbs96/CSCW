@@ -4,7 +4,9 @@
 		<div class="col-lg-6 mx-auto">
 			<p class="fs-5 mb-4">{{ metadata.about_body }}</p>
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-				<button type="button" class="btn btn-outline-light btn-lg px-4">Check Availability</button>
+				<a href="{% url 'adminhome:checkavailability' %}">
+					<button type="button" class="btn btn-outline-light btn-lg px-4">Check Availability</button>
+				</a>
 			</div>
 		</div>
 	</div>
