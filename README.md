@@ -26,7 +26,7 @@ Create admin superuser
 
 Run database migrations
 ```
- makemigrations
+ python manage.py makemigrations
  python manage.py migrate
 ```
 
