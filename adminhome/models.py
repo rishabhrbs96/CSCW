@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 class BookingStates(models.TextChoices):
     NEW = 'new', _('New Booking')
     PENDING_APPROVAL = 'pending', _('Pending Approval')
-    PENDING_LEASE = 'new', _('Pending Lease')
+    PENDING_LEASE = 'pending_lease', _('Pending Lease')
     REJECTED = 'rejected', _('Rejected Booking')
     APPROVED = 'approved', _('Approved Booking')
     CANCELED_BEFORE_LEASE = 'canceled_before_lease', _('Canceled Before Lease')
@@ -77,7 +77,7 @@ class Booking(models.Model):
     parking_spot_id = models.ForeignKey(ParkingSpot, on_delete=models.PROTECT, related_name="booking")
     start_time = models.DateTimeField(auto_now_add=False)
     end_time = models.DateTimeField(auto_now_add=False)
-    state = models.CharField(max_length=20, choices=BookingStates.choices, default=BookingStates.NEW)
+    state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
     lease_doc_url = models.CharField(max_length=100)
     lease_is_signed_by_user = models.BooleanField()
     bill_detail_id = models.ForeignKey(BillDetail, on_delete=models.PROTECT, related_name="booking")
