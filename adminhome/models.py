@@ -7,6 +7,13 @@ from django.utils.translation import gettext_lazy as _
 class BookingStates(models.TextChoices):
     NEW = 'new', _('New Booking')
     PENDING_APPROVAL = 'pending', _('Pending Approval')
+    PENDING_LEASE = 'new', _('Pending Lease')
+    REJECTED = 'rejected', _('Rejected Booking')
+    APPROVED = 'approved', _('Approved Booking')
+    CANCELED_BEFORE_LEASE = 'canceled_before_lease', _('Canceled Before Lease')
+    CANCELED = 'canceled', _('Canceled Booking')
+    PAID = 'paid', _('Paid Booking')
+    UNPAID = 'unpaid', _('Unpaid Booking')
 
 class PaymentStatus(models.TextChoices):
     PAID = 'paid', _('Paid')
