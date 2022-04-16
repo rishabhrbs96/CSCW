@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser, User
@@ -94,6 +94,7 @@ class TestDoEdit(TestCase):
             key.delete()
         bucket.delete()
 
+
 class TestEditHome(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -123,6 +124,7 @@ class TestEditHome(TestCase):
         request.user = self.super_user
         response = edithome(request)
         self.assertEqual(response.status_code, 200)
+
 
 class TestSignupView(TestCase):
     def setUp(self):
@@ -171,11 +173,12 @@ class TestSignupView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+
 class TestSigninView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username='admin', password='admin')
+        self.user = User.objects.create_user(username='admin', password='admin')
+        self.admin = User.objects.create_superuser(username='superuser', password='superuser')
 
     def test_signin_view(self):
         response = self.client.get(reverse('adminhome:signin'))
@@ -204,8 +207,28 @@ class TestSigninView(TestCase):
         setattr(request, '_messages', messages)
 
         response = signin(request)
+        response.client = Client()
+
+        self.assertRedirects(response, '/', 302)
+
+    def test_signin_success_for_admin_or_staff(self):
+        login_metadata = {"username": "superuser", "password": "superuser"}
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+
+        request = self.factory.post(reverse('adminhome:signin'), login_metadata)
+        request.user = self.admin
+
+        setattr(request, 'session', session)
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = signin(request)
+        response.client = Client()
 
         self.assertEqual(response.status_code, 302)
+        self.assertURLEqual(response.url, '/adminhome/')
 
     def test_signin_form_invalid(self):
         user_metedata = {"username": "admin", "passwor": "admin"}
@@ -220,7 +243,7 @@ class TestSigninView(TestCase):
 
         response = signin(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_signin_fail(self):
         user_metedata = {"username": "admin", "password": "wrongpassword"}
@@ -235,12 +258,14 @@ class TestSigninView(TestCase):
 
         response = signin(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestIndexView(TestCase):
     def test_index_view(self):
         response = self.client.get(reverse('adminhome:index'))
         self.assertEqual(response.status_code, 200)
+
 
 class TestCustomUserCreationForm(TestCase):
     def test_user_creation_form_correct(self):
@@ -255,6 +280,7 @@ class TestCustomUserCreationForm(TestCase):
         except Exception as e:
             self.assertEqual(type(e), TypeError)
 
+
 class TestCustomUserForm(TestCase):
     def test_user_form_correct(self):
         user_metedata = {"username": "username", "password": "password"}
@@ -268,6 +294,7 @@ class TestCustomUserForm(TestCase):
             self.fail("fail")
         except Exception as e:
             self.assertEqual(type(e), AssertionError)
+
 
 class TestHomeForm(TestCase):
     def test_home_form_correct(self):
@@ -314,6 +341,7 @@ class TestHomeForm(TestCase):
         except Exception as e:
             self.assertEqual(type(e), KeyError)
 
+
 class TestParkingCategoryForm(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -355,6 +383,7 @@ class TestParkingCategoryForm(TestCase):
                                     'cancellation_time_window': '1'})
         self.assertFalse(form.is_valid())
 
+
 class TestParkingCategoryView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -386,12 +415,12 @@ class TestParkingCategoryView(TestCase):
         request.user = self.user
         response = viewparkingcategory(request)
         self.assertEqual(response.status_code, 302)
-    
+
     def test_view_one_parking_category_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
 
-        request = self.factory.get(reverse('adminhome:viewoneparkingcategory', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:viewoneparkingcategory', kwargs={'pk': 1}))
         request.user = self.user
         response = viewoneparkingcategory(request, 1)
         self.assertEqual(response.status_code, 302)
@@ -399,15 +428,15 @@ class TestParkingCategoryView(TestCase):
     def test_update_parking_category_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
-        request = self.factory.get(reverse('adminhome:updateparkingcategory', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:updateparkingcategory', kwargs={'pk': 1}))
         request.user = self.user
         response = updateparkingcategory(request, 1)
         self.assertEqual(response.status_code, 302)
-    
+
     def test_delete_parking_category_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
-        request = self.factory.get(reverse('adminhome:deleteparkingcategory', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:deleteparkingcategory', kwargs={'pk': 1}))
         request.user = self.user
         response = deleteparkingcategory(request, 1)
         self.assertEqual(response.status_code, 302)
@@ -421,15 +450,15 @@ class TestParkingCategoryView(TestCase):
 
     def test_view_one_parking_category_admin(self):
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.get(reverse('adminhome:viewoneparkingcategory', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:viewoneparkingcategory', kwargs={'pk': 1}))
         request.user = self.super_user
         response = viewoneparkingcategory(request, 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-    
+
     def test_delete_parking_category_admin_render(self):
         # not an admin user
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.get(reverse('adminhome:deleteparkingcategory', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:deleteparkingcategory', kwargs={'pk': 1}))
         request.user = self.super_user
         response = deleteparkingcategory(request, 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -440,13 +469,13 @@ class TestParkingCategoryView(TestCase):
         session['somekey'] = 'test'
         session.save()
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.post(reverse('adminhome:deleteparkingcategory', kwargs={'pk':1}))
+        request = self.factory.post(reverse('adminhome:deleteparkingcategory', kwargs={'pk': 1}))
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
-        
+
         request.user = self.super_user
         response = deleteparkingcategory(request, 1)
-        
+
         self.assertEqual(response.status_code, 302)
 
     def test_create_parking_category_admin_render(self):
@@ -460,14 +489,14 @@ class TestParkingCategoryView(TestCase):
         ParkingCategory.objects.all().delete()
         count = ParkingCategory.objects.count()
         parking_category_data = {'name': "test",
-                                'size': '1.00',
-                                'daily_rate': '1.00',
-                                'weekly_rate': '1.00',
-                                'monthly_rate': '1.00',
-                                'utility_conversion_rate': '1.00',
-                                'is_active': True,
-                                'cancellation_penalty': '1.00',
-                                'cancellation_time_window': '1.00'}
+                                 'size': '1.00',
+                                 'daily_rate': '1.00',
+                                 'weekly_rate': '1.00',
+                                 'monthly_rate': '1.00',
+                                 'utility_conversion_rate': '1.00',
+                                 'is_active': True,
+                                 'cancellation_penalty': '1.00',
+                                 'cancellation_time_window': '1.00'}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -477,7 +506,7 @@ class TestParkingCategoryView(TestCase):
         setattr(request, 'session', session)
         request.user = self.super_user
 
-        self.assertEqual(ParkingCategory.objects.count(), count+1)
+        self.assertEqual(ParkingCategory.objects.count(), count + 1)
         self.assertEqual(request.url, "/parkingcategory/2/")
         ParkingCategory.objects.all().delete()
 
@@ -485,14 +514,14 @@ class TestParkingCategoryView(TestCase):
         count = ParkingCategory.objects.count()
 
         parking_category_data = {'name': "test",
-                                'size': '1',
-                                'daily_rate': '1',
-                                'weekly_rate': '1',
-                                'monthly_rate': '1',
-                                'utility_conversion_rate': '1',
-                                'is_active': True,
-                                'cancellation_penalty': '',
-                                'cancellation_time_window': '1'}
+                                 'size': '1',
+                                 'daily_rate': '1',
+                                 'weekly_rate': '1',
+                                 'monthly_rate': '1',
+                                 'utility_conversion_rate': '1',
+                                 'is_active': True,
+                                 'cancellation_penalty': '',
+                                 'cancellation_time_window': '1'}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -505,14 +534,14 @@ class TestParkingCategoryView(TestCase):
     def test_update_parking_category_valid(self):
         ParkingCategory.objects.all().delete()
         parking_category_data = {'name': "test",
-                                'size': '1.00',
-                                'daily_rate': '1.00',
-                                'weekly_rate': '1.00',
-                                'monthly_rate': '1.00',
-                                'utility_conversion_rate': '1.00',
-                                'is_active': True,
-                                'cancellation_penalty': '1.00',
-                                'cancellation_time_window': '1.00'}
+                                 'size': '1.00',
+                                 'daily_rate': '1.00',
+                                 'weekly_rate': '1.00',
+                                 'monthly_rate': '1.00',
+                                 'utility_conversion_rate': '1.00',
+                                 'is_active': True,
+                                 'cancellation_penalty': '1.00',
+                                 'cancellation_time_window': '1.00'}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -523,16 +552,16 @@ class TestParkingCategoryView(TestCase):
         request.user = self.super_user
 
         parking_category_data = {'name': "test2",
-                                'size': '2.00',
-                                'daily_rate': '1.00',
-                                'weekly_rate': '1.00',
-                                'monthly_rate': '1.00',
-                                'utility_conversion_rate': '1.00',
-                                'is_active': True,
-                                'cancellation_penalty': '1.00',
-                                'cancellation_time_window': '1.00'}
+                                 'size': '2.00',
+                                 'daily_rate': '1.00',
+                                 'weekly_rate': '1.00',
+                                 'monthly_rate': '1.00',
+                                 'utility_conversion_rate': '1.00',
+                                 'is_active': True,
+                                 'cancellation_penalty': '1.00',
+                                 'cancellation_time_window': '1.00'}
 
-        request = self.factory.post(reverse('adminhome:updateparkingcategory', kwargs={'pk':2}), parking_category_data)
+        request = self.factory.post(reverse('adminhome:updateparkingcategory', kwargs={'pk': 2}), parking_category_data)
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
         request.user = self.super_user
@@ -541,18 +570,18 @@ class TestParkingCategoryView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/parkingcategory/2/")
         ParkingCategory.objects.all().delete()
-    
+
     def test_update_parking_category_invalid(self):
         ParkingCategory.objects.all().delete()
         parking_category_data = {'name': "test",
-                                'size': '1.00',
-                                'daily_rate': '1.00',
-                                'weekly_rate': '1.00',
-                                'monthly_rate': '1.00',
-                                'utility_conversion_rate': '1.00',
-                                'is_active': True,
-                                'cancellation_penalty': '1.00',
-                                'cancellation_time_window': '1.00'}
+                                 'size': '1.00',
+                                 'daily_rate': '1.00',
+                                 'weekly_rate': '1.00',
+                                 'monthly_rate': '1.00',
+                                 'utility_conversion_rate': '1.00',
+                                 'is_active': True,
+                                 'cancellation_penalty': '1.00',
+                                 'cancellation_time_window': '1.00'}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -563,16 +592,16 @@ class TestParkingCategoryView(TestCase):
         request.user = self.super_user
 
         parking_category_data = {'name': "test2",
-                                'size': '2.00',
-                                'daily_rate': '1.00',
-                                'weekly_rate': '1.00',
-                                'monthly_rate': '1.00',
-                                'utility_conversion_rate': '1.00',
-                                'is_active': True,
-                                'cancellation_penalty': '',
-                                'cancellation_time_window': '1.00'}
+                                 'size': '2.00',
+                                 'daily_rate': '1.00',
+                                 'weekly_rate': '1.00',
+                                 'monthly_rate': '1.00',
+                                 'utility_conversion_rate': '1.00',
+                                 'is_active': True,
+                                 'cancellation_penalty': '',
+                                 'cancellation_time_window': '1.00'}
 
-        request = self.factory.post(reverse('adminhome:updateparkingcategory', kwargs={'pk':2}), parking_category_data)
+        request = self.factory.post(reverse('adminhome:updateparkingcategory', kwargs={'pk': 2}), parking_category_data)
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
         request.user = self.super_user
@@ -580,6 +609,7 @@ class TestParkingCategoryView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         ParkingCategory.objects.all().delete()
+
 
 class TestParkingSpotView(TestCase):
     def setUp(self):
@@ -614,12 +644,12 @@ class TestParkingSpotView(TestCase):
         request.user = self.user
         response = viewparkingspot(request)
         self.assertEqual(response.status_code, 302)
-    
+
     def test_view_one_parking_spot_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
 
-        request = self.factory.get(reverse('adminhome:viewoneparkingspot', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:viewoneparkingspot', kwargs={'pk': 1}))
         request.user = self.user
         response = viewoneparkingspot(request, 1)
         self.assertEqual(response.status_code, 302)
@@ -627,15 +657,15 @@ class TestParkingSpotView(TestCase):
     def test_update_parking_spot_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
-        request = self.factory.get(reverse('adminhome:updateparkingspot', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:updateparkingspot', kwargs={'pk': 1}))
         request.user = self.user
         response = updateparkingspot(request, 1)
         self.assertEqual(response.status_code, 302)
-    
+
     def test_delete_parking_spot_not_admin(self):
         # not an admin user
         self.client.login(username='user', password='pass')
-        request = self.factory.get(reverse('adminhome:deleteparkingspot', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:deleteparkingspot', kwargs={'pk': 1}))
         request.user = self.user
         response = deleteparkingspot(request, 1)
         self.assertEqual(response.status_code, 302)
@@ -649,15 +679,15 @@ class TestParkingSpotView(TestCase):
 
     def test_view_one_parking_spot_admin(self):
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.get(reverse('adminhome:viewoneparkingspot', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:viewoneparkingspot', kwargs={'pk': 1}))
         request.user = self.super_user
         response = viewoneparkingspot(request, 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-    
+
     def test_delete_parking_spot_admin_render(self):
         # not an admin user
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.get(reverse('adminhome:deleteparkingspot', kwargs={'pk':1}))
+        request = self.factory.get(reverse('adminhome:deleteparkingspot', kwargs={'pk': 1}))
         request.user = self.super_user
         response = deleteparkingspot(request, 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -668,13 +698,13 @@ class TestParkingSpotView(TestCase):
         session['somekey'] = 'test'
         session.save()
         self.client.login(username='useradmin', password='passadmin')
-        request = self.factory.post(reverse('adminhome:deleteparkingspot', kwargs={'pk':1}))
+        request = self.factory.post(reverse('adminhome:deleteparkingspot', kwargs={'pk': 1}))
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
-        
+
         request.user = self.super_user
         response = deleteparkingspot(request, 1)
-        
+
         self.assertEqual(response.status_code, 302)
 
     def test_create_parking_spot_admin_render(self):
@@ -688,8 +718,8 @@ class TestParkingSpotView(TestCase):
         ParkingSpot.objects.all().delete()
         count = ParkingSpot.objects.count()
         parking_spot_data = {'name': "test_spot_2",
-                                'parking_category_id': '1',
-                                'is_active': True}
+                             'parking_category_id': '1',
+                             'is_active': True}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -699,15 +729,15 @@ class TestParkingSpotView(TestCase):
         setattr(request, 'session', session)
         request.user = self.super_user
 
-        self.assertEqual(ParkingSpot.objects.count(), count+1)
+        self.assertEqual(ParkingSpot.objects.count(), count + 1)
         ParkingSpot.objects.all().delete()
 
     def test_create_parking_spot_invalid(self):
         count = ParkingSpot.objects.count()
 
         parking_spot_data = {'name': "test_spot_2",
-                                'parking_category_id': '',
-                                'is_active': True}
+                             'parking_category_id': '',
+                             'is_active': True}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -720,8 +750,8 @@ class TestParkingSpotView(TestCase):
     def test_update_parking_spot_valid(self):
         ParkingSpot.objects.all().delete()
         parking_spot_data = {'name': "test_spot_2",
-                                'parking_category_id': '1',
-                                'is_active': True}
+                             'parking_category_id': '1',
+                             'is_active': True}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -732,10 +762,10 @@ class TestParkingSpotView(TestCase):
         request.user = self.super_user
 
         parking_spot_data = {'name': "test_spot_3",
-                                'parking_category_id': '1',
-                                'is_active': True}
+                             'parking_category_id': '1',
+                             'is_active': True}
 
-        request = self.factory.post(reverse('adminhome:updateparkingspot', kwargs={'pk':2}), parking_spot_data)
+        request = self.factory.post(reverse('adminhome:updateparkingspot', kwargs={'pk': 2}), parking_spot_data)
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
         request.user = self.super_user
@@ -744,12 +774,12 @@ class TestParkingSpotView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/parkingspot/2/")
         ParkingSpot.objects.all().delete()
-    
+
     def test_update_parking_spot_invalid(self):
         ParkingSpot.objects.all().delete()
         parking_spot_data = {'name': "test_spot_2",
-                                'parking_category_id': '1',
-                                'is_active': True}
+                             'parking_category_id': '1',
+                             'is_active': True}
         session = self.client.session
         session['somekey'] = 'test'
         session.save()
@@ -760,10 +790,10 @@ class TestParkingSpotView(TestCase):
         request.user = self.super_user
 
         parking_spot_data = {'name': "test_spot_2",
-                                'parking_category_id': '',
-                                'is_active': True}
+                             'parking_category_id': '',
+                             'is_active': True}
 
-        request = self.factory.post(reverse('adminhome:updateparkingspot', kwargs={'pk':2}), parking_spot_data)
+        request = self.factory.post(reverse('adminhome:updateparkingspot', kwargs={'pk': 2}), parking_spot_data)
         setattr(request, 'method', 'POST')
         setattr(request, 'session', session)
         request.user = self.super_user
@@ -771,6 +801,7 @@ class TestParkingSpotView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         ParkingSpot.objects.all().delete()
+
 
 # model Tests
 class TesetParkingSpotModel(TestCase):
@@ -789,6 +820,7 @@ class TesetParkingSpotModel(TestCase):
 
         self.assertTrue(isinstance(parking_spot, ParkingSpot))
         self.assertEqual(str(parking_spot), parking_spot.name)
+
 
 class TesetParkingCategoryModel(TestCase):
 

@@ -21,11 +21,13 @@ from django.contrib import messages
 from .models import ParkingSpot, ParkingCategory
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter
 
+
 def signout(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     logout(request)
     return redirect("adminhome:index")
+
 
 def signin(request):
     if request.method == "POST":
@@ -36,16 +38,15 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                if (request.user.is_staff or request.user.is_superuser):
+                if request.user.is_staff or request.user.is_superuser:
                     return redirect("adminhome:adminhome")
                 return redirect("adminhome:index")
-        else:
-            messages.error(request, f"Incorrect credentials! Please try again.")
-            return redirect("adminhome:signin")
-    form = CustomUserForm
+    else:
+        form = CustomUserForm
     return render(request=request,
                   template_name="adminhome/signin.html",
                   context={"form": form})
+
 
 def signup(request):
     if request.method == "POST":
@@ -57,13 +58,12 @@ def signup(request):
             login(request, user)
             messages.info(request, f"you are now logged in as {username}")
             return redirect("adminhome:index")
-        else:
-            messages.error(request, f"Error Signing Up, Please try again")
-
-    form = CustomUserCreationForm
+    else:
+        form = CustomUserCreationForm
     return render(request=request,
                   template_name="adminhome/signup.html",
                   context={"form": form})
+
 
 def createparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -84,6 +84,7 @@ def createparkingspot(request):
                   template_name="adminhome/createparkingspot.html",
                   context={"form": form})
 
+
 def viewparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -91,22 +92,24 @@ def viewparkingspot(request):
 
     page = request.GET.get('page', 1)
     paginator = Paginator(parkingspot_list.qs, 2)
-    
+
     try:
         parkingspot_paginated = paginator.page(page)
     except PageNotAnInteger:
         parkingspot_paginated = paginator.page(1)
     except EmptyPage:
         parkingspot_paginated = paginator.page(paginator.num_pages)
-    return render(request, "adminhome/viewparkingspot.html", { 'parkingspot_paginated': parkingspot_paginated ,
-                                                               'filter': parkingspot_list})
+    return render(request, "adminhome/viewparkingspot.html", {'parkingspot_paginated': parkingspot_paginated,
+                                                              'filter': parkingspot_list})
+
 
 def viewoneparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     context = {}
-    context["parkingspot"] = ParkingSpot.objects.get(id = pk)
+    context["parkingspot"] = ParkingSpot.objects.get(id=pk)
     return render(request, "adminhome/viewoneparkingspot.html", context)
+
 
 def updateparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -124,6 +127,7 @@ def updateparkingspot(request, pk):
                       context={"form": form}
                       )
 
+
 def deleteparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -137,6 +141,7 @@ def deleteparkingspot(request, pk):
         return HttpResponseRedirect(reverse("adminhome:viewparkingspot"))
 
     return render(request, "deleteparkingspot.html", context=context)
+
 
 def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -157,32 +162,34 @@ def createparkingcategory(request):
                   template_name="adminhome/createparkingcategory.html",
                   context={"form": form})
 
+
 def viewparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    
+
     parkingcategory_list = ParkingCatergoryFilter(request.GET, queryset=ParkingCategory.objects.all())
 
-
-    
     page = request.GET.get('page', 1)
     paginator = Paginator(parkingcategory_list.qs, 2)
-    
+
     try:
         parkingcategory_paginated = paginator.page(page)
     except PageNotAnInteger:
         parkingcategory_paginated = paginator.page(1)
     except EmptyPage:
         parkingcategory_paginated = paginator.page(paginator.num_pages)
-    return render(request, "adminhome/viewparkingcategory.html", { 'parkingcategory_paginated': parkingcategory_paginated,
-                                                                   'filter': parkingcategory_list})
+    return render(request, "adminhome/viewparkingcategory.html",
+                  {'parkingcategory_paginated': parkingcategory_paginated,
+                   'filter': parkingcategory_list})
+
 
 def viewoneparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    context ={}
-    context["parkingcategory"] = ParkingCategory.objects.get(id = pk)
+    context = {}
+    context["parkingcategory"] = ParkingCategory.objects.get(id=pk)
     return render(request, "adminhome/viewoneparkingcategory.html", context)
+
 
 def updateparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -201,6 +208,7 @@ def updateparkingcategory(request, pk):
                       context={"form": form}
                       )
 
+
 def deleteparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -215,16 +223,19 @@ def deleteparkingcategory(request, pk):
 
     return render(request, "deleteparkingcategory.html", context=context)
 
+
 def adminhome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/adminhome.html")
+
 
 def edithome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html",
                   {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
+
 
 def doedit(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -269,8 +280,10 @@ def doedit(request):
 
     return HttpResponseRedirect(reverse('adminhome:edithome'))
 
+
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
+
 
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
