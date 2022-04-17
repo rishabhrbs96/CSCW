@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
+    path('assignslots/', views.assignslots, name='assignslots'),
 
     path('parkingspot/create/', views.createparkingspot, name='createparkingspot'),
     path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),

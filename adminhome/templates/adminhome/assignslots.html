@@ -1,0 +1,19 @@
+{% extends "admin_base.html" %}
+
+</style>
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">Admin Home Page - Welcome {{ user }}</h1>
+</div>
+<div style="overflow-y:auto; height:70vh;">
+  {% for k, v in pc.items %}
+    <p>{{ k }}</p>
+    <div class="progress" style="height: 20px;">
+      {% for k2, v2 in v.items %}
+        <div onclick="location.href='google.com';" class="progress-bar bg-danger myBox" role="progressbar" style="width: {{ v2.wd }}%; cursor: pointer;" aria-valuenow="{{ v2.wd }}" aria-valuemin="0" aria-valuemax="100">{{ k2 }}</div>
+        <div class="progress-bar bg-black" role="progressbar" style="width: 0.1%"></div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock content %}
