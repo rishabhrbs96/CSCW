@@ -63,7 +63,7 @@ class Vehicle(models.Model):
     color = models.CharField(max_length=50)
     insurance_doc = models.FileField(upload_to='insurance/')
     is_verified = models.BooleanField(default=False)
-    insurance_expiry_date = models.DateTimeField()
+    insurance_expiry_date = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.name
