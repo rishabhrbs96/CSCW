@@ -1,4 +1,3 @@
-from attr import fields
 import django_filters
 from .models import  ParkingCategory, ParkingSpot, Booking
 
