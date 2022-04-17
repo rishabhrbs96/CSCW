@@ -11,6 +11,10 @@ from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
+from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
+    CustomUserCreationForm, VehicleForm
+import boto3
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -410,12 +414,27 @@ def editprofile(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editprofile.html")
 
+
 def addvehicle(request):
-    if (not request.user.is_authenticated):
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_addvehicle.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = VehicleForm(request.POST, request.FILES)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            vehicle.user_id_id = request.user.id
+            vehicle.insurance_doc.name = '{}'.format(vehicle.uuid)
+            vehicle.save()
+            return HttpResponseRedirect(reverse('adminhome:userhome'))
+    else:
+        form = VehicleForm
+    return render(request=request,
+                  template_name="adminhome/user_addvehicle.html",
+                  context={"form": form})
 
 def editvehicle(request):
     if (not request.user.is_authenticated):
