@@ -415,6 +415,19 @@ def editprofile(request):
     return render(request, "adminhome/user_editprofile.html")
 
 
+def viewprofile(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    user = request.user
+    vehicles = user.vehicle_set.all()
+
+    return render(request, "adminhome/user_viewprofile.html", {'user': user, 'vehicles': vehicles})
+
+
 def addvehicle(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
