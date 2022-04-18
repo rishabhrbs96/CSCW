@@ -92,6 +92,7 @@ class BookingForm(forms.ModelForm):
 
     class Meta:
         model = Booking
+        fields = "__all__"
 
 class VehicleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
