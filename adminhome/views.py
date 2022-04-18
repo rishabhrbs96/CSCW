@@ -1,5 +1,6 @@
-import json, requests
-from datetime import datetime
+import json, requests, datetime, boto3
+
+from django.template import context
 
 from django.http import HttpResponseRedirect
 from django.core.files import File
@@ -11,7 +12,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, DateRangeForm
+    CustomUserCreationForm, VehicleForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -19,9 +20,16 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from .models import ParkingSpot, ParkingCategory
-from .filters import ParkingCatergoryFilter, ParkingSpotFilter
 
+from .models import Booking, ParkingSpot, ParkingCategory
+from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
+from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
+                   CustomUserCreationForm, DateRangeForm
+
+
+################################################################################################################
+#                                       USER AUTHENTICATION                                                    #
+################################################################################################################
 
 def signout(request):
     if (not request.user.is_authenticated):
@@ -65,6 +73,10 @@ def signup(request):
                   template_name="adminhome/signup.html",
                   context={"form": form})
 
+
+################################################################################################################
+#                                           PARKING SPOT                                                       #
+################################################################################################################
 
 def createparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -143,6 +155,10 @@ def deleteparkingspot(request, pk):
 
     return render(request, "deleteparkingspot.html", context=context)
 
+
+################################################################################################################
+#                                       PARKING CATEGORY                                                       #
+################################################################################################################
 
 def createparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -225,6 +241,101 @@ def deleteparkingcategory(request, pk):
     return render(request, "deleteparkingcategory.html", context=context)
 
 
+################################################################################################################
+#                                           BOOKINGS                                                           #
+################################################################################################################
+
+def viewupcomingbookings(request):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    
+    upcoming_bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+
+    page = request.GET.get('page', 1)    
+    paginator = Paginator(upcoming_bookings_list.qs, 2)
+
+    try:
+        upcoming_bookings_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        upcoming_bookings_paginated = paginator.page(1)
+    except EmptyPage:
+        upcoming_bookings_paginated = paginator.page(paginator.num_pages)
+    
+    return render(request, "adminhome/viewupcomingbookings.html", {'upcoming_booking_paginated': upcoming_bookings_paginated,
+                                                                    'filter': upcoming_bookings_list})
+
+
+def viewonebooking(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    context["booking"] = Booking.objects.get(id=pk)
+    return render(request, "adminhome/viewonebooking.html", context)
+
+
+def updateupcomingbooking(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    
+    booking = get_object_or_404(Booking, id=pk)
+    form = BookingForm(request.POST or None, instance=booking)
+
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
+    else:
+        return render(request=request, template_name="adminhome/updateupcomingbooking.html", context={"form": form})
+
+
+def deleteupcomingbooking(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    booking = get_object_or_404(Booking, id=pk)
+    context["booking"] = booking
+
+    if request.method == 'POST':
+        booking.delete()
+        return HttpResponseRedirect(reverse("adminhome:viewupcomingbookings"))
+
+    return render(request, "deleteupcomingbooking.html", context=context)
+
+
+def viewpreviousbookings(request):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(previous_bookings_list.qs, 2)
+
+    try:
+        previous_bookings_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        previous_bookings_paginated = paginator.page(1)
+    except EmptyPage:
+        previous_bookings_paginated = paginator.page(paginator.num_pages)
+
+    return render(request, "adminhome/viewpreviousbookings.html", {'previous_booking_paginated': previous_bookings_paginated,
+                                                                    'filter': previous_bookings_list})
+
+
+def viewoneprevbooking(request, pk):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    context["booking"] = Booking.objects.get(id=pk)
+    return render(request, "adminhome/viewoneprevbooking.html", context)
+
+
+################################################################################################################
+#                                       ADMIN HOME                                                             #
+################################################################################################################
+
 def adminhome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -303,12 +414,40 @@ def editprofile(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editprofile.html")
 
-def addvehicle(request):
-    if (not request.user.is_authenticated):
+
+def viewprofile(request):
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_addvehicle.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    user = request.user
+    vehicles = user.vehicle_set.all()
+
+    return render(request, "adminhome/user_viewprofile.html", {'user': user, 'vehicles': vehicles})
+
+
+def addvehicle(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = VehicleForm(request.POST, request.FILES)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            vehicle.user_id_id = request.user.id
+            vehicle.insurance_doc.name = '{}'.format(vehicle.uuid)
+            vehicle.save()
+            return HttpResponseRedirect(reverse('adminhome:userhome'))
+    else:
+        form = VehicleForm
+    return render(request=request,
+                  template_name="adminhome/user_addvehicle.html",
+                  context={"form": form})
 
 def editvehicle(request):
     if (not request.user.is_authenticated):

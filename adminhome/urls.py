@@ -33,7 +33,16 @@ urlpatterns = [
     path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
     path('parkingcategory/<int:pk>/delete', views.deleteparkingcategory, name='deleteparkingcategory'),
 
+    path('upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
+    path('upcomingbookings/<int:pk>/', views.viewonebooking, name='viewonebooking'),
+    path('upcomingbookings/<int:pk>/edit', views.updateupcomingbooking, name='updateupcomingbooking'),
+    path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
+    path('previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
+    path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
+
     path('userhome/editprofile', views.editprofile, name='editprofile'),
+    path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
+
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

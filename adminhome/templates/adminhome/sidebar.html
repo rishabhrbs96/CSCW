@@ -6,8 +6,10 @@
       	</button>
     	</h2>
     	<div id="flush-collapseUpcomingBookings" class="accordion-collapse collapse" aria-labelledby="flush-upcomingBookings" data-bs-parent="#sidebarAccordion">
-      		<div class="accordion-body">
-				Upcoming Bookings Items
+      	<div class="accordion-body">
+				<a class="nav-link" href="{% url 'adminhome:viewupcomingbookings' %}">
+					Upcoming Bookings Items
+				</a>
 			</div>
     	</div>
   	</div>
@@ -19,7 +21,9 @@
     	</h2>
     	<div id="flush-collapsePreviousBookings" class="accordion-collapse collapse" aria-labelledby="flush-previousBookings" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
-				Previous Bookings Items
+					<a class="nav-link" href="{% url 'adminhome:viewpreviousbookings' %}">
+						Previous Bookings Items
+					</a>
 			</div>
     	</div>
   	</div>
