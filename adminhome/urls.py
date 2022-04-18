@@ -44,4 +44,6 @@ urlpatterns = [
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
+    path('adminhome/verifyvehicle/<int:pk>/', views.verifyvehicle, name='verifyvehicle'),
+    path('adminhome/unverifiedvehicles', views.unverifiedvehicles, name='unverifiedvehicles'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
