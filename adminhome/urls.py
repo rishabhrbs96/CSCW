@@ -40,6 +40,8 @@ urlpatterns = [
     path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
+    path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
+
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

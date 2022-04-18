@@ -1,3 +1,6 @@
+import uuid
+
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -50,7 +53,17 @@ class ParkingSpot(models.Model):
         return self.name
 
 class Vehicle(models.Model):
-    name = models.CharField(max_length=200, unique=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, unique=True)
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE)
+    make = models.CharField(max_length=50)
+    model = models.CharField(max_length=50)
+    build = models.CharField(max_length=50)
+    color = models.CharField(max_length=50)
+    insurance_doc = models.FileField(upload_to='insurance/')
+    is_verified = models.BooleanField(default=False)
+    insurance_expiry_date = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.name

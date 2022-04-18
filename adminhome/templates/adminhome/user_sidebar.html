@@ -31,6 +31,11 @@
     	<div id="flush-collapseProfile" class="accordion-collapse collapse" aria-labelledby="flush-profile" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
 				<ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+						<a class="nav-link" href="{% url 'adminhome:viewprofile' %}">
+							View Profile
+						</a>
+					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="{% url 'adminhome:editprofile' %}">
 							Edit Profile

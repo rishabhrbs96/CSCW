@@ -1,0 +1,23 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">Profile</h1>
+</div>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h2 class="h2">Vehicles</h2>
+</div>
+{% for vehicle in vehicles %}
+	<div class="card cardhover mb-2">
+		<div class="card-body">
+			<h5 class="card-title d-flex justify-content-between align-items-center">
+				{{ vehicle.name }}
+			</h5>
+            <h6 class="card-subtitle mb-2 text-muted"><a href={{ vehicle.insurance_doc.url }}> Insurance Doc</a></h6>
+			<h6 class="card-subtitle mb-2 text-muted">Verified: {{ vehicle.is_verified }}</h6>
+		</div>
+	</div>
+{% endfor %}
+
+{% endblock content %}

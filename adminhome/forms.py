@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.core.exceptions import ValidationError
-from .models import ParkingSpot, ParkingCategory, Booking
+from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
 from django.contrib.auth.models import User
 
 class CustomUserForm(AuthenticationForm):
@@ -79,6 +78,7 @@ class ParkingSpotForm(forms.ModelForm):
         model = ParkingSpot
         fields = "__all__"
 
+
 class DatePickerInput(forms.DateInput):
         input_type = 'date'
 
@@ -93,3 +93,11 @@ class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
         fields = "__all__"
+
+class VehicleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VehicleForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Vehicle
+        fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
