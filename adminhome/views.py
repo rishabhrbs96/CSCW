@@ -21,7 +21,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, DateRangeForm
@@ -449,12 +449,14 @@ def addvehicle(request):
                   template_name="adminhome/user_addvehicle.html",
                   context={"form": form})
 
+
 def editvehicle(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     if (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editvehicle.html")
+
 
 def checkavailability(request):
     parking_categories_all = ParkingCategory.objects.all()
@@ -465,6 +467,7 @@ def checkavailability(request):
     if(request.method == "POST"):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
+
         for parking_category in parking_categories_all:
             _count = 0
             for parking_spot in parking_category.parking_spot.all():
@@ -485,3 +488,44 @@ def checkavailability(request):
                         'end_date': end_date,
                     }
                 )
+
+
+def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    # Obtain a list of the user's vehicles.
+    vehicles_list = Vehicle.objects.all()
+    user_vehicles = []
+    for vehicle in vehicles_list:
+        if(vehicle.user_id == request.user):
+            user_vehicles.append(vehicle)
+
+    return render(  request,
+
+                    "adminhome/booking_pick_vehicle.html",
+                    {
+                        'user_vehicles': user_vehicles,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'parking_category_id': parking_category_id,
+                    }
+                 )
+
+
+def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
+    vehicle = Vehicle.objects.get(id=vehicle_id)
+    pc = ParkingCategory.objects.get(id=parking_category_id)
+    booking_obj = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date, end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
+
+    if(request.method == "POST"):
+        booking_obj.save()
+        return render(request, "adminhome/userhome.html")
+
+    return render(
+                    request,
+                    "adminhome/bookingconfirmation.html",
+                    {'booking': booking_obj}
+                 )

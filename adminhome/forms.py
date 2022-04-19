@@ -101,3 +101,4 @@ class VehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
         fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
+
