@@ -19,7 +19,6 @@ urlpatterns = [
 
     path('edithome/', views.edithome, name='edithome'),
     path('doedit/', views.doedit, name='doedit'),
-    path('assignslots/', views.assignslots, name='assignslots'),
 
     path('parkingspot/create/', views.createparkingspot, name='createparkingspot'),
     path('parkingspot/', views.viewparkingspot, name='viewparkingspot'),
@@ -39,6 +38,7 @@ urlpatterns = [
     path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
     path('previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
     path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
+    path('bookings/<int:pk>/assignslot/', views.assignslot, name='assignslot'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),

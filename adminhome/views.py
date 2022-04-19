@@ -519,94 +519,38 @@ def checkavailability(request):
                     }
                 )
 
-def assignslots(request):
+def assignslot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    booking = {
-        'start_date' : '2022-04-01',
-        'end_date' : '2022-04-20'
-    }
-
-    parking_category = {
-        'parking_spot' : {
-            'booking1' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-10'
-            },
-            'booking2' : {
-                'start_date': '2022-04-15',
-                'end_date': '2022-04-20'
-            },
-        },
-        'parking_spot2' : {
-            'booking3' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-07'
-            },
-            'booking4' : {
-                'start_date': '2022-04-13',
-                'end_date': '2022-04-20'
-            },
-        }
-    }
-
-    parking_category2 = {
-        'parking_spot' : {
-            'booking1' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-10'
-            },
-            'booking2' : {
-                'start_date': '2022-04-15',
-                'end_date': '2022-04-20'
-            },
-        },
-        # 'parking_spot2' : {
-        #     'booking3' : {
-        #         'start_date': '2022-04-01',
-        #         'end_date': '2022-04-07'
-        #     },
-        #     'booking4' : {
-        #         'start_date': '2022-04-13',
-        #         'end_date': '2022-04-20'
-        #     },
-        # }
-    }
+    current_booking = Booking.objects.get(id=pk)
     
     pc = {}
 
-    date_format = "%Y-%m-%d"
-    start_date = datetime.strptime(booking['start_date'], date_format)
-    end_date = datetime.strptime(booking['end_date'], date_format)
-    twd = (end_date - start_date).days + 1
+    twd = (current_booking.end_time - current_booking.start_time).days
     
-    # for i in range(101):
-    #     for ps in parking_category2:
-    #         pc[ps + str(i)] = {}
-    #         for bs in parking_category[ps]:
-    #             pc[ps + str(i)][bs] = {}
-    #             b = parking_category[ps][bs]
-    #             start_date = datetime.strptime(b['start_date'], date_format)
-    #             end_date = datetime.strptime(b['end_date'], date_format)
-    #             wd = (end_date - start_date).days + 1
-    #             pc[ps + str(i)][bs]['wd'] = (100*wd)/twd
-    #             pc[ps + str(i)][bs]['mk'] = True
+    print(current_booking.start_time)
+    print(current_booking.end_time)
+    print(twd)
     
-    for ps in parking_category:
-        pc[ps] = {}
-        for bs in parking_category[ps]:
-            pc[ps][bs] = {}
-            b = parking_category[ps][bs]
-            start_date = datetime.strptime(b['start_date'], date_format)
-            end_date = datetime.strptime(b['end_date'], date_format)
-            wd = (end_date - start_date).days + 1
-            print(b)
-            print(wd)
-            print(wd/twd)
-            pc[ps][bs]['wd'] = (100*wd)/twd
-            pc[ps][bs]['mk'] = True
+    for parking_spot in current_booking.pc_id.parking_spot.all():
+        print(parking_spot)
+        for booking in parking_spot.booking.all():
+            print(str(booking) + " :: " + str(booking.start_time) + " to " + str(booking.end_time))
+    # for ps in parking_category:
+    #     pc[ps] = {}
+    #     for bs in parking_category[ps]:
+    #         pc[ps][bs] = {}
+    #         b = parking_category[ps][bs]
+    #         start_date = datetime.datetime.strptime(b['start_date'], date_format)
+    #         end_date = datetime.datetime.strptime(b['end_date'], date_format)
+    #         wd = (end_date - start_date).days + 1
+    #         # print(b)
+    #         # print(wd)
+    #         # print(wd/twd)
+    #         pc[ps][bs]['wd'] = (100*wd)/twd
+    #         pc[ps][bs]['mk'] = True
 
-    return render(request, "adminhome/assignslots.html", {'pc' : pc})
+    return render(request, "adminhome/assignslot.html", {'pc' : pc})
 
 def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
     if (not request.user.is_authenticated):
