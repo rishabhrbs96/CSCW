@@ -25,6 +25,7 @@ urlpatterns = [
     path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
     path('parkingspot/<int:pk>/edit', views.updateparkingspot, name='updateparkingspot'),
     path('parkingspot/<int:pk>/delete', views.deleteparkingspot, name='deleteparkingspot'),
+    path('parkingspot/<int:pk>/showschedule/<str:start_date>/<str:end_date>/', views.showparkingspotschedule, name='showparkingspotschedule'),
 
     path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
     path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),

@@ -527,38 +527,102 @@ def checkavailability(request):
                     }
                 )
 
+
+def showparkingspotschedule(request, pk, start_date, end_date):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    start_time = datetime.datetime.combine(datetime.datetime.strptime(start_date, '%Y-%m-%d'), datetime.datetime.min.time())
+    end_time = datetime.datetime.combine(datetime.datetime.strptime(end_date, '%Y-%m-%d'), datetime.datetime.min.time())
+    twd = (end_time - start_time).days
+    
+    pc = []
+    parking_spot = ParkingSpot.objects.get(id=pk)
+    
+    if(parking_spot.is_active):
+        pc.append([parking_spot, [0, []]])
+        bookings = parking_spot.booking.filter(start_time__lte=end_time,).filter(end_time__gte=start_time,).order_by('start_time', 'end_time')
+        len_bookings = len(bookings)
+        if(len_bookings == 0):
+            pc[-1][1][1].append([False, 100, ""])
+            pc[-1][1][0] = 100
+        else:
+            if(bookings[0].start_time > start_time):
+                wd = bookings[0].start_time - start_time
+                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                pc[-1][1][0] += (100*wd.days)/twd
+            i = 0
+            for booking in bookings:
+                s = max(booking.start_time, start_time)
+                e = min(booking.end_time, end_time)
+                wd = e - s
+                pc[-1][1][1].append([True, (100*wd.days)/twd, booking])
+                i = i + 1
+                if(i < len_bookings):
+                    wd = bookings[i].start_time - e
+                    pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                    pc[-1][1][0] += (100*wd.days)/twd
+            if(bookings[len_bookings-1].end_time < end_time):
+                wd = end_time - bookings[len_bookings-1].end_time
+                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                pc[-1][1][0] += (100*wd.days)/twd  
+    
+    pc.sort(reverse=True, key=lambda x: x[1][0])
+    
+    return render(request, 
+                    "adminhome/assignslot.html", 
+                    {
+                        'current_booking' : parking_spot,
+                        'pc' : pc
+                    }
+                )
+
+
 def assignslot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    current_booking = Booking.objects.get(id=pk)
     
-    pc = {}
-
+    current_booking = Booking.objects.get(id=pk)
     twd = (current_booking.end_time - current_booking.start_time).days
     
-    print(current_booking.start_time)
-    print(current_booking.end_time)
-    print(twd)
-    
+    pc = []
     for parking_spot in current_booking.pc_id.parking_spot.all():
-        print(parking_spot)
-        for booking in parking_spot.booking.all():
-            print(str(booking) + " :: " + str(booking.start_time) + " to " + str(booking.end_time))
-    # for ps in parking_category:
-    #     pc[ps] = {}
-    #     for bs in parking_category[ps]:
-    #         pc[ps][bs] = {}
-    #         b = parking_category[ps][bs]
-    #         start_date = datetime.datetime.strptime(b['start_date'], date_format)
-    #         end_date = datetime.datetime.strptime(b['end_date'], date_format)
-    #         wd = (end_date - start_date).days + 1
-    #         # print(b)
-    #         # print(wd)
-    #         # print(wd/twd)
-    #         pc[ps][bs]['wd'] = (100*wd)/twd
-    #         pc[ps][bs]['mk'] = True
-
-    return render(request, "adminhome/assignslot.html", {'pc' : pc})
+        if(parking_spot.is_active):
+            pc.append([parking_spot, [0, []]])
+            bookings = parking_spot.booking.filter(start_time__lte=current_booking.end_time,).filter(end_time__gte=current_booking.start_time,).order_by('start_time', 'end_time')
+            len_bookings = len(bookings)
+            if(len_bookings == 0):
+                pc[-1][1][1].append([False, 100, ""])
+                pc[-1][1][0] = 100
+                continue
+            if(bookings[0].start_time > current_booking.start_time):
+                wd = bookings[0].start_time - current_booking.start_time
+                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                pc[-1][1][0] += (100*wd.days)/twd
+            i = 0
+            for booking in bookings:
+                s = max(booking.start_time, current_booking.start_time)
+                e = min(booking.end_time, current_booking.end_time)
+                wd = e - s
+                pc[-1][1][1].append([True, (100*wd.days)/twd, booking])
+                i = i + 1
+                if(i < len_bookings):
+                    wd = bookings[i].start_time - e
+                    pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                    pc[-1][1][0] += (100*wd.days)/twd
+            if(bookings[len_bookings-1].end_time < current_booking.end_time):
+                wd = current_booking.end_time - bookings[len_bookings-1].end_time
+                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
+                pc[-1][1][0] += (100*wd.days)/twd 
+    
+    pc.sort(reverse=True, key=lambda x: x[1][0])
+    
+    return render(request, 
+                    "adminhome/assignslot.html", 
+                    {
+                        'current_booking' : current_booking,
+                        'pc' : pc
+                    }
+                )
 
 def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
     if (not request.user.is_authenticated):

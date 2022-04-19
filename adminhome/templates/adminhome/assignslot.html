@@ -3,17 +3,29 @@
 </style>
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h1 class="h2">Admin Home Page - Welcome {{ user }}</h1>
+	<h1 class="h2">Assign Slot: <a href="{% url 'adminhome:viewonebooking' current_booking.id %}">{{ current_booking }}</a> </h1>
 </div>
-<div style="overflow-y:auto; height:70vh;">
-  {% for k, v in pc.items %}
-    <p>{{ k }}</p>
-    <div class="progress" style="height: 20px;">
-      {% for k2, v2 in v.items %}
-        <div onclick="location.href='google.com';" class="progress-bar bg-danger myBox" role="progressbar" style="width: {{ v2.wd }}%; cursor: pointer;" aria-valuenow="{{ v2.wd }}" aria-valuemin="0" aria-valuemax="100">{{ k2 }}</div>
-        <div class="progress-bar bg-black" role="progressbar" style="width: 0.1%"></div>
+<div class="container">
+  <div class="row">
+    <h4>Showing parking slots availability from {{ current_booking.start_time.date }} to {{ current_booking.end_time.date }}</h4>
+    <h5>Parking category: {{ current_booking.pc_id }}</h5>
+  </div>
+  <div class="row">
+    <div style="overflow-y:auto !important; height:70vh !important;">
+      {% for i in pc %}
+        <a href="{% url 'adminhome:showparkingspotschedule' i.0.id current_booking.start_time.date current_booking.end_time.date%}"><h6>{{ i.0 }}</h6></a>
+        <div class="progress" style="height: 20px;">
+          {% for v in i.1.1 %}
+            {% if v.0 %}
+              <div onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-danger myBox" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+            {% else %}
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{ v.1 }}%"></div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
       {% endfor %}
     </div>
-  {% endfor %}
+  </div>
 </div>
 {% endblock content %}
