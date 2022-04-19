@@ -246,10 +246,15 @@ def deleteparkingcategory(request, pk):
 ################################################################################################################
 
 def viewupcomingbookings(request):
+    # FIXME
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
+        upcoming_bookings_list = BookingFilter(request.GET, queryset=
+                            Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id = request.user))
+    else:
+        upcoming_bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
     
-    upcoming_bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+    # TODO: check the datetime.now() time-zone.
+    print("date: ", datetime.date.today())
 
     page = request.GET.get('page', 1)    
     paginator = Paginator(upcoming_bookings_list.qs, 2)
@@ -266,8 +271,9 @@ def viewupcomingbookings(request):
 
 
 def viewonebooking(request, pk):
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
+    # NOTE: This logic is handled inside adminhome/viewonebooking.html.
+    # if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+    #     return HttpResponseRedirect(reverse('adminhome:index'))
 
     context = {}
     context["booking"] = Booking.objects.get(id=pk)
@@ -305,9 +311,11 @@ def deleteupcomingbooking(request, pk):
 
 def viewpreviousbookings(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+        previous_bookings_list = PreviousBookingFilter(request.GET, queryset=
+                                Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id = request.user))
+    else:
+        previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+    
 
     page = request.GET.get('page', 1)
     paginator = Paginator(previous_bookings_list.qs, 2)
