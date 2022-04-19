@@ -12,7 +12,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, VehicleForm
+    CustomUserCreationForm, VehicleForm, VerifyVehicleForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -21,7 +21,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, DateRangeForm
@@ -449,12 +449,44 @@ def addvehicle(request):
                   template_name="adminhome/user_addvehicle.html",
                   context={"form": form})
 
+
+def unverifiedvehicles(request):
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    unverified_vehicles = Vehicle.objects.filter(is_verified=False)
+    form = VerifyVehicleForm
+
+    return render(request, "adminhome/admin_view_unverified_vehicles.html",
+                  {'unverified_vehicles': unverified_vehicles,
+                   'form': form})
+
+
+def verifyvehicle(request, pk):
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == 'POST':
+        vehicle = Vehicle.objects.get(pk=pk)
+        vehicle.is_verified = True
+        vehicle.insurance_expiry_date = request.POST['insurance_expiry_date']
+        vehicle.save()
+    return HttpResponseRedirect(reverse('adminhome:unverifiedvehicles'))
+
+
 def editvehicle(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     if (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editvehicle.html")
+
 
 def checkavailability(request):
     parking_categories_all = ParkingCategory.objects.all()
@@ -465,6 +497,7 @@ def checkavailability(request):
     if(request.method == "POST"):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
+
         for parking_category in parking_categories_all:
             _count = 0
             for parking_spot in parking_category.parking_spot.all():
@@ -486,91 +519,43 @@ def checkavailability(request):
                     }
                 )
 
-def assignslots(request):
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-    booking = {
-        'start_date' : '2022-04-01',
-        'end_date' : '2022-04-20'
-    }
 
-    parking_category = {
-        'parking_spot' : {
-            'booking1' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-10'
-            },
-            'booking2' : {
-                'start_date': '2022-04-15',
-                'end_date': '2022-04-20'
-            },
-        },
-        'parking_spot2' : {
-            'booking3' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-07'
-            },
-            'booking4' : {
-                'start_date': '2022-04-13',
-                'end_date': '2022-04-20'
-            },
-        }
-    }
+def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
 
-    parking_category2 = {
-        'parking_spot' : {
-            'booking1' : {
-                'start_date': '2022-04-01',
-                'end_date': '2022-04-10'
-            },
-            'booking2' : {
-                'start_date': '2022-04-15',
-                'end_date': '2022-04-20'
-            },
-        },
-        # 'parking_spot2' : {
-        #     'booking3' : {
-        #         'start_date': '2022-04-01',
-        #         'end_date': '2022-04-07'
-        #     },
-        #     'booking4' : {
-        #         'start_date': '2022-04-13',
-        #         'end_date': '2022-04-20'
-        #     },
-        # }
-    }
-    
-    pc = {}
+    # Obtain a list of the user's vehicles.
+    vehicles_list = Vehicle.objects.all()
+    user_vehicles = []
+    for vehicle in vehicles_list:
+        if(vehicle.user_id == request.user):
+            user_vehicles.append(vehicle)
 
-    date_format = "%Y-%m-%d"
-    start_date = datetime.strptime(booking['start_date'], date_format)
-    end_date = datetime.strptime(booking['end_date'], date_format)
-    twd = (end_date - start_date).days + 1
-    
-    # for i in range(101):
-    #     for ps in parking_category2:
-    #         pc[ps + str(i)] = {}
-    #         for bs in parking_category[ps]:
-    #             pc[ps + str(i)][bs] = {}
-    #             b = parking_category[ps][bs]
-    #             start_date = datetime.strptime(b['start_date'], date_format)
-    #             end_date = datetime.strptime(b['end_date'], date_format)
-    #             wd = (end_date - start_date).days + 1
-    #             pc[ps + str(i)][bs]['wd'] = (100*wd)/twd
-    #             pc[ps + str(i)][bs]['mk'] = True
-    
-    for ps in parking_category:
-        pc[ps] = {}
-        for bs in parking_category[ps]:
-            pc[ps][bs] = {}
-            b = parking_category[ps][bs]
-            start_date = datetime.strptime(b['start_date'], date_format)
-            end_date = datetime.strptime(b['end_date'], date_format)
-            wd = (end_date - start_date).days + 1
-            print(b)
-            print(wd)
-            print(wd/twd)
-            pc[ps][bs]['wd'] = (100*wd)/twd
-            pc[ps][bs]['mk'] = True
+    return render(  request,
 
-    return render(request, "adminhome/assignslots.html", {'pc' : pc})
+                    "adminhome/booking_pick_vehicle.html",
+                    {
+                        'user_vehicles': user_vehicles,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'parking_category_id': parking_category_id,
+                    }
+                 )
+
+
+def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
+    vehicle = Vehicle.objects.get(id=vehicle_id)
+    pc = ParkingCategory.objects.get(id=parking_category_id)
+    booking_obj = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date, end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
+
+    if(request.method == "POST"):
+        booking_obj.save()
+        return render(request, "adminhome/userhome.html")
+
+    return render(
+                    request,
+                    "adminhome/bookingconfirmation.html",
+                    {'booking': booking_obj}
+                 )

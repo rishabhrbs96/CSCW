@@ -109,10 +109,16 @@
         	User Profiles
       	</button>
     	</h2>
-    	<div id="flush-collapseup" class="accordion-collapse collapse" aria-labelledby="flush-up" data-bs-parent="#sidebarAccordion">
+        <div id="flush-collapseup" class="accordion-collapse collapse" aria-labelledby="flush-up" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
-				User Profiles Items
-			</div>
-    	</div>
-  	</div>
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'adminhome:unverifiedvehicles' %}">
+							Verify Vehicles
+						</a>
+					</li>
+				</ul>
+    	    </div>
+        </div>
+    </div>
 </div>

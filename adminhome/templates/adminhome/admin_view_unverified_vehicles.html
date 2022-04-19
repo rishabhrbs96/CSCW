@@ -1,0 +1,65 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">Unverified Vehicles</h1>
+</div>
+
+{% for unverified_vehicle in unverified_vehicles %}
+	<div class="card cardhover mb-2">
+		<div class="card-body">
+			<h5 class="card-title d-flex justify-content-between align-items-center">
+				{{ unverified_vehicle.name }}
+{#				<a href="{% url 'adminhome:verifyvehicle' unverified_vehicle.id %}" class="btn btn-outline-dark me-2 stretched-link">#}
+{#					View#}
+{#					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">#}
+{#						<path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>#}
+{#					</svg>#}
+{#				</a>#}
+			</h5>
+			<h6 class="card-subtitle mb-2 text-muted">User ID: {{ unverified_vehicle.user_id }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Model: {{ unverified_vehicle.model }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Make: {{ unverified_vehicle.make }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Build: {{ unverified_vehicle.build }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Color: {{ unverified_vehicle.color }}</h6>
+			<h6 class="card-subtitle mb-2 text-muted"><a href={{ unverified_vehicle.insurance_doc.url }}> Insurance Doc</a></h6>
+            <form method="POST" action={% url 'adminhome:verifyvehicle' unverified_vehicle.id%} enctype="multipart/form-data"> {% csrf_token %}
+                {% for field in form %}
+	            	<label class="col-sm-2 col-form-label" for="{{ field.auto_id }}">{{ field.label }} ({{ field.help_text }})</label>
+	            	<div class="col-sm-10"> {{ field }} </div>
+	            {% endfor %}
+	            {% if form.errors %}
+                   {% for field in form %}
+                       {% for error in field.errors %}
+                          <div class="alert alert-danger">
+                               <strong>{{ error|escape }}</strong>
+                          </div>
+                       {% endfor %}
+                   {% endfor %}
+                {% endif %}
+	            <button type="submit" class="btn btn-primary shadow-2 mb-4" value="Submit">Approve</button>
+            </form>
+		</div>
+	</div>
+{% endfor %}
+
+{% endblock content %}
+
+
+{#<form method="POST" enctype="multipart/form-data"> {% csrf_token %} {% for field in form %}#}
+{#	<div class="row mb-3">#}
+{#		<label class="col-sm-2 col-form-label" for="{{ field.auto_id }}">{{ field.label }}</label>#}
+{#		<div class="col-sm-10"> {{ field }} </div>#}
+{#	</div> {% endfor %}#}
+{#	{% if form.errors %}#}
+{#       {% for field in form %}#}
+{#           {% for error in field.errors %}#}
+{#              <div class="alert alert-danger">#}
+{#                   <strong>{{ error|escape }}</strong>#}
+{#              </div>#}
+{#           {% endfor %}#}
+{#       {% endfor %}#}
+{#    {% endif %}#}
+{#	<button type="submit" class="btn btn-primary shadow-2 mb-4" value="Submit">Submit</button>#}
+{#</form>#}
