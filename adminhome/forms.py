@@ -102,3 +102,12 @@ class VehicleForm(forms.ModelForm):
         model = Vehicle
         fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
 
+
+class VerifyVehicleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VerifyVehicleForm, self).__init__(*args, **kwargs)
+        self.fields['insurance_expiry_date'] = forms.DateTimeField(help_text="Format yyyy-mm-dd")
+
+    class Meta:
+        model = Vehicle
+        fields = ['insurance_expiry_date']

@@ -12,7 +12,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, VehicleForm
+    CustomUserCreationForm, VehicleForm, VerifyVehicleForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -448,6 +448,36 @@ def addvehicle(request):
     return render(request=request,
                   template_name="adminhome/user_addvehicle.html",
                   context={"form": form})
+
+
+def unverifiedvehicles(request):
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    unverified_vehicles = Vehicle.objects.filter(is_verified=False)
+    form = VerifyVehicleForm
+
+    return render(request, "adminhome/admin_view_unverified_vehicles.html",
+                  {'unverified_vehicles': unverified_vehicles,
+                   'form': form})
+
+
+def verifyvehicle(request, pk):
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == 'POST':
+        vehicle = Vehicle.objects.get(pk=pk)
+        vehicle.is_verified = True
+        vehicle.insurance_expiry_date = request.POST['insurance_expiry_date']
+        vehicle.save()
+    return HttpResponseRedirect(reverse('adminhome:unverifiedvehicles'))
 
 
 def editvehicle(request):
