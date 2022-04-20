@@ -33,21 +33,18 @@ urlpatterns = [
     path('parkingcategory/<int:pk>/delete', views.deleteparkingcategory, name='deleteparkingcategory'),
 
     # path('bookings/'),                                                                              # TODO
-    # path('bookings/create/', views.checkavailability, name='createbooking'),                        # TODO -- change
-    # path('bookings/<int:bk_id>/', views.viewonebooking, name='viewonebooking'),                     # TODO -- change
-    # path('bookings/<int:bk_id>/edit/', views.updateupcomingbooking, name='editbooking'),            # TODO -- change + refactor
-    # path('bookings/<int:bk_id>/delete/', views.deleteupcomingbooking, name='deletebooking'),        # TODO -- change + refactor
+    # path('bookings/create/', views.checkavailability, name='createbooking'),               # TODO -- change
+    path('bookings/<int:bk_id>/', views.viewonebooking, name='viewonebooking'),
+    path('bookings/<int:bk_id>/edit/', views.editbooking, name='editbooking'),
+    path('bookings/<int:bk_id>/delete/', views.deletebooking, name='deletebooking'),
     path('bookings/upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
     path('bookings/currentbookings/', views.viewcurrentbookings, name='viewcurrentbookings'),
-    # path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),    # TODO -- change + refactor
+    path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
 
 
 
-    path('bookings/upcomingbookings/<int:pk>/', views.viewonebooking, name='viewonebooking'),
-    path('upcomingbookings/<int:pk>/edit', views.updateupcomingbooking, name='updateupcomingbooking'),
-    path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
-    path('previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
-    path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
+    #path('upcomingbookings/<int:pk>/edit', views.updateupcomingbooking, name='updateupcomingbooking'),
+    #path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),

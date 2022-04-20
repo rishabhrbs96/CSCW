@@ -297,52 +297,43 @@ def viewcurrentbookings(request):
     return viewbookings(request, ViewBookings.CURRENT_BOOKINGS)
 
 
-def viewonebooking(request, pk):
+def viewonebooking(request, bk_id):
     if(not (request.user.is_authenticated)):
         return signin(request)
     
     # NOTE: Logic for admin/user view is handled inside the HTML file.
     context = {}
-    context["booking"] = Booking.objects.get(id=pk)
+    context["booking"] = Booking.objects.get(id=bk_id)
     return render(request, "adminhome/viewonebooking.html", context)
 
 
-def updateupcomingbooking(request, pk):
+def editbooking(request, bk_id):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     
-    booking = get_object_or_404(Booking, id=pk)
+    booking = get_object_or_404(Booking, id=bk_id)
     form = BookingForm(request.POST or None, instance=booking)
 
     if form.is_valid():
         form.save()
         return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
     else:
-        return render(request=request, template_name="adminhome/updateupcomingbooking.html", context={"form": form})
+        return render(request=request, template_name="adminhome/editbooking.html", context={"form": form})
 
 
-def deleteupcomingbooking(request, pk):
+def deletebooking(request, bk_id):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     context = {}
-    booking = get_object_or_404(Booking, id=pk)
+    booking = get_object_or_404(Booking, id=bk_id)
     context["booking"] = booking
 
     if request.method == 'POST':
         booking.delete()
         return HttpResponseRedirect(reverse("adminhome:viewupcomingbookings"))
 
-    return render(request, "deleteupcomingbooking.html", context=context)
-
-
-def viewoneprevbooking(request, pk):
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    context = {}
-    context["booking"] = Booking.objects.get(id=pk)
-    return render(request, "adminhome/viewoneprevbooking.html", context)
+    return render(request, "deletebooking.html", context=context)
 
 
 ################################################################################################################
