@@ -32,19 +32,14 @@ urlpatterns = [
     path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
     path('parkingcategory/<int:pk>/delete', views.deleteparkingcategory, name='deleteparkingcategory'),
 
-    # path('bookings/'),                                                                              # TODO
-    # path('bookings/create/', views.checkavailability, name='createbooking'),               # TODO -- change
+    # path('bookings/', views.userhome),
+    path('bookings/create/', views.checkavailability, name='createbooking'),
     path('bookings/<int:bk_id>/', views.viewonebooking, name='viewonebooking'),
     path('bookings/<int:bk_id>/edit/', views.editbooking, name='editbooking'),
     path('bookings/<int:bk_id>/delete/', views.deletebooking, name='deletebooking'),
     path('bookings/upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
     path('bookings/currentbookings/', views.viewcurrentbookings, name='viewcurrentbookings'),
     path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
-
-
-
-    #path('upcomingbookings/<int:pk>/edit', views.updateupcomingbooking, name='updateupcomingbooking'),
-    #path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
