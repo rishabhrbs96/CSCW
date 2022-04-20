@@ -8,7 +8,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
-from django.views import generic
+from django.views import View, generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
@@ -21,8 +21,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
-from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings
+from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, DateRangeForm
 
@@ -245,36 +245,63 @@ def deleteparkingcategory(request, pk):
 #                                           BOOKINGS                                                           #
 ################################################################################################################
 
-def viewupcomingbookings(request):
-    # FIXME
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        upcoming_bookings_list = BookingFilter(request.GET, queryset=
-                            Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id = request.user))
-    else:
-        upcoming_bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+def viewbookings(request, bookingsType):
+    if(not (request.user.is_authenticated)):
+        return signin(request)
     
+    if(not (request.user.is_staff or request.user.is_superuser)):
+        if(bookingsType == ViewBookings.UPCOMING_BOOKINGS):
+            bookings_list = BookingFilter(request.GET, queryset=
+                            Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id = request.user))
+        elif(bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
+            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
+                            Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id = request.user))
+        else:
+            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
+                            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now(),
+                            vehicle_id__user_id = request.user))
+    else:
+        if(bookingsType == ViewBookings.UPCOMING_BOOKINGS):
+            bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+        elif(bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
+            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+        else:
+            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
+                            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now()))
+
     # TODO: check the datetime.now() time-zone.
     print("date: ", datetime.date.today())
 
     page = request.GET.get('page', 1)    
-    paginator = Paginator(upcoming_bookings_list.qs, 2)
+    paginator = Paginator(bookings_list.qs, 2)
 
     try:
-        upcoming_bookings_paginated = paginator.page(page)
+        bookings_paginated = paginator.page(page)
     except PageNotAnInteger:
-        upcoming_bookings_paginated = paginator.page(1)
+        bookings_paginated = paginator.page(1)
     except EmptyPage:
-        upcoming_bookings_paginated = paginator.page(paginator.num_pages)
-    
-    return render(request, "adminhome/viewupcomingbookings.html", {'upcoming_booking_paginated': upcoming_bookings_paginated,
-                                                                    'filter': upcoming_bookings_list})
+        bookings_paginated = paginator.page(paginator.num_pages)
+
+    return render(request, "adminhome/viewbookings.html", {'bookings_paginated': bookings_paginated, 'filter': bookings_list, 'bookingsType': bookingsType})
+
+
+def viewupcomingbookings(request):
+    return viewbookings(request, ViewBookings.UPCOMING_BOOKINGS)
+
+
+def viewpreviousbookings(request):
+    return viewbookings(request, ViewBookings.PREVIOUS_BOOKINGS)
+
+
+def viewcurrentbookings(request):
+    return viewbookings(request, ViewBookings.CURRENT_BOOKINGS)
 
 
 def viewonebooking(request, pk):
-    # NOTE: This logic is handled inside adminhome/viewonebooking.html.
-    # if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-    #     return HttpResponseRedirect(reverse('adminhome:index'))
-
+    if(not (request.user.is_authenticated)):
+        return signin(request)
+    
+    # NOTE: Logic for admin/user view is handled inside the HTML file.
     context = {}
     context["booking"] = Booking.objects.get(id=pk)
     return render(request, "adminhome/viewonebooking.html", context)
@@ -307,28 +334,6 @@ def deleteupcomingbooking(request, pk):
         return HttpResponseRedirect(reverse("adminhome:viewupcomingbookings"))
 
     return render(request, "deleteupcomingbooking.html", context=context)
-
-
-def viewpreviousbookings(request):
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
-        previous_bookings_list = PreviousBookingFilter(request.GET, queryset=
-                                Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id = request.user))
-    else:
-        previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
-    
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(previous_bookings_list.qs, 2)
-
-    try:
-        previous_bookings_paginated = paginator.page(page)
-    except PageNotAnInteger:
-        previous_bookings_paginated = paginator.page(1)
-    except EmptyPage:
-        previous_bookings_paginated = paginator.page(paginator.num_pages)
-
-    return render(request, "adminhome/viewpreviousbookings.html", {'previous_booking_paginated': previous_bookings_paginated,
-                                                                    'filter': previous_bookings_list})
 
 
 def viewoneprevbooking(request, pk):

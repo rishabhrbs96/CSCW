@@ -28,6 +28,11 @@ class PaymentMethod(models.TextChoices):
     CARD = 'card', _('Card Payment')
     ONLINE = 'online', _('Online Payment')
 
+class ViewBookings(models.TextChoices):
+    UPCOMING_BOOKINGS = 'upcoming_bookings', _('Upcoming Bookings')
+    PREVIOUS_BOOKINGS = 'previous_bookings', _('Previous Bookings')
+    CURRENT_BOOKINGS = 'current_bookings', _('Current Bookings')
+
 #####################################################################################
 #                                      MODELS                                       #
 #####################################################################################
