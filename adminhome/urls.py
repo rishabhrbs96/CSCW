@@ -40,6 +40,7 @@ urlpatterns = [
     path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
+    path('userhome/changepassword', views.changepassword, name='changepassword'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),

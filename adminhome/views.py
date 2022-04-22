@@ -12,7 +12,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, VehicleForm, VerifyVehicleForm, CustomUserChangeForm
+    CustomUserCreationForm, VehicleForm, VerifyVehicleForm, CustomUserChangeForm, UserPasswordChangeForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -408,6 +408,25 @@ def userhome(request):
     return render(request, "adminhome/userhome.html")
 
 
+def changepassword(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = UserPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("adminhome:viewprofile")
+    else:
+        form = UserPasswordChangeForm(request.user)
+    return render(request=request,
+                  template_name="adminhome/user_changepassword.html",
+                  context={"form": form})
+
+
 def editprofile(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -416,7 +435,7 @@ def editprofile(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if request.method == "POST":
-        form = CustomUserChangeForm(request.POST or None, instance = request.user)
+        form = CustomUserChangeForm(request.POST or None, instance=request.user)
         if form.is_valid():
             form.save()
             return redirect("adminhome:viewprofile")

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
 from django.contrib.auth.models import User
 
@@ -37,6 +37,15 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
+
+
+class UserPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, user, *args, **kwargs):
+        super(UserPasswordChangeForm, self).__init__(user, *args, **kwargs)
+
+    class Meta:
+        model = User
+        # fields = ['first_name', 'last_name', 'email', 'username']
 
 
 class HomeForm(forms.Form):
