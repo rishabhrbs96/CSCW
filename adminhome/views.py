@@ -12,7 +12,7 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, VehicleForm, VerifyVehicleForm
+    CustomUserCreationForm, VehicleForm, VerifyVehicleForm, CustomUserChangeForm
 import boto3
 
 from django.shortcuts import render, redirect
@@ -407,12 +407,24 @@ def userhome(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/userhome.html")
 
+
 def editprofile(request):
-    if (not request.user.is_authenticated):
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_editprofile.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = CustomUserChangeForm(request.POST or None, instance = request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("adminhome:viewprofile")
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    return render(request=request,
+                  template_name="adminhome/user_editprofile.html",
+                  context={"form": form})
 
 
 def viewprofile(request):
