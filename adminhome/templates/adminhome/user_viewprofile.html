@@ -1,23 +1,66 @@
 {% extends "user_base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h1 class="h2">Profile</h1>
-</div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Profile</h1>
+    </div>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h2 class="h2">Vehicles</h2>
-</div>
-{% for vehicle in vehicles %}
-	<div class="card cardhover mb-2">
-		<div class="card-body">
-			<h5 class="card-title d-flex justify-content-between align-items-center">
-				{{ vehicle.name }}
-			</h5>
-            <h6 class="card-subtitle mb-2 text-muted"><a href={{ vehicle.insurance_doc.url }}> Insurance Doc</a></h6>
-			<h6 class="card-subtitle mb-2 text-muted">Verified: {{ vehicle.is_verified }}</h6>
-		</div>
-	</div>
-{% endfor %}
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">First Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ user.first_name }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Last Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ user.last_name }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Email</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ user.email }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <p class="mb-0">Username</p>
+                    </div>
+                    <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{ user.username }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h2 class="h2">Vehicles</h2>
+        </div>
+
+        {% for vehicle in vehicles %}
+            <div class="card cardhover mb-2">
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        {{ vehicle.name }}
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted"><a href={{ vehicle.insurance_doc.url }}> Insurance
+                        Doc</a></h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Verified: {{ vehicle.is_verified }}</h6>
+                </div>
+            </div>
+        {% endfor %}
 
 {% endblock content %}
