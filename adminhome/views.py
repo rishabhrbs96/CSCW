@@ -18,7 +18,7 @@ import boto3
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
@@ -419,6 +419,7 @@ def changepassword(request):
         form = UserPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
+            update_session_auth_hash(request, form.user)
             return redirect("adminhome:viewprofile")
     else:
         form = UserPasswordChangeForm(request.user)
