@@ -2,23 +2,34 @@
   	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-bookings">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseBookings" aria-expanded="false" aria-controls="flush-collapseOne">
-        	Bookings
+        		Bookings
       	</button>
     	</h2>
     	<div id="flush-collapseBookings" class="accordion-collapse collapse" aria-labelledby="flush-bookings" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
-				<ul class="nav flex-column mb-2">
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:userhome' %}">
-							Make a Booking
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:userhome' %}">
-							View Previous Bookings
-						</a>
-					</li>
-				</ul>
+					<ul class="nav flex-column mb-2">
+						
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'adminhome:createbooking' %}">
+								Make a Booking
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'adminhome:viewcurrentbookings' %}">
+								View Current Bookings
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'adminhome:viewupcomingbookings' %}">
+								View Upcoming Bookings
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'adminhome:viewpreviousbookings' %}">
+								View Previous Bookings
+							</a>
+						</li>
+					</ul>
 			</div>
     	</div>
   	</div>
@@ -37,18 +48,8 @@
 						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:editprofile' %}">
-							Edit Profile
-						</a>
-					</li>
-					<li class="nav-item">
 						<a class="nav-link" href="{% url 'adminhome:addvehicle' %}">
 							Add Vehicle
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:editvehicle' %}">
-							Edit Vehicles
 						</a>
 					</li>
 				</ul>

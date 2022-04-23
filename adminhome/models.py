@@ -1,3 +1,4 @@
+from email.policy import default
 import uuid
 
 from django.conf import settings
@@ -26,6 +27,11 @@ class PaymentMethod(models.TextChoices):
     CASH = 'cash', _('Cash Payment')
     CARD = 'card', _('Card Payment')
     ONLINE = 'online', _('Online Payment')
+
+class ViewBookings(models.TextChoices):
+    UPCOMING_BOOKINGS = 'upcoming_bookings', _('Upcoming Bookings')
+    PREVIOUS_BOOKINGS = 'previous_bookings', _('Previous Bookings')
+    CURRENT_BOOKINGS = 'current_bookings', _('Current Bookings')
 
 #####################################################################################
 #                                      MODELS                                       #
@@ -73,6 +79,17 @@ class Payment(models.Model):
     method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CASH)
     time = models.DateTimeField(auto_now_add=False)
 
+class Booking(models.Model):
+    vehicle_id = models.ForeignKey(Vehicle, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
+    pc_id = models.ForeignKey(ParkingCategory, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
+    parking_spot_id = models.ForeignKey(ParkingSpot, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
+    start_time = models.DateTimeField(auto_now_add=False)
+    end_time = models.DateTimeField(auto_now_add=False)
+    state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
+    lease_doc_url = models.CharField(max_length=100)
+    lease_is_signed_by_user = models.BooleanField()
+    admin_comments = models.CharField(max_length=20)
+    
 class BillDetail(models.Model):
     bill_date = models.DateTimeField(auto_now_add=False)
     reservation_cost = models.DecimalField(max_digits=1000, decimal_places=2)
@@ -82,16 +99,6 @@ class BillDetail(models.Model):
     utility_cost = models.DecimalField(max_digits=1000, decimal_places=2)
     paid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
     unpaid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
-    payment_id = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name="booking")
+    payment_id = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name="bills")
     misc_charges = models.DecimalField(max_digits=1000, decimal_places=2)
-
-class Booking(models.Model):
-    vehicle_id = models.ForeignKey(Vehicle, on_delete=models.PROTECT, related_name="booking")
-    parking_spot_id = models.ForeignKey(ParkingSpot, on_delete=models.PROTECT, related_name="booking")
-    start_time = models.DateTimeField(auto_now_add=False)
-    end_time = models.DateTimeField(auto_now_add=False)
-    state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
-    lease_doc_url = models.CharField(max_length=100)
-    lease_is_signed_by_user = models.BooleanField()
-    bill_detail_id = models.ForeignKey(BillDetail, on_delete=models.PROTECT, related_name="booking")
-    admin_comments = models.CharField(max_length=20)
+    booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="bills")

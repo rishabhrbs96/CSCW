@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure--ucfwqkr)$@@#aygpx(_k0x-*8ot@9)v$u@74m0p&bugqiov(8
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '.herokuapp.com',
+    '.herokuapp.com'
 ]
 
 # Application definition
@@ -91,6 +91,10 @@ DATABASES = {
         'NAME': 'test_park_db',
     }
 }
+
+import sys
+if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
 
 if 'ENV_HOST' in os.environ and os.environ['ENV_HOST'] == 'heroku':
     db_from_env = dj_database_url.config(conn_max_age=600)

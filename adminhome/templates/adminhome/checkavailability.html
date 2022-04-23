@@ -18,24 +18,80 @@
         <div class="container">
             <form method="POST">
                 {% csrf_token %}
-                {{form.as_p}}
-                <input type="submit" value="Submit" class="btn btn-outline-dark shadow-2 mb-4" style="max-width: 10rem;"/>
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% for field in form %}
+                    <div class="m-2">
+                        <label for="{{ field.auto_id }}" style="width:10%">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <input type="submit" value="Submit" class="btn btn-outline-dark shadow-2 m-2" style="max-width: 10rem;"/>
             </form>
         </div>
         {% if parking_categories_available %}
-			<h3>Available slots from {{ start_date }} to {{ end_date }}:</h3>
+			<h3>Slots available in the following parking category from {{ start_date }} to {{ end_date }}:</h3>
             {% for parkingcategory in parking_categories_available %}
                 <div class="card cardhover mb-2">
                     <div class="card-body">
                         <h5 class="card-title d-flex justify-content-between align-items-center">
                             {{ parkingcategory.name }}
-                            <a href="{% url 'adminhome:viewoneparkingcategory' parkingcategory.id %}" class="btn btn-outline-dark me-2 stretched-link">
+                            <!-- TODO: Add  parkingcategory.id to Booking-->
+                            <!-- start_date end_date -->
+                            <a href="{% url 'adminhome:booking_pick_vehicle' parkingcategory.id start_date end_date %}" class="btn btn-outline-dark me-2 stretched-link">
                                 Reserve a slot!
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
                                     <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
                                 </svg>
                             </a>
                         </h5>
+                        <div class="card-text">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight: bold">Size</td>
+                                        <td>{{ parkingcategory.size }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Daily Rate</td>
+                                        <td>{{ parkingcategory.daily_rate }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Weekly Rate</td>
+                                        <td>{{ parkingcategory.weekly_rate }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Monthly Rate</td>
+                                        <td>{{ parkingcategory.monthly_rate }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Utility Conversion Rate</td>
+                                        <td>{{ parkingcategory.utility_conversion_rate }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Cancellation Penalty</td>
+                                        <td>{{ parkingcategory.cancellation_penalty }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Cancellation Time Window</td>
+                                        <td>{{ parkingcategory.cancellation_time_window }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             {% endfor %}

@@ -1,32 +1,26 @@
 <div class="accordion accordion-flush col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarAccordion">
-  	<div class="accordion-item">
-    	<h2 class="accordion-header" id="flush-upcomingBookings">
-      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseUpcomingBookings" aria-expanded="false" aria-controls="flush-collapseOne">
-        	Upcoming Bookings
-      	</button>
-    	</h2>
-    	<div id="flush-collapseUpcomingBookings" class="accordion-collapse collapse" aria-labelledby="flush-upcomingBookings" data-bs-parent="#sidebarAccordion">
-      	<div class="accordion-body">
+	<div class="accordion-item">
+
+		<h2 class="accordion-header" id="flush-bookings">
+			<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseBookings" aria-expanded="false" aria-controls="flush-collapseOne">
+				Bookings
+			</button>
+		</h2>
+		<div id="flush-collapseBookings" class="accordion-collapse collapse" aria-labelledby="flush-bookings" data-bs-parent="#sidebarAccordion">
+			<div class="accordion-body">
+				<a class="nav-link" href="{% url 'adminhome:viewcurrentbookings' %}">
+					View Current Bookings
+				</a>
 				<a class="nav-link" href="{% url 'adminhome:viewupcomingbookings' %}">
-					Upcoming Bookings Items
+					View Upcoming Bookings
+				</a>
+				<a class="nav-link" href="{% url 'adminhome:viewpreviousbookings' %}">
+					View Previous Bookings
 				</a>
 			</div>
-    	</div>
-  	</div>
-	<div class="accordion-item">
-    	<h2 class="accordion-header" id="flush-previousBookings">
-      	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsePreviousBookings" aria-expanded="false" aria-controls="flush-collapseOne">
-        	Previous Bookings
-      	</button>
-    	</h2>
-    	<div id="flush-collapsePreviousBookings" class="accordion-collapse collapse" aria-labelledby="flush-previousBookings" data-bs-parent="#sidebarAccordion">
-      		<div class="accordion-body">
-					<a class="nav-link" href="{% url 'adminhome:viewpreviousbookings' %}">
-						Previous Bookings Items
-					</a>
-			</div>
-    	</div>
-  	</div>
+		</div>
+	</div>
+	
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-ps">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseps" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -50,6 +44,7 @@
 			</div>
     	</div>
   	</div>
+	
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-pc">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsepc" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -73,6 +68,7 @@
 			</div>
     	</div>
   	</div>
+	
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-rn">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapsern" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -85,6 +81,7 @@
 			</div>
     	</div>
   	</div>
+	
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-editHome">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseEditHome" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -103,16 +100,23 @@
 			</div>
     	</div>
   	</div>
+	
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-up">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseup" aria-expanded="false" aria-controls="flush-collapseOne">
         	User Profiles
       	</button>
     	</h2>
-    	<div id="flush-collapseup" class="accordion-collapse collapse" aria-labelledby="flush-up" data-bs-parent="#sidebarAccordion">
+        <div id="flush-collapseup" class="accordion-collapse collapse" aria-labelledby="flush-up" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
-				User Profiles Items
-			</div>
-    	</div>
-  	</div>
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'adminhome:unverifiedvehicles' %}">
+							Verify Vehicles
+						</a>
+					</li>
+				</ul>
+    	    </div>
+        </div>
+    </div>
 </div>

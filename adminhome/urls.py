@@ -25,6 +25,7 @@ urlpatterns = [
     path('parkingspot/<int:pk>/', views.viewoneparkingspot, name='viewoneparkingspot'),
     path('parkingspot/<int:pk>/edit', views.updateparkingspot, name='updateparkingspot'),
     path('parkingspot/<int:pk>/delete', views.deleteparkingspot, name='deleteparkingspot'),
+    path('parkingspot/<int:pk>/showschedule/<str:start_date>/<str:end_date>/', views.showparkingspotschedule, name='showparkingspotschedule'),
 
     path('parkingcategory/create', views.createparkingcategory, name='createparkingcategory'),
     path('parkingcategory/', views.viewparkingcategory, name='viewparkingcategory'),
@@ -32,20 +33,30 @@ urlpatterns = [
     path('parkingcategory/<int:pk>/edit', views.updateparkingcategory, name='updateparkingcategory'),
     path('parkingcategory/<int:pk>/delete', views.deleteparkingcategory, name='deleteparkingcategory'),
 
-    path('upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
-    path('upcomingbookings/<int:pk>/', views.viewonebooking, name='viewonebooking'),
-    path('upcomingbookings/<int:pk>/edit', views.updateupcomingbooking, name='updateupcomingbooking'),
-    path('upcomingbookings/<int:pk>/delete', views.deleteupcomingbooking, name='deleteupcomingbooking'),
-    path('previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
-    path('previousbookings/<int:pk>/', views.viewoneprevbooking, name='viewoneprevbooking'),
-
+    # path('bookings/', views.userhome),
+    path('bookings/create/', views.checkavailability, name='createbooking'),
+    path('bookings/<int:bk_id>/', views.viewonebooking, name='viewonebooking'),
+    path('bookings/<int:bk_id>/edit/', views.editbooking, name='editbooking'),
+    path('bookings/<int:bk_id>/delete/', views.deletebooking, name='deletebooking'),
+    path('bookings/upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
+    path('bookings/currentbookings/', views.viewcurrentbookings, name='viewcurrentbookings'),
+    path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
+    path('bookings/<int:pk>/assignslot/', views.assignslot, name='assignslot'),
+    path('bookings/<int:pk>/assignslot/<int:ps>/confirm', views.confirmassignslot, name='confirmassignslot'),
+    
     path('userhome/editprofile', views.editprofile, name='editprofile'),
+    path('userhome/changepassword', views.changepassword, name='changepassword'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
-    path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
+    path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),
 
     # path('upcomingbookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
     path('viewlease/', views.viewlease, name='viewlease'),
+
+    path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),
+    path('userhome/bookingconfirmation/<int:vehicle_id>/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.create_booking, name='create_booking'),
+    path('adminhome/verifyvehicle/<int:pk>/', views.verifyvehicle, name='verifyvehicle'),
+    path('adminhome/unverifiedvehicles', views.unverifiedvehicles, name='unverifiedvehicles'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

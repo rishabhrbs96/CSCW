@@ -1,4 +1,4 @@
-{% extends "admin_base.html" %}
+{% extends "admin_base.html" %} <!-- need to add admin check for all booking pages -->
 
 {% block content %}
 
@@ -8,29 +8,38 @@
 
 <div class="card mb-2">
    <div class="card-body">
-      <h5 class="card-title d-flex justify-content-between align-items-center">
-         <div>
-            <a href="{% url 'adminhome:updateupcomingbooking' booking.id %}" class="btn btn-outline-dark m-2">
-               Edit
-            </a>
-            <a href="{% url 'adminhome:deleteupcomingbooking' booking.id %}" class="btn btn-outline-dark m-2">
-               Delete
-            </a>
-         </div>
-      </h5>
+
+      {% if request.user.is_authenticated %}
+         {% if request.user.is_superuser or request.user.is_staff %}
+            <h5 class="card-title d-flex justify-content-between align-items-center">
+               <div>
+                  <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                     Edit
+                  </a>
+                  <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
+                     Delete
+                  </a>
+                  <a href="{% url 'adminhome:assignslot' booking.id %}" class="btn btn-outline-dark m-2">
+                     {% if booking.parking_spot_id %}
+                        Change Parking Spot
+                     {% else %}
+                        Assign Parking Spot
+                     {% endif %}      
+                  </a>
+               </div>
+            </h5>
+         {% endif %}
+      {% endif %}
 
       <h6 class="card-subtitle mb-2 text-muted">
          Parking Spot: {{ booking.parking_spot_id }}
-         <a href="{% url 'adminhome:viewoneparkingspot' booking.parking_spot_id %}" class="btn btn-outline-dark m-2">
-            View Parking Spot {{ booking.parking_spot_id }}
-         </a>
          <!-- TODO: Need to add link to Bill ID here. -->
       </h6>
       <div class="card-text">
          <table class="table table-striped">
             <tbody>
                <tr>
-                  <td style="front-weight: bold">Start Time</td>
+                  <td style="font-weight: bold">Start Time</td>
                   <td>{{ booking.start_time }}</td>
                </tr>
                <tr>

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
 from django.contrib.auth.models import User
 
@@ -24,6 +24,28 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'username')
         # field_classes = {"username": UsernameField}
+
+
+class CustomUserChangeForm(UserChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(CustomUserChangeForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields['first_name'].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields['last_name'].widget = forms.TextInput(attrs={'class': 'form-control'})
+        self.fields['email'].widget = forms.EmailInput(attrs={'class': 'form-control'})
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username']
+
+
+class UserPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, user, *args, **kwargs):
+        super(UserPasswordChangeForm, self).__init__(user, *args, **kwargs)
+
+    class Meta:
+        model = User
+        # fields = ['first_name', 'last_name', 'email', 'username']
 
 
 class HomeForm(forms.Form):
@@ -89,6 +111,9 @@ class DateRangeForm(forms.Form):
 class BookingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BookingForm, self).__init__(*args, **kwargs)
+        self.fields['parking_spot_id'].required = False
+        self.fields['lease_doc_url'].required = False
+        self.fields['admin_comments'].required = False
 
     class Meta:
         model = Booking
@@ -101,3 +126,21 @@ class VehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
         fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
+
+
+class VehicleChangeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VehicleChangeForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Vehicle
+        fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
+
+class VerifyVehicleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VerifyVehicleForm, self).__init__(*args, **kwargs)
+        self.fields['insurance_expiry_date'] = forms.DateTimeField(help_text="Format yyyy-mm-dd")
+
+    class Meta:
+        model = Vehicle
+        fields = ['insurance_expiry_date']
