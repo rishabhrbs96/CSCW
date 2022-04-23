@@ -125,6 +125,14 @@ class VehicleForm(forms.ModelForm):
         fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
 
 
+class VehicleChangeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(VehicleChangeForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Vehicle
+        fields = ['name', 'model', 'make', 'build', 'color', 'insurance_doc']
+
 class VerifyVehicleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(VerifyVehicleForm, self).__init__(*args, **kwargs)
