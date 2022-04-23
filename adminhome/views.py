@@ -16,15 +16,18 @@ from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserFor
 import boto3
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
+import io
+from datetime import date
+from fpdf import FPDF
 
 from .models import Booking, ParkingSpot, ParkingCategory
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm
+    CustomUserCreationForm, DateRangeForm
 
 
 ################################################################################################################
@@ -36,7 +39,6 @@ def signout(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     logout(request)
     return redirect("adminhome:index")
-
 
 def signin(request):
     if request.method == "POST":
@@ -55,7 +57,6 @@ def signin(request):
     return render(request=request,
                   template_name="adminhome/signin.html",
                   context={"form": form})
-
 
 def signup(request):
     if request.method == "POST":
@@ -97,7 +98,6 @@ def createparkingspot(request):
                   template_name="adminhome/createparkingspot.html",
                   context={"form": form})
 
-
 def viewparkingspot(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -115,14 +115,12 @@ def viewparkingspot(request):
     return render(request, "adminhome/viewparkingspot.html", {'parkingspot_paginated': parkingspot_paginated,
                                                               'filter': parkingspot_list})
 
-
 def viewoneparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     context = {}
     context["parkingspot"] = ParkingSpot.objects.get(id=pk)
     return render(request, "adminhome/viewoneparkingspot.html", context)
-
 
 def updateparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -139,7 +137,6 @@ def updateparkingspot(request, pk):
                       template_name=f"adminhome/updateparkingspot.html",
                       context={"form": form}
                       )
-
 
 def deleteparkingspot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -179,7 +176,6 @@ def createparkingcategory(request):
                   template_name="adminhome/createparkingcategory.html",
                   context={"form": form})
 
-
 def viewparkingcategory(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -199,14 +195,12 @@ def viewparkingcategory(request):
                   {'parkingcategory_paginated': parkingcategory_paginated,
                    'filter': parkingcategory_list})
 
-
 def viewoneparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     context = {}
     context["parkingcategory"] = ParkingCategory.objects.get(id=pk)
     return render(request, "adminhome/viewoneparkingcategory.html", context)
-
 
 def updateparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -224,7 +218,6 @@ def updateparkingcategory(request, pk):
                       template_name=f"adminhome/updateparkingcategory.html",
                       context={"form": form}
                       )
-
 
 def deleteparkingcategory(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -248,10 +241,11 @@ def deleteparkingcategory(request, pk):
 def viewupcomingbookings(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    
-    upcoming_bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
 
-    page = request.GET.get('page', 1)    
+    upcoming_bookings_list = BookingFilter(request.GET,
+                                           queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+
+    page = request.GET.get('page', 1)
     paginator = Paginator(upcoming_bookings_list.qs, 2)
 
     try:
@@ -260,10 +254,10 @@ def viewupcomingbookings(request):
         upcoming_bookings_paginated = paginator.page(1)
     except EmptyPage:
         upcoming_bookings_paginated = paginator.page(paginator.num_pages)
-    
-    return render(request, "adminhome/viewupcomingbookings.html", {'upcoming_booking_paginated': upcoming_bookings_paginated,
-                                                                    'filter': upcoming_bookings_list})
 
+    return render(request, "adminhome/viewupcomingbookings.html",
+                  {'upcoming_booking_paginated': upcoming_bookings_paginated,
+                   'filter': upcoming_bookings_list})
 
 def viewonebooking(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -273,11 +267,10 @@ def viewonebooking(request, pk):
     context["booking"] = Booking.objects.get(id=pk)
     return render(request, "adminhome/viewonebooking.html", context)
 
-
 def updateupcomingbooking(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    
+
     booking = get_object_or_404(Booking, id=pk)
     form = BookingForm(request.POST or None, instance=booking)
 
@@ -286,7 +279,6 @@ def updateupcomingbooking(request, pk):
         return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
     else:
         return render(request=request, template_name="adminhome/updateupcomingbooking.html", context={"form": form})
-
 
 def deleteupcomingbooking(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -302,12 +294,12 @@ def deleteupcomingbooking(request, pk):
 
     return render(request, "deleteupcomingbooking.html", context=context)
 
-
 def viewpreviousbookings(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
-    previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+    previous_bookings_list = PreviousBookingFilter(request.GET, queryset=Booking.objects.filter(
+        end_time__lte=datetime.datetime.now()))
 
     page = request.GET.get('page', 1)
     paginator = Paginator(previous_bookings_list.qs, 2)
@@ -319,9 +311,9 @@ def viewpreviousbookings(request):
     except EmptyPage:
         previous_bookings_paginated = paginator.page(paginator.num_pages)
 
-    return render(request, "adminhome/viewpreviousbookings.html", {'previous_booking_paginated': previous_bookings_paginated,
-                                                                    'filter': previous_bookings_list})
-
+    return render(request, "adminhome/viewpreviousbookings.html",
+                  {'previous_booking_paginated': previous_bookings_paginated,
+                   'filter': previous_bookings_list})
 
 def viewoneprevbooking(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -341,13 +333,11 @@ def adminhome(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/adminhome.html")
 
-
 def edithome(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/edithome.html",
                   {"form": HomeForm(request.POST or None, extra=get_home_metedata())})
-
 
 def doedit(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -392,10 +382,8 @@ def doedit(request):
 
     return HttpResponseRedirect(reverse('adminhome:edithome'))
 
-
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
-
 
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
@@ -414,7 +402,6 @@ def editprofile(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/user_editprofile.html")
 
-
 def viewprofile(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -426,7 +413,6 @@ def viewprofile(request):
     vehicles = user.vehicle_set.all()
 
     return render(request, "adminhome/user_viewprofile.html", {'user': user, 'vehicles': vehicles})
-
 
 def addvehicle(request):
     if not request.user.is_authenticated:
@@ -462,26 +448,81 @@ def checkavailability(request):
     start_date = ''
     end_date = ''
 
-    if(request.method == "POST"):
+    if (request.method == "POST"):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
         for parking_category in parking_categories_all:
             _count = 0
             for parking_spot in parking_category.parking_spot.all():
-                bookings = parking_spot.booking.exclude(start_time__date__gt=request.POST['end_date'],).exclude(end_time__date__lt=request.POST['start_date'],)
-                if(not bookings.exists()):
+                bookings = parking_spot.booking.exclude(start_time__date__gt=request.POST['end_date'], ).exclude(
+                    end_time__date__lt=request.POST['start_date'], )
+                if (not bookings.exists()):
                     _count = _count + 1
-            if(_count > 0):
+            if (_count > 0):
                 parking_categories_available.append(parking_category)
 
     form = DateRangeForm
     return render(
-                    request, 
-                    "adminhome/checkavailability.html", 
-                    {
-                        'parking_categories_available': parking_categories_available,
-                        'form': form,
-                        'start_date': start_date,
-                        'end_date': end_date,
-                    }
-                )
+        request,
+        "adminhome/checkavailability.html",
+        {
+            'parking_categories_available': parking_categories_available,
+            'form': form,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+    )
+
+
+################################################################################################################
+#                                       LEASE GENERATION                                                       #
+################################################################################################################
+
+def generatelease(booking_id, user):
+    booking = Booking.objects.get(id=booking_id)
+    duration = booking.end_time - booking.start_time
+    if duration >= 7 and duration <=30:
+        freq = 'week'
+    elif duration < 7 :
+        freq = 'day'
+    else:
+        freq = 'month'
+    lease_variables = {
+        '<lease_date': date.today(),
+        '<user_name>': user,
+        '<parking_spot>': booking.parking_spot_id,
+        '<price>': 0,
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time,
+        '<end_date>': booking.end_time,
+    }
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables:
+        if key in content:
+            content = content.replace(key, value)
+
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+
+    pdf.set_font('Arial', size=12)
+
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    pdf.output("sample.pdf")  # Replace this with S3
+
+def viewlease(request, id):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    # file return the correct lease from db
+    generatelease(id,request.user)
+
+    return FileResponse(open('sample.pdf', 'rb'), as_attachment=False, filename='lease_document.pdf')

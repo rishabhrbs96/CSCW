@@ -44,4 +44,8 @@ urlpatterns = [
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
+
+    # path('upcomingbookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
+    path('viewlease/', views.viewlease, name='viewlease'),
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
