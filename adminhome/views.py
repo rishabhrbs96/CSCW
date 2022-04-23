@@ -550,9 +550,10 @@ def checkavailability(request):
         for parking_category in parking_categories_all:
             _count = 0
             for parking_spot in parking_category.parking_spot.all():
-                bookings = parking_spot.booking.exclude(start_time__date__gt=request.POST['end_date'],).exclude(end_time__date__lt=request.POST['start_date'],)
-                if(not bookings.exists()):
-                    _count = _count + 1
+                if(parking_spot.is_active):
+                    bookings = parking_spot.booking.exclude(start_time__date__gte=request.POST['end_date'],).exclude(end_time__date__lt=request.POST['start_date'],)
+                    if(not bookings.exists()):
+                        _count = _count + 1
             if(_count > 0):
                 parking_categories_available.append(parking_category)
 
