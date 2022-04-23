@@ -12,19 +12,19 @@ from django.views import generic
 from django.urls import reverse
 
 from .forms import ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, VehicleForm, VerifyVehicleForm
+    CustomUserCreationForm, VehicleForm, VerifyVehicleForm, CustomUserChangeForm, UserPasswordChangeForm
 import boto3
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm
+                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm
 
 
 ################################################################################################################
@@ -415,12 +415,44 @@ def userhome(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
     return render(request, "adminhome/userhome.html")
 
-def editprofile(request):
-    if (not request.user.is_authenticated):
+
+def changepassword(request):
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_editprofile.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = UserPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect("adminhome:viewprofile")
+    else:
+        form = UserPasswordChangeForm(request.user)
+    return render(request=request,
+                  template_name="adminhome/user_changepassword.html",
+                  context={"form": form})
+
+
+def editprofile(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if request.method == "POST":
+        form = CustomUserChangeForm(request.POST or None, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("adminhome:viewprofile")
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    return render(request=request,
+                  template_name="adminhome/user_editprofile.html",
+                  context={"form": form})
 
 
 def viewprofile(request):
@@ -488,12 +520,25 @@ def verifyvehicle(request, pk):
     return HttpResponseRedirect(reverse('adminhome:unverifiedvehicles'))
 
 
-def editvehicle(request):
-    if (not request.user.is_authenticated):
+def editvehicle(request, pk):
+    if not request.user.is_authenticated :
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_editvehicle.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    vehicle = Vehicle.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        form = VehicleChangeForm(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            vehicle.is_verified = False
+            vehicle.save()
+            return HttpResponseRedirect(reverse('adminhome:viewprofile'))
+    else:
+        form = VehicleChangeForm(instance=vehicle)
+    return render(request, "adminhome/user_editvehicle.html", context={"form": form})
 
 
 def checkavailability(request):
