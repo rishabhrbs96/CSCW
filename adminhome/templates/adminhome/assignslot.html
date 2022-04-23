@@ -1,7 +1,16 @@
 {% extends "admin_base.html" %}
+{% load static %}
 
-</style>
 {% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+        trigger : 'hover'
+    });
+});
+</script>
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h2">Assign Slot: <a href="{% url 'adminhome:viewonebooking' current_booking.id %}">{{ current_booking }}</a> </h1>
 </div>
@@ -17,9 +26,13 @@
         <div class="progress" style="height: 20px;">
           {% for v in i.1.1 %}
             {% if v.0 %}
-              <div onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-danger myBox" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+              {% if current_booking.id == v.2.id %}
+                <div data-toggle="popover" title="{{ v.2 }}" data-bs-content="From {{ v.2.start_time.date }} to {{ v.2.end_time.date }}" onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-warning" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+              {% else %}
+                <div data-toggle="popover" title="{{ v.2 }}" data-bs-content="From {{ v.2.start_time.date }} to {{ v.2.end_time.date }}" onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-danger" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+              {% endif %}
             {% else %}
-              <div class="progress-bar bg-success" role="progressbar" style="width: {{ v.1 }}%"></div>
+              <div data-toggle="popover" title="Click to assign slot!" data-bs-content="Click to assign slot {{ i.0 }} to the booking." onclick="location.href='{% url 'adminhome:confirmassignslot' current_booking.id i.0.id %}';" class="progress-bar bg-success" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;"></div>
             {% endif %}
           {% endfor %}
         </div>

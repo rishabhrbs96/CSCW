@@ -546,18 +546,25 @@ def showparkingspotschedule(request, pk, start_date, end_date):
             pc[-1][1][1].append([False, 100, ""])
             pc[-1][1][0] = 100
         else:
+            bookings[0].start_time = bookings[0].start_time.replace(tzinfo=None)
+            bookings[0].end_time = bookings[0].end_time.replace(tzinfo=None)
             if(bookings[0].start_time > start_time):
                 wd = bookings[0].start_time - start_time
                 pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
                 pc[-1][1][0] += (100*wd.days)/twd
             i = 0
             for booking in bookings:
+                booking.start_time = booking.start_time.replace(tzinfo=None)
+                booking.end_time = booking.end_time.replace(tzinfo=None)
                 s = max(booking.start_time, start_time)
                 e = min(booking.end_time, end_time)
                 wd = e - s
                 pc[-1][1][1].append([True, (100*wd.days)/twd, booking])
                 i = i + 1
                 if(i < len_bookings):
+                    bookings[i].start_time = bookings[i].start_time.replace(tzinfo=None)
+                    bookings[i].end_time = bookings[i].end_time.replace(tzinfo=None)
+                    s = max(booking.start_time, start_time)
                     wd = bookings[i].start_time - e
                     pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
                     pc[-1][1][0] += (100*wd.days)/twd
@@ -569,12 +576,31 @@ def showparkingspotschedule(request, pk, start_date, end_date):
     pc.sort(reverse=True, key=lambda x: x[1][0])
     
     return render(request, 
-                    "adminhome/assignslot.html", 
+                    "adminhome/showparkingspotschedule.html", 
                     {
-                        'current_booking' : parking_spot,
+                        'start_date' : start_date,
+                        'end_date' : end_date,
+                        'parking_spot' : parking_spot,
                         'pc' : pc
                     }
                 )
+
+def confirmassignslot(request, pk, ps):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    booking = Booking.objects.get(id=pk)
+    parking_spot = ParkingSpot.objects.get(id=ps)
+    context["booking"] = booking
+    context["parking_spot"] = parking_spot
+
+    if request.method == 'POST':
+        booking.parking_spot_id = parking_spot
+        booking.save()
+        return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
+
+    return render(request, "confirmassignslot.html", context=context)
 
 
 def assignslot(request, pk):
