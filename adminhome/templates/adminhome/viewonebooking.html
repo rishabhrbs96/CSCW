@@ -19,13 +19,20 @@
                   <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
                      Delete
                   </a>
+                  <a href="{% url 'adminhome:assignslot' booking.id %}" class="btn btn-outline-dark m-2">
+                     {% if booking.parking_spot_id %}
+                        Change Parking Spot
+                     {% else %}
+                        Assign Parking Spot
+                     {% endif %}      
+                  </a>
                </div>
             </h5>
          {% endif %}
       {% endif %}
 
       <h6 class="card-subtitle mb-2 text-muted">
-         Parking Spot: {{ booking.parking_spot_id.id }}
+         Parking Spot: {{ booking.parking_spot_id }}
          <!-- TODO: Need to add link to Bill ID here. -->
       </h6>
       <div class="card-text">
