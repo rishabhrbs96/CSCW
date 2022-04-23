@@ -24,7 +24,7 @@ from django.contrib import messages
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm
+                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm
 
 
 ################################################################################################################
@@ -512,12 +512,25 @@ def verifyvehicle(request, pk):
     return HttpResponseRedirect(reverse('adminhome:unverifiedvehicles'))
 
 
-def editvehicle(request):
-    if (not request.user.is_authenticated):
+def editvehicle(request, pk):
+    if not request.user.is_authenticated :
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-    return render(request, "adminhome/user_editvehicle.html")
+
+    if request.user.is_staff or request.user.is_superuser:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    vehicle = Vehicle.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        form = VehicleChangeForm(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            vehicle.is_verified = False
+            vehicle.save()
+            return HttpResponseRedirect(reverse('adminhome:viewprofile'))
+    else:
+        form = VehicleChangeForm(instance=vehicle)
+    return render(request, "adminhome/user_editvehicle.html", context={"form": form})
 
 
 def checkavailability(request):

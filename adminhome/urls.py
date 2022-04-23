@@ -44,7 +44,7 @@ urlpatterns = [
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
-    path('userhome/editvehicle', views.editvehicle, name='editvehicle'),
+    path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),
 
     path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),
     path('userhome/bookingconfirmation/<int:vehicle_id>/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.create_booking, name='create_booking'),
