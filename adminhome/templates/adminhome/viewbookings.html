@@ -1,9 +1,15 @@
-{% extends "admin_base.html" %}
+{% extends "admin_base.html" %} <!-- TODO: Add if-else logic -->
 
 {% block content %}
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-   <h1 class="h2">View Upcoming Bookings</h1>
+   {% if bookingsType == 'upcoming_bookings' %}
+      <h1 class="h2">View Upcoming Bookings</h1>
+   {% elif bookingsType == 'current_bookings' %}
+      <h1 class="h2">View Current Bookings</h1>
+   {% else %}
+      <h1 class="h2">View Previous Bookings</h1>
+   {% endif %}
 </div>
 
 <form method="get">
@@ -14,7 +20,7 @@
    </div>
 </form>
 
-{% for booking in upcoming_booking_paginated %}
+{% for booking in bookings_paginated %}
    <div class="card cardhover mb-2">
       <div class="card-body">
          <h5 class="card-title d-flex justify-content-between align-items-center">
@@ -34,6 +40,6 @@
    </div>
 {% endfor %}
 
-{% include "adminhome/paginator.html" with paginator=upcoming_booking_paginated %}
+{% include "adminhome/paginator.html" with paginator=bookings_paginated %}
 
 {% endblock content %}

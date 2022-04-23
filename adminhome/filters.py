@@ -31,7 +31,7 @@ class BookingFilter(django_filters.FilterSet):
         #     'start_time': DatePickerInput,
         # }
 
-class PreviousBookingFilter(django_filters.FilterSet):
+class PreviousAndCurrentBookingFilter(django_filters.FilterSet):
 
     class Meta:
         model = Booking

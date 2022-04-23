@@ -111,6 +111,9 @@ class DateRangeForm(forms.Form):
 class BookingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BookingForm, self).__init__(*args, **kwargs)
+        self.fields['parking_spot_id'].required = False
+        self.fields['lease_doc_url'].required = False
+        self.fields['admin_comments'].required = False
 
     class Meta:
         model = Booking
