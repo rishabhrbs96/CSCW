@@ -7,9 +7,15 @@
 		<div class="collapse navbar-collapse" id="navbarResponsive">
 			<ul class="navbar-nav ms-auto">
 				{% if show_options %}
-					<li class="nav-item active">
-						<a class="nav-link" href="#">Home</a>
-					</li>
+					{% if request.user.is_authenticated %}
+         				<li class="nav-item active">
+							{% if request.user.is_superuser or request.user.is_staff %}
+								<a class="nav-link" href="{% url 'adminhome:adminhome' %}">Admin Dashboard</a>
+							{% else %}
+								<a class="nav-link" href="{% url 'adminhome:userhome' %}">User Dashboard</a>
+							{% endif %}
+						</li>
+					{% endif %}
 					<li class="nav-item">
 						<a class="nav-link" href="{% url 'adminhome:createbooking' %}">Book Now!</a>
 					</li>
