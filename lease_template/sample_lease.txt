@@ -4,10 +4,10 @@ ______________________________________________________________________________
 This rental agreement is made on the <lease_date>, between <user_name> and Cameron RV
 Park , with its principal office located at 1425 Turtle Creek, Lufkin, Texas 75904, referred to herein as Lessor, and
 (Lessee-Guest) referred to herein as Lessee.
-Lessor leases to Lessee and Lessee leases from Lessor, for the term of this agreement, RV Spot #{<parking_spot>} of the
+Lessor leases to Lessee and Lessee leases from Lessor, for the term of this agreement, RV Spot #<parking_spot> of the
 Cameron RV Park and being hereafter referred to as RV Spot (whether one or more), and pursuant to the following terms and conditions:
 
-Rent: Lessee agrees to pay as rental $ <price> / <lease_frequency> for RV spot(s) beginning <start_date> <current_year> through <end_date> payable without demand, either by credit card or check on 1st of each month.
+Rent: Lessee agrees to pay as rental $ <price> / <lease_frequency> for RV spot(s) beginning <start_date> through <end_date> payable without demand, either by credit card or check on 1st of each month.
 Utilities/Cleaning: Lessor shall pay for all water, electricity, cable, and internet and other utilities supplied.
 Assignment and Subletting: Lessee shall not sublet the RV spots, or any part of the Premises, or assign this agreement without Lessor's prior, express, and written consent.
 Default: Any failure by Lessee to pay rent or other charges promptly when due or to comply with any other term or condition of this agreement shall, at the option of Lessor, promptly terminate this tenancy and forfeit all rights of Lessee under this agreement.
