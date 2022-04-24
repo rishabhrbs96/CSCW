@@ -167,7 +167,7 @@ class BillDetailForm(forms.ModelForm):
         self.fields['paid_amount'] = forms.DecimalField(label='Paid Amount', initial=0)
         self.fields['unpaid_amount'] = forms.DecimalField(label='Unpaid Amount', initial=0)
         self.fields['misc_charges'] = forms.DecimalField(label='Miscellaneous Charges', required=False, initial=0)
-        self.fields['comments'] = forms.DecimalField(required=False)
+        self.fields['comments'] = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), required=False)
 
 
     class Meta:
