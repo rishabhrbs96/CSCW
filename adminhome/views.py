@@ -751,7 +751,7 @@ def create_booking(request, vehicle_id, parking_category_id, start_date, end_dat
         {'booking': booking_obj}
     )
 
-
+#TODO:Delete this method once lease generation api is called by admin interface
 def viewlease_test(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))

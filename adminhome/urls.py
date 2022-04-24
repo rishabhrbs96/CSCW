@@ -53,6 +53,7 @@ urlpatterns = [
 
     path('bookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
     path('bookings/<int:pk>/signedlease', views.signedlease, name='signedlease'),
+    #TODO:Delete this below url once lease generation api is called by admin interface
     path('viewleasetest/', views.viewlease_test, name='viewlease_test'),
 
     path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),
