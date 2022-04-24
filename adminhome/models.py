@@ -100,4 +100,5 @@ class BillDetail(models.Model):
     paid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
     unpaid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
     misc_charges = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
+    comments = models.TextField(null=True)
     booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="bills")

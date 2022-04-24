@@ -172,4 +172,4 @@ class BillDetailForm(forms.ModelForm):
 
     class Meta:
         model = BillDetail
-        fields = ['bill_date', 'init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges']
+        fields = ['bill_date', 'init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges', 'comments']
