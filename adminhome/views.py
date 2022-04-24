@@ -1,4 +1,6 @@
 import json, requests, datetime, boto3
+import random
+import time
 
 from django.template import context
 
@@ -24,8 +26,11 @@ from django.contrib import messages
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm
+    CustomUserCreationForm, DateRangeForm, VehicleChangeForm
 
+from datetime import date
+from fpdf import FPDF
+import string
 
 ################################################################################################################
 #                                       USER AUTHENTICATION                                                    #
@@ -246,33 +251,35 @@ def deleteparkingcategory(request, pk):
 ################################################################################################################
 
 def viewbookings(request, bookingsType):
-    if(not (request.user.is_authenticated)):
+    if (not (request.user.is_authenticated)):
         return signin(request)
-    
-    if(not (request.user.is_staff or request.user.is_superuser)):
-        if(bookingsType == ViewBookings.UPCOMING_BOOKINGS):
+
+    if (not (request.user.is_staff or request.user.is_superuser)):
+        if (bookingsType == ViewBookings.UPCOMING_BOOKINGS):
             bookings_list = BookingFilter(request.GET, queryset=
-                            Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id = request.user))
-        elif(bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
+            Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id=request.user))
+        elif (bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
-                            Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id = request.user))
+            Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id=request.user))
         else:
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
-                            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now(),
-                            vehicle_id__user_id = request.user))
+            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now(),
+                                   vehicle_id__user_id=request.user))
     else:
-        if(bookingsType == ViewBookings.UPCOMING_BOOKINGS):
-            bookings_list = BookingFilter(request.GET, queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
-        elif(bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
-            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=Booking.objects.filter(end_time__lte=datetime.datetime.now()))
+        if (bookingsType == ViewBookings.UPCOMING_BOOKINGS):
+            bookings_list = BookingFilter(request.GET,
+                                          queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
+        elif (bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
+            bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=Booking.objects.filter(
+                end_time__lte=datetime.datetime.now()))
         else:
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
-                            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now()))
+            Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now()))
 
     # TODO: check the datetime.now() time-zone.
     print("date: ", datetime.date.today())
 
-    page = request.GET.get('page', 1)    
+    page = request.GET.get('page', 1)
     paginator = Paginator(bookings_list.qs, 2)
 
     try:
@@ -282,7 +289,8 @@ def viewbookings(request, bookingsType):
     except EmptyPage:
         bookings_paginated = paginator.page(paginator.num_pages)
 
-    return render(request, "adminhome/viewbookings.html", {'bookings_paginated': bookings_paginated, 'filter': bookings_list, 'bookingsType': bookingsType})
+    return render(request, "adminhome/viewbookings.html",
+                  {'bookings_paginated': bookings_paginated, 'filter': bookings_list, 'bookingsType': bookingsType})
 
 
 def viewupcomingbookings(request):
@@ -298,9 +306,9 @@ def viewcurrentbookings(request):
 
 
 def viewonebooking(request, bk_id):
-    if(not (request.user.is_authenticated)):
+    if (not (request.user.is_authenticated)):
         return signin(request)
-    
+
     # NOTE: Logic for admin/user view is handled inside the HTML file.
     context = {}
     context["booking"] = Booking.objects.get(id=bk_id)
@@ -310,7 +318,7 @@ def viewonebooking(request, bk_id):
 def editbooking(request, bk_id):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    
+
     booking = get_object_or_404(Booking, id=bk_id)
     form = BookingForm(request.POST or None, instance=booking)
 
@@ -404,6 +412,7 @@ def index(request):
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
 
+
 def userhome(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -477,6 +486,7 @@ def addvehicle(request):
             vehicle = form.save(commit=False)
             vehicle.user_id_id = request.user.id
             vehicle.insurance_doc.name = '{}'.format(vehicle.uuid)
+            vehicle.insurance_doc.name = '{}'.format(vehicle.uuid)
             vehicle.save()
             return HttpResponseRedirect(reverse('adminhome:userhome'))
     else:
@@ -487,7 +497,7 @@ def addvehicle(request):
 
 
 def unverifiedvehicles(request):
-    if not request.user.is_authenticated :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if not (request.user.is_staff or request.user.is_superuser):
@@ -502,7 +512,7 @@ def unverifiedvehicles(request):
 
 
 def verifyvehicle(request, pk):
-    if not request.user.is_authenticated :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if not (request.user.is_staff or request.user.is_superuser):
@@ -517,7 +527,7 @@ def verifyvehicle(request, pk):
 
 
 def editvehicle(request, pk):
-    if not request.user.is_authenticated :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if request.user.is_staff or request.user.is_superuser:
@@ -542,8 +552,8 @@ def checkavailability(request):
     parking_categories_available = []
     start_date = ''
     end_date = ''
-
-    if(request.method == "POST"):
+    
+    if (request.method == "POST"):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
         form = DateRangeForm(request.POST)
@@ -562,41 +572,43 @@ def checkavailability(request):
     else:
         form = DateRangeForm
     return render(
-                    request, 
-                    "adminhome/checkavailability.html", 
-                    {
-                        'parking_categories_available': parking_categories_available,
-                        'form': form,
-                        'start_date': start_date,
-                        'end_date': end_date,
-                    }
-                )
+        request,
+        "adminhome/checkavailability.html",
+        {
+            'parking_categories_available': parking_categories_available,
+            'form': form,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+    )
 
 
 def showparkingspotschedule(request, pk, start_date, end_date):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    start_time = datetime.datetime.combine(datetime.datetime.strptime(start_date, '%Y-%m-%d'), datetime.datetime.min.time())
+    start_time = datetime.datetime.combine(datetime.datetime.strptime(start_date, '%Y-%m-%d'),
+                                           datetime.datetime.min.time())
     end_time = datetime.datetime.combine(datetime.datetime.strptime(end_date, '%Y-%m-%d'), datetime.datetime.min.time())
     twd = (end_time - start_time).days
-    
+
     pc = []
     parking_spot = ParkingSpot.objects.get(id=pk)
-    
-    if(parking_spot.is_active):
+
+    if (parking_spot.is_active):
         pc.append([parking_spot, [0, []]])
-        bookings = parking_spot.booking.filter(start_time__lte=end_time,).filter(end_time__gte=start_time,).order_by('start_time', 'end_time')
+        bookings = parking_spot.booking.filter(start_time__lte=end_time, ).filter(end_time__gte=start_time, ).order_by(
+            'start_time', 'end_time')
         len_bookings = len(bookings)
-        if(len_bookings == 0):
+        if (len_bookings == 0):
             pc[-1][1][1].append([False, 100, ""])
             pc[-1][1][0] = 100
         else:
             bookings[0].start_time = bookings[0].start_time.replace(tzinfo=None)
             bookings[0].end_time = bookings[0].end_time.replace(tzinfo=None)
-            if(bookings[0].start_time > start_time):
+            if (bookings[0].start_time > start_time):
                 wd = bookings[0].start_time - start_time
-                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                pc[-1][1][0] += (100*wd.days)/twd
+                pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                pc[-1][1][0] += (100 * wd.days) / twd
             i = 0
             for booking in bookings:
                 booking.start_time = booking.start_time.replace(tzinfo=None)
@@ -604,31 +616,32 @@ def showparkingspotschedule(request, pk, start_date, end_date):
                 s = max(booking.start_time, start_time)
                 e = min(booking.end_time, end_time)
                 wd = e - s
-                pc[-1][1][1].append([True, (100*wd.days)/twd, booking])
+                pc[-1][1][1].append([True, (100 * wd.days) / twd, booking])
                 i = i + 1
-                if(i < len_bookings):
+                if (i < len_bookings):
                     bookings[i].start_time = bookings[i].start_time.replace(tzinfo=None)
                     bookings[i].end_time = bookings[i].end_time.replace(tzinfo=None)
                     s = max(booking.start_time, start_time)
                     wd = bookings[i].start_time - e
-                    pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                    pc[-1][1][0] += (100*wd.days)/twd
-            if(bookings[len_bookings-1].end_time < end_time):
-                wd = end_time - bookings[len_bookings-1].end_time
-                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                pc[-1][1][0] += (100*wd.days)/twd  
-    
+                    pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                    pc[-1][1][0] += (100 * wd.days) / twd
+            if (bookings[len_bookings - 1].end_time < end_time):
+                wd = end_time - bookings[len_bookings - 1].end_time
+                pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                pc[-1][1][0] += (100 * wd.days) / twd
+
     pc.sort(reverse=True, key=lambda x: x[1][0])
-    
-    return render(request, 
-                    "adminhome/showparkingspotschedule.html", 
-                    {
-                        'start_date' : start_date,
-                        'end_date' : end_date,
-                        'parking_spot' : parking_spot,
-                        'pc' : pc
-                    }
-                )
+
+    return render(request,
+                  "adminhome/showparkingspotschedule.html",
+                  {
+                      'start_date': start_date,
+                      'end_date': end_date,
+                      'parking_spot': parking_spot,
+                      'pc': pc
+                  }
+                  )
+
 
 def confirmassignslot(request, pk, ps):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
@@ -651,49 +664,51 @@ def confirmassignslot(request, pk, ps):
 def assignslot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    
+
     current_booking = Booking.objects.get(id=pk)
     twd = (current_booking.end_time - current_booking.start_time).days
-    
+
     pc = []
     for parking_spot in current_booking.pc_id.parking_spot.all():
-        if(parking_spot.is_active):
+        if (parking_spot.is_active):
             pc.append([parking_spot, [0, []]])
-            bookings = parking_spot.booking.filter(start_time__lte=current_booking.end_time,).filter(end_time__gte=current_booking.start_time,).order_by('start_time', 'end_time')
+            bookings = parking_spot.booking.filter(start_time__lte=current_booking.end_time, ).filter(
+                end_time__gte=current_booking.start_time, ).order_by('start_time', 'end_time')
             len_bookings = len(bookings)
-            if(len_bookings == 0):
+            if (len_bookings == 0):
                 pc[-1][1][1].append([False, 100, ""])
                 pc[-1][1][0] = 100
                 continue
-            if(bookings[0].start_time > current_booking.start_time):
+            if (bookings[0].start_time > current_booking.start_time):
                 wd = bookings[0].start_time - current_booking.start_time
-                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                pc[-1][1][0] += (100*wd.days)/twd
+                pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                pc[-1][1][0] += (100 * wd.days) / twd
             i = 0
             for booking in bookings:
                 s = max(booking.start_time, current_booking.start_time)
                 e = min(booking.end_time, current_booking.end_time)
                 wd = e - s
-                pc[-1][1][1].append([True, (100*wd.days)/twd, booking])
+                pc[-1][1][1].append([True, (100 * wd.days) / twd, booking])
                 i = i + 1
-                if(i < len_bookings):
+                if (i < len_bookings):
                     wd = bookings[i].start_time - e
-                    pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                    pc[-1][1][0] += (100*wd.days)/twd
-            if(bookings[len_bookings-1].end_time < current_booking.end_time):
-                wd = current_booking.end_time - bookings[len_bookings-1].end_time
-                pc[-1][1][1].append([False, (100*wd.days)/twd, ""])
-                pc[-1][1][0] += (100*wd.days)/twd 
-    
+                    pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                    pc[-1][1][0] += (100 * wd.days) / twd
+            if (bookings[len_bookings - 1].end_time < current_booking.end_time):
+                wd = current_booking.end_time - bookings[len_bookings - 1].end_time
+                pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
+                pc[-1][1][0] += (100 * wd.days) / twd
+
     pc.sort(reverse=True, key=lambda x: x[1][0])
-    
-    return render(request, 
-                    "adminhome/assignslot.html", 
-                    {
-                        'current_booking' : current_booking,
-                        'pc' : pc
-                    }
-                )
+
+    return render(request,
+                  "adminhome/assignslot.html",
+                  {
+                      'current_booking': current_booking,
+                      'pc': pc
+                  }
+                  )
+
 
 def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
     if (not request.user.is_authenticated):
@@ -705,32 +720,227 @@ def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
     vehicles_list = Vehicle.objects.all()
     user_vehicles = []
     for vehicle in vehicles_list:
-        if(vehicle.user_id == request.user):
+        if (vehicle.user_id == request.user):
             user_vehicles.append(vehicle)
 
-    return render(  request,
+    return render(request,
 
-                    "adminhome/booking_pick_vehicle.html",
-                    {
-                        'user_vehicles': user_vehicles,
-                        'start_date': start_date,
-                        'end_date': end_date,
-                        'parking_category_id': parking_category_id,
-                    }
-                 )
+                  "adminhome/booking_pick_vehicle.html",
+                  {
+                      'user_vehicles': user_vehicles,
+                      'start_date': start_date,
+                      'end_date': end_date,
+                      'parking_category_id': parking_category_id,
+                  }
+                  )
 
 
 def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
     vehicle = Vehicle.objects.get(id=vehicle_id)
     pc = ParkingCategory.objects.get(id=parking_category_id)
-    booking_obj = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date, end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
+    booking_obj = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date,
+                          end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
 
-    if(request.method == "POST"):
+    if (request.method == "POST"):
         booking_obj.save()
         return render(request, "adminhome/userhome.html")
 
     return render(
-                    request,
-                    "adminhome/bookingconfirmation.html",
-                    {'booking': booking_obj}
-                 )
+        request,
+        "adminhome/bookingconfirmation.html",
+        {'booking': booking_obj}
+    )
+
+#TODO:Delete this method once lease generation api is called by admin interface
+def viewlease_test(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    # file return the correct lease from db
+    booking_id = 8
+    vehicle = Booking.objects.get(id=booking_id).vehicle_id
+    generatelease(booking_id)
+    lease_url = Booking.objects.get(id=booking_id).lease_doc_url
+
+    return HttpResponseRedirect(lease_url)
+
+
+def generatelease(booking_id):
+
+    booking = Booking.objects.get(id=booking_id)
+    vehicle = booking.vehicle_id
+    parking_category = booking.pc_id
+    user = vehicle.user_id
+
+    lease_duration = (booking.end_time - booking.start_time).days
+
+    if 7 <= lease_duration <= 30:
+        freq = 'Week'
+        price = parking_category.weekly_rate
+    elif lease_duration < 7:
+        freq = 'Day'
+        price = parking_category.daily_rate
+    else:
+        freq = 'Month'
+        price = parking_category.monthly_rate
+
+    lease_variables = {
+        '<lease_date>': date.today().strftime("%b %d %Y"),
+        '<user_name>': str(user.first_name) + " " + str(user.last_name),
+        '<parking_spot>': "TBD",
+        '<price>': str(price),
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time.strftime("%b %d %Y"),
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': "",
+        '<sign_date>': ""
+    }
+
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables.items():
+        if key in content:
+            content = content.replace(key, value)
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', size=12)
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    # save the file in the s3 aws
+    session = boto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+    s3 = session.resource('s3')
+    key_value = 'lease/{}_{}_lease_{}.pdf'.format(vehicle.user_id, booking_id,
+                                                  ''.join(random.choice(string.ascii_lowercase) for i in range(20)))
+    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
+                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
+                                                                   ,'S').encode('latin-1'),
+                                                   ContentType='application/pdf')
+    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
+    booking.lease_doc_url = s3_url + key_value
+    booking.save()
+
+
+def generatesignedlease(booking_id):
+    booking = Booking.objects.get(id=booking_id)
+    vehicle = booking.vehicle_id
+    parking_category = booking.pc_id
+    user = vehicle.user_id
+    lease_sign_time = datetime.datetime.today()
+
+    lease_duration = (booking.end_time - booking.start_time).days
+
+    if 7 <= lease_duration <= 30:
+        freq = 'Week'
+        price = parking_category.weekly_rate
+    elif lease_duration < 7:
+        freq = 'Day'
+        price = parking_category.daily_rate
+    else:
+        freq = 'Month'
+        price = parking_category.monthly_rate
+
+    lease_variables = {
+        '<lease_date>': date.today().strftime("%b %d %Y"),
+        '<user_name>': str(user.first_name) + " " + str(user.last_name),
+        '<parking_spot>': "TBD",
+        '<price>': str(price),
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time.strftime("%b %d %Y"),
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': str(user.first_name) + " " + str(user.last_name),
+        '<sign_date>': date.today().strftime("%b %d %Y")
+    }
+
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables.items():
+        if key in content:
+            content = content.replace(key, value)
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', size=12)
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    # save the file in the s3 aws
+    session = boto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+    s3 = session.resource('s3')
+    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
+
+    key_value = booking.lease_doc_url.replace(s3_url,'')
+    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
+                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
+                                                                   , 'S').encode('latin-1'),
+                                                   ContentType='application/pdf')
+
+    # Update booking object
+    booking.lease_is_signed_by_user = True
+    # TODO:
+    '''
+    update the lease sign datetime field here with the value stored in lease_sign_time
+    '''
+    booking.save()
+
+
+def signedlease(request,pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    booking = get_object_or_404(Booking, id=pk)
+    lease_url = booking.lease_doc_url
+
+    generatesignedlease(pk)
+
+    return render(
+        request,
+        "adminhome/viewlease.html",
+        {'lease': lease_url,
+         'booking': booking}
+    )
+
+
+def viewlease(request, pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    booking = get_object_or_404(Booking, id=pk)
+    if (request.user == booking.vehicle_id.user_id or request.user.is_staff or request.user.is_superuser) and booking.lease_doc_url != '':
+        lease_url = booking.lease_doc_url
+
+        return render(
+            request,
+            "adminhome/viewlease.html",
+            {'lease': lease_url,
+             'booking': booking}
+        )
+
+    else:
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+
+
+
+
+
+
+

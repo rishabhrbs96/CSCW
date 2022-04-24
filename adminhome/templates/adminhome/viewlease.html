@@ -1,0 +1,26 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">View Lease</h1>
+</div> 
+<form method="get">
+	<div class="container">
+
+		<embed src="{{lease}}" width="1150" height="500"
+ 		type="application/pdf">
+
+	</div>
+	<div>
+			{% if not booking.lease_is_signed_by_user %}
+						<a href="{% url 'adminhome:signedlease' booking.id %}" class="btn btn-outline-dark shadow-2 mb-4" style=""\>
+					Sign Lease</a>
+
+			{% endif %}
+	</div>
+
+</form>
+
+
+{% endblock content %}

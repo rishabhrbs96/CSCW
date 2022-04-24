@@ -29,12 +29,14 @@
                </div>
             </h5>
          {% endif %}
+
       {% endif %}
 
       <h6 class="card-subtitle mb-2 text-muted">
          Parking Spot: {{ booking.parking_spot_id }}
          <!-- TODO: Need to add link to Bill ID here. -->
       </h6>
+
       <div class="card-text">
          <table class="table table-striped">
             <tbody>
@@ -72,6 +74,10 @@
                </tr>
             </tbody>
          </table>
+         {%if booking.lease_doc_url != ""%}
+            <a href="{% url 'adminhome:viewlease' booking.id %}" class="btn btn-outline-dark shadow-2 mb-4" style=""\>
+              View Lease</a>
+         {% endif %}
       </div>
    </div>
 </div>
