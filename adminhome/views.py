@@ -752,14 +752,14 @@ def create_booking(request, vehicle_id, parking_category_id, start_date, end_dat
     )
 
 
-def viewlease(request):
+def viewlease_test(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     if (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
 
     # file return the correct lease from db
-    booking_id = 1
+    booking_id = 7
     vehicle = Booking.objects.get(id=booking_id).vehicle_id
     generatelease(booking_id)
     lease_url = Booking.objects.get(id=booking_id).lease_doc_url
@@ -792,7 +792,9 @@ def generatelease(booking_id):
         '<price>': str(price),
         '<lease_frequency>': freq,
         '<start_date>': booking.start_time.strftime("%b %d %Y"),
-        '<end_date>': booking.end_time.strftime("%b %d %Y")
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': "",
+        '<sign_date>': ""
     }
 
     # read the sample lease
@@ -828,7 +830,95 @@ def generatelease(booking_id):
     booking.lease_doc_url = s3_url + key_value
     booking.save()
 
-def signlease(request, pk):
+def generatesignedlease(booking_id):
+    booking = Booking.objects.get(id=booking_id)
+    vehicle = booking.vehicle_id
+    parking_category = booking.pc_id
+    user = vehicle.user_id
+    lease_sign_time = datetime.datetime.today()
+
+    lease_duration = (booking.end_time - booking.start_time).days
+
+    if 7 <= lease_duration <= 30:
+        freq = 'Week'
+        price = parking_category.weekly_rate
+    elif lease_duration < 7:
+        freq = 'Day'
+        price = parking_category.daily_rate
+    else:
+        freq = 'Month'
+        price = parking_category.monthly_rate
+
+    lease_variables = {
+        '<lease_date>': date.today().strftime("%b %d %Y"),
+        '<user_name>': str(user.first_name) + " " + str(user.last_name),
+        '<parking_spot>': "TBD",
+        '<price>': str(price),
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time.strftime("%b %d %Y"),
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': str(user.first_name) + " " + str(user.last_name),
+        '<sign_date>': date.today().strftime("%b %d %Y")
+    }
+
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables.items():
+        if key in content:
+            content = content.replace(key, value)
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', size=12)
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    # save the file in the s3 aws
+    session = boto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+    s3 = session.resource('s3')
+    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
+
+    key_value = booking.lease_doc_url.replace(s3_url,'')
+    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
+                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
+                                                                   , 'S').encode('latin-1'),
+                                                   ContentType='application/pdf')
+
+    # Update booking object
+    booking.lease_is_signed_by_user = True
+    # TODO:
+    '''
+    update the lease sign datetime field here with the value stored in lease_sign_time
+    '''
+    booking.save()
+
+def signedlease(request,pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    booking = get_object_or_404(Booking, id=pk)
+    lease_url = booking.lease_doc_url
+
+    generatesignedlease(pk)
+
+    return render(
+        request,
+        "adminhome/viewlease.html",
+        {'lease': lease_url,
+         'booking': booking}
+    )
+
+def viewlease(request, pk):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
     if (request.user.is_staff or request.user.is_superuser):
@@ -836,16 +926,16 @@ def signlease(request, pk):
     booking = get_object_or_404(Booking, id=pk)
     if request.user == booking.vehicle_id.user_id and booking.lease_doc_url != '':
         lease_url = booking.lease_doc_url
+
         return render(
             request,
-            "adminhome/signlease.html",
+            "adminhome/viewlease.html",
             {'lease': lease_url,
              'booking': booking}
         )
 
-
     else:
-        return render(request, "adminhome/userhome.html")
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
 
 
 

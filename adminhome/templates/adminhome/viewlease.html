@@ -8,10 +8,16 @@
 <form method="get">
 	<div class="container">
 
-		<embed src="{{lease}}" width="1000" height="500"
+		<embed src="{{lease}}" width="1150" height="500"
  		type="application/pdf">
 
+	</div>
+	<div>
+			{% if not booking.lease_is_signed_by_user %}
+						<a href="{% url 'adminhome:signedlease' booking.id %}" class="btn btn-outline-dark shadow-2 mb-4" style=""\>
+					Sign Lease</a>
 
+			{% endif %}
 	</div>
 
 </form>

@@ -51,8 +51,9 @@ urlpatterns = [
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),
 
-    path('bookings/<int:pk>/signlease', views.signlease, name='signlease'),
-    path('viewlease/', views.viewlease, name='viewlease'),
+    path('bookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
+    path('bookings/<int:pk>/signedlease', views.signedlease, name='signedlease'),
+    path('viewleasetest/', views.viewlease_test, name='viewlease_test'),
 
     path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),
     path('userhome/bookingconfirmation/<int:vehicle_id>/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.create_booking, name='create_booking'),

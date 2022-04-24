@@ -42,5 +42,6 @@ LESSOR: Cameron RV Park
 
 LESSEE: <user_name>
 Print Name/Phone Number
-
+<signature>
+<sign_date>
 Signature/Date
