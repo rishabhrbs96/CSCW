@@ -99,6 +99,5 @@ class BillDetail(models.Model):
     utility_cost = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
     paid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
     unpaid_amount = models.DecimalField(max_digits=1000, decimal_places=2)
-    payment_id = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name="bills")
     misc_charges = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
     booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="bills")
