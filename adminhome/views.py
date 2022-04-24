@@ -749,6 +749,7 @@ def addbill(request, bk_id):
         form = BillDetailForm(request.POST)
         if form.is_valid():
             bill = form.save(commit=False)
+            bill.bill_date = datetime.datetime.now()
             bill.booking_id_id = bk_id
             bill.meter_rate = ParkingCategory.objects.get(pk=request.GET.get('pc')).utility_conversion_rate
             bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading) * bill.meter_rate

@@ -162,14 +162,14 @@ class VerifyVehicleForm(forms.ModelForm):
 class BillDetailForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BillDetailForm, self).__init__(*args, **kwargs)
-        self.fields['bill_date'] = forms.DateTimeField(widget=DatePickerInput, label='Bill Date')
-        self.fields['init_meter_reading'] = forms.IntegerField(label='Initial Meter Reading')
-        self.fields['end_meter_reading'] = forms.IntegerField(label='End Meter Reading')
-        self.fields['paid_amount'] = forms.DecimalField(label='Paid Amount')
-        self.fields['unpaid_amount'] = forms.DecimalField(label='Unpaid Amount')
-        self.fields['misc_charges'] = forms.DecimalField(label='Miscellaneous Charges')
+        self.fields['init_meter_reading'] = forms.IntegerField(label='Initial Meter Reading', required=False, initial=0)
+        self.fields['end_meter_reading'] = forms.IntegerField(label='End Meter Reading', required=False, initial=0)
+        self.fields['paid_amount'] = forms.DecimalField(label='Paid Amount', initial=0)
+        self.fields['unpaid_amount'] = forms.DecimalField(label='Unpaid Amount', initial=0)
+        self.fields['misc_charges'] = forms.DecimalField(label='Miscellaneous Charges', required=False, initial=0)
+        self.fields['comments'] = forms.DecimalField(required=False)
 
 
     class Meta:
         model = BillDetail
-        fields = ['bill_date', 'init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges', 'comments']
+        fields = ['init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges', 'comments']
