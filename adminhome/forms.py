@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
-from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
+from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail
 from django.contrib.auth.models import User
 from datetime import datetime
 import pytz
@@ -157,3 +157,12 @@ class VerifyVehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
         fields = ['insurance_expiry_date']
+
+
+class BillDetailForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BillDetailForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = BillDetail
+        fields = ['bill_date', 'init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges']

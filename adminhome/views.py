@@ -24,7 +24,7 @@ from django.contrib import messages
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm
+                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm
 
 
 ################################################################################################################
@@ -737,3 +737,17 @@ def create_booking(request, vehicle_id, parking_category_id, start_date, end_dat
                     "adminhome/bookingconfirmation.html",
                     {'booking': booking_obj}
                  )
+
+
+def addbill(request, bk_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    form = BillDetailForm()
+
+    return render(request=request,
+                  template_name="adminhome/admin_add_bill.html",
+                  context={"form": form})
