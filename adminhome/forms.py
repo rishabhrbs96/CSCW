@@ -162,6 +162,13 @@ class VerifyVehicleForm(forms.ModelForm):
 class BillDetailForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BillDetailForm, self).__init__(*args, **kwargs)
+        self.fields['bill_date'] = forms.DateTimeField(widget=DatePickerInput, label='Bill Date')
+        self.fields['init_meter_reading'] = forms.IntegerField(label='Initial Meter Reading')
+        self.fields['end_meter_reading'] = forms.IntegerField(label='End Meter Reading')
+        self.fields['paid_amount'] = forms.DecimalField(label='Paid Amount')
+        self.fields['unpaid_amount'] = forms.DecimalField(label='Unpaid Amount')
+        self.fields['misc_charges'] = forms.DecimalField(label='Miscellaneous Charges')
+
 
     class Meta:
         model = BillDetail
