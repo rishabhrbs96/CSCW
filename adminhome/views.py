@@ -759,12 +759,13 @@ def viewlease_test(request):
         return HttpResponseRedirect(reverse('adminhome:adminhome'))
 
     # file return the correct lease from db
-    booking_id = 7
+    booking_id = 8
     vehicle = Booking.objects.get(id=booking_id).vehicle_id
     generatelease(booking_id)
     lease_url = Booking.objects.get(id=booking_id).lease_doc_url
 
     return HttpResponseRedirect(lease_url)
+
 
 def generatelease(booking_id):
 
@@ -829,6 +830,7 @@ def generatelease(booking_id):
     s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
     booking.lease_doc_url = s3_url + key_value
     booking.save()
+
 
 def generatesignedlease(booking_id):
     booking = Booking.objects.get(id=booking_id)
@@ -900,11 +902,10 @@ def generatesignedlease(booking_id):
     '''
     booking.save()
 
+
 def signedlease(request,pk):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
 
     booking = get_object_or_404(Booking, id=pk)
     lease_url = booking.lease_doc_url
@@ -918,13 +919,13 @@ def signedlease(request,pk):
          'booking': booking}
     )
 
+
 def viewlease(request, pk):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
     booking = get_object_or_404(Booking, id=pk)
-    if request.user == booking.vehicle_id.user_id and booking.lease_doc_url != '':
+    if (request.user == booking.vehicle_id.user_id or request.user.is_staff or request.user.is_superuser) and booking.lease_doc_url != '':
         lease_url = booking.lease_doc_url
 
         return render(
