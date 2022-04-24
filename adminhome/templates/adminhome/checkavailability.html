@@ -45,20 +45,28 @@
         {% if parking_categories_available %}
 			<h3>Slots available in the following parking category from {{ start_date }} to {{ end_date }}:</h3>
             {% for parkingcategory in parking_categories_available %}
-                <div class="card cardhover mb-2">
+                <div class="card mb-2">
                     <div class="card-body">
                         <h5 class="card-title d-flex justify-content-between align-items-center">
                             {{ parkingcategory.name }}
                             <!-- TODO: Add  parkingcategory.id to Booking-->
                             <!-- start_date end_date -->
-                            <a href="{% url 'adminhome:booking_pick_vehicle' parkingcategory.id start_date end_date %}" class="btn btn-outline-dark me-2 stretched-link">
-                                Reserve a slot!
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
-                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
-                                </svg>
-                            </a>
+                            <div>
+                                <!-- <a href="google" class="btn btn-outline-dark m-2">
+                                    View Details
+                                </a> -->
+                                <a href="{% url 'adminhome:booking_pick_vehicle' parkingcategory.id start_date end_date %}" class="btn btn-outline-dark me-2">
+                                    Reserve a slot!
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
+                                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>
+                                    </svg>
+                                </a>
+                            </div>
                         </h5>
-                        <div class="card-text">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                           <button type="button" class="btn btn-outline-secondary"  data-bs-toggle="collapse" href="#collapseDetails" role="button" aria-expanded="false" aria-controls="collapseAmeneties">Click To See View Details</button>
+                        </h6>
+                        <div class="card-text collapse" id="collapseDetails">
                             <table class="table table-striped">
                                 <tbody>
                                     <tr>
