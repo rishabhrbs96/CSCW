@@ -746,8 +746,17 @@ def addbill(request, bk_id):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
-    form = BillDetailForm()
-
+    if request.method == "POST":
+        form = BillDetailForm(request.POST)
+        if form.is_valid():
+            bill = form.save(commit=False)
+            bill.booking_id_id = bk_id
+            # TODO: Fix the calculation cost for utility cost
+            bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading)
+            bill.save()
+            return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(bk_id,)))
+    else:
+        form = BillDetailForm()
     return render(request=request,
                   template_name="adminhome/admin_add_bill.html",
                   context={"form": form})
