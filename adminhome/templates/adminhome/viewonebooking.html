@@ -27,7 +27,7 @@
                                 {% endif %}
                             </a>
                             {% if booking.parking_spot_id %}
-                                <a href="{% url 'adminhome:addbill' booking.id %}" class="btn btn-outline-dark m-2">Add
+                                <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">Add
                                     Bill</a>
                             {% endif %}
                         </div>

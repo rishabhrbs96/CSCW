@@ -750,8 +750,8 @@ def addbill(request, bk_id):
         if form.is_valid():
             bill = form.save(commit=False)
             bill.booking_id_id = bk_id
-            # TODO: Fix the calculation cost for utility cost
-            bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading)
+            bill.meter_rate = ParkingCategory.objects.get(pk=request.GET.get('pc')).utility_conversion_rate
+            bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading) * bill.meter_rate
             bill.save()
             return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(bk_id,)))
     else:
