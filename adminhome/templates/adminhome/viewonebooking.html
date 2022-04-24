@@ -24,7 +24,10 @@
                         Change Parking Spot
                      {% else %}
                         Assign Parking Spot
-                     {% endif %} 
+                     {% endif %}
+                  </a>
+                  <a href="{% url 'adminhome:addbill' booking.id %}" class="btn btn-outline-dark m-2">
+                     Add Bill
                   </a>
                </div>
             </h5>
