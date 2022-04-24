@@ -525,6 +525,9 @@ def editvehicle(request, pk):
 
     vehicle = Vehicle.objects.get(pk=pk)
 
+    if not vehicle.user_id_id == request.user.id:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
     if request.method == 'POST':
         form = VehicleChangeForm(request.POST, request.FILES, instance=vehicle)
         if form.is_valid():
