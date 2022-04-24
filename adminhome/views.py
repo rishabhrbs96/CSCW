@@ -21,7 +21,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings, BillDetail
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm
@@ -302,8 +302,7 @@ def viewonebooking(request, bk_id):
         return signin(request)
     
     # NOTE: Logic for admin/user view is handled inside the HTML file.
-    context = {}
-    context["booking"] = Booking.objects.get(id=bk_id)
+    context = {"booking": Booking.objects.get(id=bk_id), "bills": BillDetail.objects.filter(booking_id_id=bk_id)}
     return render(request, "adminhome/viewonebooking.html", context)
 
 

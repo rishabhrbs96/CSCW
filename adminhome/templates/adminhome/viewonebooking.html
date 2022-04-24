@@ -2,81 +2,126 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-   <h1 class="h2">Details for Booking {{ booking.id }}</h1>
-</div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Details for Booking {{ booking.id }}</h1>
+    </div>
 
-<div class="card mb-2">
-   <div class="card-body">
+    <div class="card mb-2">
+        <div class="card-body">
 
-      {% if request.user.is_authenticated %}
-         {% if request.user.is_superuser or request.user.is_staff %}
-            <h5 class="card-title d-flex justify-content-between align-items-center">
-               <div>
-                  <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
-                     Edit
-                  </a>
-                  <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
-                     Delete
-                  </a>
-                  <a href="{% url 'adminhome:assignslot' booking.id %}" class="btn btn-outline-dark m-2">
-                     {% if booking.parking_spot_id %}
-                        Change Parking Spot
-                     {% else %}
-                        Assign Parking Spot
-                     {% endif %}
-                  </a>
-                   {% if booking.parking_spot_id %}
-                        <a href="{% url 'adminhome:addbill' booking.id %}" class="btn btn-outline-dark m-2">Add Bill</a>
-                   {% endif %}
-               </div>
-            </h5>
-         {% endif %}
-      {% endif %}
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser or request.user.is_staff %}
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                Edit
+                            </a>
+                            <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                Delete
+                            </a>
+                            <a href="{% url 'adminhome:assignslot' booking.id %}" class="btn btn-outline-dark m-2">
+                                {% if booking.parking_spot_id %}
+                                    Change Parking Spot
+                                {% else %}
+                                    Assign Parking Spot
+                                {% endif %}
+                            </a>
+                            {% if booking.parking_spot_id %}
+                                <a href="{% url 'adminhome:addbill' booking.id %}" class="btn btn-outline-dark m-2">Add
+                                    Bill</a>
+                            {% endif %}
+                        </div>
+                    </h5>
+                {% endif %}
+            {% endif %}
 
-      <h6 class="card-subtitle mb-2 text-muted">
-         Parking Spot: {{ booking.parking_spot_id }}
-         <!-- TODO: Need to add link to Bill ID here. -->
-      </h6>
-      <div class="card-text">
-         <table class="table table-striped">
-            <tbody>
-               <tr>
-                  <td style="font-weight: bold">Start Time</td>
-                  <td>{{ booking.start_time }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">End Time</td>
-                  <td>{{ booking.end_time }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">State</td>
-                  <td>{{ booking.state }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">Vehicle ID</td>
-                  <td>{{ booking.vehicle_id }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">Has user signed the Lease?</td>
-                  <td>{{ booking.lease_is_signed_by_user }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">Lease Document URL</td>
-                  <td>{{ booking.lease_doc_url }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">Bill ID</td>
-                  <td>{{ booking.bill_detail_id }}</td>
-               </tr>
-               <tr>
-                  <td style="font-weight: bold">Admin Comments</td>
-                  <td>{{ booking.admin_comments }}</td>
-               </tr>
-            </tbody>
-         </table>
-      </div>
-   </div>
-</div>
+            <h6 class="card-subtitle mb-2 text-muted">
+                Parking Spot: {{ booking.parking_spot_id }}
+                <!-- TODO: Need to add link to Bill ID here. -->
+            </h6>
+            <div class="card-text">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <td style="font-weight: bold">Start Time</td>
+                        <td>{{ booking.start_time }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">End Time</td>
+                        <td>{{ booking.end_time }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">State</td>
+                        <td>{{ booking.state }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">Vehicle ID</td>
+                        <td>{{ booking.vehicle_id }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">Has user signed the Lease?</td>
+                        <td>{{ booking.lease_is_signed_by_user }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">Lease Document URL</td>
+                        <td>{{ booking.lease_doc_url }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold">Admin Comments</td>
+                        <td>{{ booking.admin_comments }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h2 class="h2">Bills</h2>
+            </div>
+
+            {% for bill in bills %}
+                <div class="card cardhover mb-2">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <tbody>
+                            <h6 class="card-subtitle mb-2 ">ID: {{ bill.id }}</h6>
+                            <tr>
+                                <td style="font-weight: bold">Reservation Cost</td>
+                                <td>{{ bill.reservation_cost }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Initial Meter Reading</td>
+                                <td>{{ bill.init_meter_reading }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">End Meter Reading</td>
+                                <td>{{ bill.end_meter_reading }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Utility Rate</td>
+                                <td>{{ bill.meter_rate }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Utility Cost</td>
+                                <td>{{ bill.utility_cost }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Miscellaneous Charges</td>
+                                <td>{{ bill.misc_charges }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Paid Amount</td>
+                                <td>{{ bill.paid_amount }}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold">Unpaid Amount</td>
+                                <td>{{ bill.unpaid_amount }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock content %}
