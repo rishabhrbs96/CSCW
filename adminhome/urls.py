@@ -51,7 +51,7 @@ urlpatterns = [
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),
 
-    # path('upcomingbookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
+    path('bookings/<int:pk>/signlease', views.signlease, name='signlease'),
     path('viewlease/', views.viewlease, name='viewlease'),
 
     path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),

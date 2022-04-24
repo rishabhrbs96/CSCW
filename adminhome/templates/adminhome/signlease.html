@@ -1,0 +1,20 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">View Lease</h1>
+</div> 
+<form method="get">
+	<div class="container">
+
+		<embed src="{{lease}}" width="1000" height="500"
+ 		type="application/pdf">
+
+
+	</div>
+
+</form>
+
+
+{% endblock content %}

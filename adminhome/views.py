@@ -828,6 +828,27 @@ def generatelease(booking_id):
     booking.lease_doc_url = s3_url + key_value
     booking.save()
 
+def signlease(request, pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+    booking = get_object_or_404(Booking, id=pk)
+    if request.user == booking.vehicle_id.user_id and booking.lease_doc_url != '':
+        lease_url = booking.lease_doc_url
+        return render(
+            request,
+            "adminhome/signlease.html",
+            {'lease': lease_url,
+             'booking': booking}
+        )
+
+
+    else:
+        return render(request, "adminhome/userhome.html")
+
+
+
 
 
 
