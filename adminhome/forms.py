@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
 from django.contrib.auth.models import User
+from datetime import datetime
+import pytz
+
 
 class CustomUserForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -107,6 +110,16 @@ class DatePickerInput(forms.DateInput):
 class DateRangeForm(forms.Form):
     start_date = forms.DateField(widget=DatePickerInput)
     end_date = forms.DateField(widget=DatePickerInput)
+
+    def clean(self):
+        super().clean()
+        start_date = self.cleaned_data.get("start_date")
+        end_date = self.cleaned_data.get("end_date")
+        today_date = datetime.now(pytz.timezone('US/Central')).date()
+        if start_date < today_date:
+            raise forms.ValidationError("Start date should be greater than today's date {}.".format(today_date))
+        if end_date <= start_date:
+            raise forms.ValidationError("End date should be strictly greater than start date.")
 
 class BookingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
