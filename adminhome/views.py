@@ -403,23 +403,36 @@ def confirmcancelbooking(request, bk_id):
     elif (not (booking.state==BookingStates.APPROVED or booking.state==BookingStates.PAID)):
         context["error_message"] = "Booking ID#{} hasen't been approved yet.".format(booking.id)
     elif (request.method == 'POST'):
+        #TODO: Dont execute cancelbooking() for current/previous bookings
+        current_time = datetime.datetime.now(pytz.timezone('US/Central'))
         bills = booking.bills.all()
         if len(bills) != 0:
             #TODO: add logic to calculate reservation cost
-            refund_amount = sum([bl.unpaid_amount for bl in bills])
-            reservation_cost = ((booking.end_time - booking.start_time).days)*booking.pc_id.daily_rate
-            base_bill = BillDetail(bill_date=datetime.datetime.now(pytz.timezone('US/Central')),
+            refund_amount = sum([bl.paid_amount for bl in bills])
+            balance_unpaid_amount = sum([bl.unpaid_amount for bl in bills])
+            refund_bill = BillDetail(bill_date=current_time,
                                     reservation_cost=0,
                                     init_meter_reading=0,
                                     utility_cost=0,
                                     paid_amount=(-1)*refund_amount,
-                                    unpaid_amount=(-1)*refund_amount,
+                                    unpaid_amount=(-1)*balance_unpaid_amount,
                                     misc_charges=0,
                                     booking_id=booking
                                     )
-            base_bill.save()
+            refund_bill.save()
+        if ((current_time - booking.start_time).days <= booking.pc_id.cancellation_time_window):
+            penalty_bill = BillDetail(bill_date=current_time,
+                                    reservation_cost=0,
+                                    init_meter_reading=0,
+                                    utility_cost=0,
+                                    paid_amount=0,
+                                    unpaid_amount=booking.pc_id.cancellation_penalty,
+                                    misc_charges=0,
+                                    booking_id=booking
+                                    )
+            penalty_bill.save()
         booking.state = BookingStates.CANCELED
-        booking.parking_spot = None
+        booking.parking_spot_id = None
         booking.save()
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
