@@ -307,6 +307,26 @@ def viewcurrentbookings(request):
     return viewbookings(request, ViewBookings.CURRENT_BOOKINGS)
 
 
+def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
+    vehicle = Vehicle.objects.get(id=vehicle_id)
+    pc = ParkingCategory.objects.get(id=parking_category_id)
+    booking = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date,
+                          end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
+
+    if (request.method == "POST"):
+        booking.state = BookingStates.PENDING_LEASE
+        booking.last_modified_userid = request.user.id
+        booking.save()
+        generatelease(booking.id)
+        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id, )))
+
+    return render(
+        request,
+        "adminhome/bookingconfirmation.html",
+        {'booking': booking}
+    )
+
+
 def assignslottobookings(request):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -348,6 +368,7 @@ def editbooking(request, bk_id):
     form = BookingForm(request.POST or None, instance=booking)
 
     if form.is_valid():
+        booking.last_modified_userid = request.user.id
         form.save()
         return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
     else:
@@ -403,6 +424,184 @@ def confirmcancelbooking(request, bk_id):
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
     return render(request, "confirmcancelbooking.html", context=context)
+
+def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    # Obtain a list of the user's vehicles.
+    vehicles_list = Vehicle.objects.all()
+    user_vehicles = []
+    for vehicle in vehicles_list:
+        if (vehicle.user_id == request.user):
+            user_vehicles.append(vehicle)
+
+    return render(request,
+
+                  "adminhome/booking_pick_vehicle.html",
+                  {
+                      'user_vehicles': user_vehicles,
+                      'start_date': start_date,
+                      'end_date': end_date,
+                      'parking_category_id': parking_category_id,
+                  }
+                  )
+
+
+################################################################################################################
+#                                               LEASE                                                          #
+################################################################################################################
+
+def generatelease(booking_id):
+    booking = Booking.objects.get(id=booking_id)
+    vehicle = booking.vehicle_id
+    parking_category = booking.pc_id
+    user = vehicle.user_id
+
+    freq, price = calc_base_rent(booking)
+
+    lease_variables = {
+        '<lease_date>': date.today().strftime("%b %d %Y"),
+        '<user_name>': str(user.first_name) + " " + str(user.last_name),
+        '<parking_spot>': "TBD",
+        '<price>': str(price),
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time.strftime("%b %d %Y"),
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': "",
+        '<sign_date>': ""
+    }
+
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables.items():
+        if key in content:
+            content = content.replace(key, value)
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', size=12)
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    # save the file in the s3 aws
+    session = boto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+    s3 = session.resource('s3')
+    key_value = 'lease/{}_{}_lease_{}.pdf'.format(vehicle.user_id, booking_id,
+                                                  ''.join(random.choice(string.ascii_lowercase) for i in range(20)))
+    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
+                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
+                                                                   ,'S').encode('latin-1'),
+                                                   ContentType='application/pdf')
+    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
+    booking.lease_doc_url = s3_url + key_value
+    booking.save()
+
+
+def generatesignedlease(booking_id):
+    booking = Booking.objects.get(id=booking_id)
+    vehicle = booking.vehicle_id
+    parking_category = booking.pc_id
+    user = vehicle.user_id
+    lease_sign_time = datetime.datetime.now(pytz.timezone('US/Central'))
+
+    freq, price = calc_base_rent(booking)
+
+    lease_variables = {
+        '<lease_date>': date.today().strftime("%b %d %Y"),
+        '<user_name>': str(user.first_name) + " " + str(user.last_name),
+        '<parking_spot>': "TBD",
+        '<price>': str(price),
+        '<lease_frequency>': freq,
+        '<start_date>': booking.start_time.strftime("%b %d %Y"),
+        '<end_date>': booking.end_time.strftime("%b %d %Y"),
+        '<signature>': str(user.first_name) + " " + str(user.last_name),
+        '<sign_date>': date.today().strftime("%b %d %Y")
+    }
+
+    # read the sample lease
+    f = open("lease_template/sample_lease.txt", "r")
+    content = f.read()
+
+    # Change the variable values
+    for key, value in lease_variables.items():
+        if key in content:
+            content = content.replace(key, value)
+
+    # convert it into pdf
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', size=12)
+    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
+
+    # save the file in the s3 aws
+    session = boto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+    s3 = session.resource('s3')
+    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
+
+    key_value = booking.lease_doc_url.replace(s3_url,'')
+    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
+                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
+                                                                   , 'S').encode('latin-1'),
+                                                   ContentType='application/pdf')
+
+    # Update booking object
+    booking.lease_is_signed_by_user = True
+    booking.lease_sign_time = lease_sign_time
+    if vehicle.is_verified:
+        booking.state = BookingStates.PENDING_SLOT
+    else:
+        booking.state = BookingStates.PENDING_APPROVAL
+    booking.save()
+
+
+def signlease(request,pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    booking = get_object_or_404(Booking, id=pk)
+    if (booking.lease_is_signed_by_user):
+        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
+    
+    generatesignedlease(pk)
+    return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
+
+
+def viewlease(request, pk):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    booking = get_object_or_404(Booking, id=pk)
+    if (request.user == booking.vehicle_id.user_id or request.user.is_staff or request.user.is_superuser) and booking.lease_doc_url != '':
+        lease_url = booking.lease_doc_url
+
+        return render(
+            request,
+            "adminhome/viewlease.html",
+            {'lease': lease_url,
+             'booking': booking}
+        )
+    else:
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+
 
 ################################################################################################################
 #                                       ADMIN HOME                                                             #
@@ -800,198 +999,6 @@ def assignoneslot(request, pk):
     pc.sort(reverse=True, key=lambda x: x[1][0])
 
     return render(request,"adminhome/assignoneslot.html",{'current_booking': current_booking,'pc': pc,'form': form, 'current_booking_slot': current_booking_slot})
-
-
-def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect(reverse('adminhome:userhome'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-
-    # Obtain a list of the user's vehicles.
-    vehicles_list = Vehicle.objects.all()
-    user_vehicles = []
-    for vehicle in vehicles_list:
-        if (vehicle.user_id == request.user):
-            user_vehicles.append(vehicle)
-
-    return render(request,
-
-                  "adminhome/booking_pick_vehicle.html",
-                  {
-                      'user_vehicles': user_vehicles,
-                      'start_date': start_date,
-                      'end_date': end_date,
-                      'parking_category_id': parking_category_id,
-                  }
-                  )
-
-
-def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
-    vehicle = Vehicle.objects.get(id=vehicle_id)
-    pc = ParkingCategory.objects.get(id=parking_category_id)
-    booking = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date,
-                          end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
-
-    if (request.method == "POST"):
-        booking.state = BookingStates.PENDING_LEASE
-        booking.save()
-        generatelease(booking.id)
-        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id, )))
-
-    return render(
-        request,
-        "adminhome/bookingconfirmation.html",
-        {'booking': booking}
-    )
-
-def generatelease(booking_id):
-    booking = Booking.objects.get(id=booking_id)
-    vehicle = booking.vehicle_id
-    parking_category = booking.pc_id
-    user = vehicle.user_id
-
-    freq, price = calc_base_rent(booking)
-
-    lease_variables = {
-        '<lease_date>': date.today().strftime("%b %d %Y"),
-        '<user_name>': str(user.first_name) + " " + str(user.last_name),
-        '<parking_spot>': "TBD",
-        '<price>': str(price),
-        '<lease_frequency>': freq,
-        '<start_date>': booking.start_time.strftime("%b %d %Y"),
-        '<end_date>': booking.end_time.strftime("%b %d %Y"),
-        '<signature>': "",
-        '<sign_date>': ""
-    }
-
-    # read the sample lease
-    f = open("lease_template/sample_lease.txt", "r")
-    content = f.read()
-
-    # Change the variable values
-    for key, value in lease_variables.items():
-        if key in content:
-            content = content.replace(key, value)
-
-    # convert it into pdf
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font('Arial', size=12)
-    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
-
-    # save the file in the s3 aws
-    session = boto3.Session(
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=settings.AWS_REGION_NAME,
-    )
-
-    s3 = session.resource('s3')
-    key_value = 'lease/{}_{}_lease_{}.pdf'.format(vehicle.user_id, booking_id,
-                                                  ''.join(random.choice(string.ascii_lowercase) for i in range(20)))
-    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
-                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
-                                                                   ,'S').encode('latin-1'),
-                                                   ContentType='application/pdf')
-    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
-    booking.lease_doc_url = s3_url + key_value
-    booking.save()
-
-
-def generatesignedlease(booking_id):
-    booking = Booking.objects.get(id=booking_id)
-    vehicle = booking.vehicle_id
-    parking_category = booking.pc_id
-    user = vehicle.user_id
-    lease_sign_time = datetime.datetime.now(pytz.timezone('US/Central'))
-
-    freq, price = calc_base_rent(booking)
-
-    lease_variables = {
-        '<lease_date>': date.today().strftime("%b %d %Y"),
-        '<user_name>': str(user.first_name) + " " + str(user.last_name),
-        '<parking_spot>': "TBD",
-        '<price>': str(price),
-        '<lease_frequency>': freq,
-        '<start_date>': booking.start_time.strftime("%b %d %Y"),
-        '<end_date>': booking.end_time.strftime("%b %d %Y"),
-        '<signature>': str(user.first_name) + " " + str(user.last_name),
-        '<sign_date>': date.today().strftime("%b %d %Y")
-    }
-
-    # read the sample lease
-    f = open("lease_template/sample_lease.txt", "r")
-    content = f.read()
-
-    # Change the variable values
-    for key, value in lease_variables.items():
-        if key in content:
-            content = content.replace(key, value)
-
-    # convert it into pdf
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font('Arial', size=12)
-    pdf.multi_cell(w=0, h=5, txt=content, border=0, align='1', fill=False)
-
-    # save the file in the s3 aws
-    session = boto3.Session(
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=settings.AWS_REGION_NAME,
-    )
-
-    s3 = session.resource('s3')
-    s3_url = 'https://d1dmjo0dbygy5s.cloudfront.net/'
-
-    key_value = booking.lease_doc_url.replace(s3_url,'')
-    s3.Bucket(settings.AWS_BUCKET_NAME).put_object(Key=key_value,
-                                                   Body=pdf.output("{}_{}_lease.pdf".format(vehicle.user_id, booking_id)
-                                                                   , 'S').encode('latin-1'),
-                                                   ContentType='application/pdf')
-
-    # Update booking object
-    booking.lease_is_signed_by_user = True
-    booking.lease_sign_time = lease_sign_time
-    if vehicle.is_verified:
-        booking.state = BookingStates.PENDING_SLOT
-    else:
-        booking.state = BookingStates.PENDING_APPROVAL
-    booking.save()
-
-
-def signlease(request,pk):
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-
-    booking = get_object_or_404(Booking, id=pk)
-    if (booking.lease_is_signed_by_user):
-        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
-    
-    generatesignedlease(pk)
-    return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
-
-
-def viewlease(request, pk):
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-
-    booking = get_object_or_404(Booking, id=pk)
-    if (request.user == booking.vehicle_id.user_id or request.user.is_staff or request.user.is_superuser) and booking.lease_doc_url != '':
-        lease_url = booking.lease_doc_url
-
-        return render(
-            request,
-            "adminhome/viewlease.html",
-            {'lease': lease_url,
-             'booking': booking}
-        )
-    else:
-        return HttpResponseRedirect(reverse('adminhome:userhome'))
 
 
 def addbill(request, bk_id):

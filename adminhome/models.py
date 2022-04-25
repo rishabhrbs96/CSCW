@@ -32,8 +32,7 @@ class ParkingSpot(models.Model):
 class Vehicle(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50, unique=True)
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                on_delete=models.CASCADE)
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     make = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     build = models.CharField(max_length=50)
@@ -51,10 +50,14 @@ class Booking(models.Model):
     parking_spot_id = models.ForeignKey(ParkingSpot, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
     start_time = models.DateTimeField(auto_now_add=False)
     end_time = models.DateTimeField(auto_now_add=False)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    lease_sign_time = models.DateTimeField(auto_now_add=False, null=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
+    last_modified_userid = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
     lease_doc_url = models.CharField(max_length=100)
     lease_is_signed_by_user = models.BooleanField()
-    lease_sign_time = models.DateTimeField(auto_now_add=False, null=True)
+    
     admin_comments = models.CharField(max_length=20)
     
 class BillDetail(models.Model):
