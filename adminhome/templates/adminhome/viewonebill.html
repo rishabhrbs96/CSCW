@@ -67,52 +67,20 @@
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h2 class="h2">Payments Recorded Against This Bill</h2>
             </div>
-            {% for bill in bills %}
+            {% for payment in payments %}
                 <div class="card cardhover mb-2">
                     <div class="card-body">
                         <table class="table table-striped">
                             <tbody>
-                            <h6 class="card-subtitle mb-2 ">ID: {{ bill.id }}</h6>
-                            <tr>
-                                <td style="font-weight: bold">Date</td>
-                                <td>{{ bill.bill_date}}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Reservation Cost</td>
-                                <td>{{ bill.reservation_cost }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Initial Meter Reading</td>
-                                <td>{{ bill.init_meter_reading }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">End Meter Reading</td>
-                                <td>{{ bill.end_meter_reading }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Utility Rate</td>
-                                <td>{{ bill.meter_rate }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Utility Cost</td>
-                                <td>{{ bill.utility_cost }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Miscellaneous Charges</td>
-                                <td>{{ bill.misc_charges }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Paid Amount</td>
-                                <td>{{ bill.paid_amount }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Unpaid Amount</td>
-                                <td>{{ bill.unpaid_amount }}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold">Comments</td>
-                                <td>{{ bill.comments }}</td>
-                            </tr>
+                                <h6 class="card-subtitle mb-2 ">ID: {{ payment.id }}</h6>
+                                <tr>
+                                    <td style="font-weight: bold">Date</td>
+                                    <td>{{ payment.method}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold">Reservation Cost</td>
+                                    <td>{{ payment.time }}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

@@ -24,7 +24,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings, BillDetail
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings, BillDetail, Payment
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm
@@ -977,7 +977,7 @@ def viewonebill(request, bk_id, bl_id):
     if (not (request.user.is_authenticated)):
         return signin(request)
 
-    context = {"booking": Booking.objects.get(id=bk_id), "bill": BillDetail.objects.get(id=bl_id)}
+    context = {"booking": Booking.objects.get(id=bk_id), "bill": BillDetail.objects.get(id=bl_id), "payments": Payment.objects.filter(bill_id=bl_id)}
     return render(request, "adminhome/viewonebill.html", context)
 
 def calc_base_rent(booking):
