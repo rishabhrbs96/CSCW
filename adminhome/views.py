@@ -331,8 +331,12 @@ def viewonebooking(request, bk_id):
     if (not (request.user.is_authenticated)):
         return signin(request)
 
+    booking = Booking.objects.get(id=bk_id)
+    bills = booking.bills.all()
+    unpaid_amount = sum([bl.unpaid_amount for bl in bills])
+    
     # NOTE: Logic for admin/user view is handled inside the HTML file.
-    context = {"booking": Booking.objects.get(id=bk_id), "bills": BillDetail.objects.filter(booking_id_id=bk_id)}
+    context = {"booking": booking, "bills": bills, "unpaid_amount": unpaid_amount}
     return render(request, "adminhome/viewonebooking.html", context)
 
 

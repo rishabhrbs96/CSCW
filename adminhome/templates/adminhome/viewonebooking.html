@@ -21,6 +21,12 @@
             <strong>Waiting for the admin to assign a parking slot.</strong>
         </div>
     {% endif %}
+    
+    {% if unpaid_amount != 0 %}
+        <div class="alert alert-danger">
+            <strong>This bill has an unpaind amount of ${{ unpaid_amount }}</strong>
+        </div>
+    {% endif %}
 
     <div class="card mb-2">
         <div class="card-body">

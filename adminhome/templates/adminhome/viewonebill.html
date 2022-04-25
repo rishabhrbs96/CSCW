@@ -7,7 +7,7 @@
     </div>
 
     {% if bill.unpaid_amount != 0 %}
-        <div class="alert alert-warning">
+        <div class="alert alert-danger">
             <strong>This bill has an unpaind amount of ${{ bill.unpaid_amount }}</strong>
         </div>
     {% endif %}
