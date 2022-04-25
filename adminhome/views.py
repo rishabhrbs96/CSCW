@@ -683,6 +683,7 @@ def confirmassignoneslot(request, pk, ps):
         context["error_message"] = "Parking Spot {} is not completely avialable from {} to {}.".format(parking_spot, booking.start_time.date(), booking.end_time.date())
     elif request.method == 'POST':
         booking.parking_spot_id = parking_spot
+        booking.state = BookingStates.APPROVED
         booking.save()
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
