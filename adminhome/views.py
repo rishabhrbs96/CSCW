@@ -1006,6 +1006,7 @@ def addpayment(request, bk_id, bl_id):
                   template_name="adminhome/admin_add_payment.html",
                   context={"form": form})
             bill.unpaid_amount = bill.unpaid_amount - payment.amount
+            bill.paid_amount = payment.amount
             bill.save()
             payment.time = datetime.datetime.now(pytz.timezone('US/Central'))
             payment.bill = bill
