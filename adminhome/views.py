@@ -368,6 +368,41 @@ def deletebooking(request, bk_id):
 
     return render(request, "deletebooking.html", context=context)
 
+def confirmcancelbooking(request, bk_id):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    context = {}
+    booking = get_object_or_404(Booking, id=bk_id)
+    context["booking"] = booking
+    context["error_message"] = ""
+
+    if (booking.state==BookingStates.CANCELED):
+        context["error_message"] = "Booking ID#{} has already been canceled.".format(booking.id)
+    elif (not (booking.state==BookingStates.APPROVED or booking.state==BookingStates.PAID)):
+        context["error_message"] = "Booking ID#{} hasen't been approved yet.".format(booking.id)
+    elif (request.method == 'POST'):
+        bills = booking.bills.all()
+        if len(bills) != 0:
+            #TODO: add logic to calculate reservation cost
+            refund_amount = sum([bl.unpaid_amount for bl in bills])
+            reservation_cost = ((booking.end_time - booking.start_time).days)*booking.pc_id.daily_rate
+            base_bill = BillDetail(bill_date=datetime.datetime.now(pytz.timezone('US/Central')),
+                                    reservation_cost=0,
+                                    init_meter_reading=0,
+                                    utility_cost=0,
+                                    paid_amount=(-1)*refund_amount,
+                                    unpaid_amount=(-1)*refund_amount,
+                                    misc_charges=0,
+                                    booking_id=booking
+                                    )
+            base_bill.save()
+        booking.state = BookingStates.CANCELED
+        booking.parking_spot = None
+        booking.save()
+        return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
+
+    return render(request, "confirmcancelbooking.html", context=context)
 
 ################################################################################################################
 #                                       ADMIN HOME                                                             #
@@ -1042,6 +1077,10 @@ def payonline(request, bk_id, bl_id):
                   template_name="adminhome/admin_add_payment.html",
                   context={"form": form})
             bill.unpaid_amount = bill.unpaid_amount - payment.amount
+            if bill.unpaid_amount == 0:
+                booking = bill.booking_id
+                booking.state = BookingStates.PAID
+                booking.save()
             bill.save()
             payment.time = datetime.datetime.now(pytz.timezone('US/Central'))
             payment.bill = bill

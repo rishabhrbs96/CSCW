@@ -6,12 +6,22 @@
         <h1 class="h2">Details for Bill ID#{{ bill.id }} against Booking <a href="{% url 'adminhome:viewonebooking' bill.booking_id.id %}">ID#{{ bill.booking_id.id }}</a></h1>
     </div>
 
-    {% if bill.unpaid_amount != 0 %}
+    {% if bill.unpaid_amount < 0 %}
         <div class="alert alert-danger">
-            <strong>This bill has an unpaind amount of ${{ bill.unpaid_amount }}</strong>
+            <strong>Refund for booking ID#${{ bill.booking_id.id }}</strong>
+        </div>
+    {% elif bill.unpaid_amount > 0 %}
+        {% if bill.booking_id.state != 'canceled' %}
+            <div class="alert alert-danger">
+                <strong>This bill has an unpaind amount of ${{ bill.unpaid_amount }}</strong>
+            </div>
+        {% endif %}
+    {% endif %}
+    {% if bill.booking_id.state == 'canceled' and  bill.paid_amount > 0 %}
+        <div class="alert alert-warning">
+            <strong>This bill has an paid amount of ${{ bill.paid_amount }} but it has been refunded.</strong>
         </div>
     {% endif %}
-
     <div class="card mb-2">
         <div class="card-body">
             {% if request.user.is_authenticated %}
@@ -20,14 +30,16 @@
                         <a type="button" class="btn btn-outline-dark"  data-bs-toggle="collapse" href="#collapseDetails" role="button" aria-expanded="false" aria-controls="collapseAmeneties">
                             Click To View More Details
                         </a>
-                        {% if request.user.is_superuser or request.user.is_staff %}
-                            <a href="{% url 'adminhome:addpayment' bill.booking_id.id bill.id %}" class="btn btn-outline-dark m-2">
-                                Record a cash/cheque payment
-                            </a>
-                        {% elif bill.unpaid_amount != 0 %}
-                            <a href="{% url 'adminhome:payonline' bill.booking_id.id bill.id %}" class="btn btn-outline-dark m-2">
-                                Pay Now!
-                            </a>
+                        {% if bill.booking_id.state != 'canceled' %}
+                            {% if request.user.is_superuser or request.user.is_staff %}
+                                <a href="{% url 'adminhome:addpayment' bill.booking_id.id bill.id %}" class="btn btn-outline-dark m-2">
+                                    Record a cash/cheque payment
+                                </a>
+                            {% elif bill.unpaid_amount != 0 %}
+                                <a href="{% url 'adminhome:payonline' bill.booking_id.id bill.id %}" class="btn btn-outline-dark m-2">
+                                    Pay Now!
+                                </a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </h5>
@@ -81,32 +93,34 @@
                                 </tbody>
                             </table>
                         </div>
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h2 class="h2">Payments Recorded Against This Bill</h2>
-            </div>
-            {% for payment in payments %}
-                <div class="card cardhover mb-2">
-                    <div class="card-body">
-                        <table class="table table-striped">
-                            <tbody>
-                                <h6 class="card-subtitle mb-2 ">ID: {{ payment.id }}</h6>
-                                <tr>
-                                    <td style="font-weight: bold">Date</td>
-                                    <td>{{ payment.time}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold">Amount</td>
-                                    <td>${{ payment.amount }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold">Method</td>
-                                    <td>{{ payment.method }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            {% if bill.unpaid_amount >= 0 %}
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2 class="h2">Payments Recorded Against This Bill</h2>
                 </div>
-            {% endfor %}
+                {% for payment in payments %}
+                    <div class="card cardhover mb-2">
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <h6 class="card-subtitle mb-2 ">ID: {{ payment.id }}</h6>
+                                    <tr>
+                                        <td style="font-weight: bold">Date</td>
+                                        <td>{{ payment.time}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Amount</td>
+                                        <td>${{ payment.amount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold">Method</td>
+                                        <td>{{ payment.method }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
 

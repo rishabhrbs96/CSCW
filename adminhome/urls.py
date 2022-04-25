@@ -38,6 +38,7 @@ urlpatterns = [
     path('bookings/<int:bk_id>/', views.viewonebooking, name='viewonebooking'),
     path('bookings/<int:bk_id>/edit/', views.editbooking, name='editbooking'),
     path('bookings/<int:bk_id>/delete/', views.deletebooking, name='deletebooking'),
+    path('bookings/<int:bk_id>/confirmcancelbooking/', views.confirmcancelbooking, name='confirmcancelbooking'),
     path('bookings/upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
     path('bookings/currentbookings/', views.viewcurrentbookings, name='viewcurrentbookings'),
     path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),

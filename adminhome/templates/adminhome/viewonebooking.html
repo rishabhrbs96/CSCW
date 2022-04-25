@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Details for Booking {{ booking.id }}</h1>
+        <h1 class="h2">{% if booking.state == 'canceled' %}<strong class="alert-danger">[CANCELED]</strong>{% endif %}Details for Booking {{ booking.id }}</h1>
     </div>
 
     {% if booking.state == 'pending_lease' %}
@@ -24,7 +24,7 @@
     
     {% if unpaid_amount != 0 %}
         <div class="alert alert-danger">
-            <strong>This bill has an unpaind amount of ${{ unpaid_amount }}</strong>
+            <strong>This booking has an unpaid amount of ${{ unpaid_amount }}</strong>
         </div>
     {% endif %}
 
@@ -32,27 +32,33 @@
         <div class="card-body">
             {% if request.user.is_authenticated %}
                 {% if request.user.is_superuser or request.user.is_staff %}
-                    <h5 class="card-title d-flex justify-content-between align-items-center">
-                        <div>
-                            <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
-                                Edit
-                            </a>
-                            <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
-                                Delete
-                            </a>
-                            <a href="{% url 'adminhome:assignoneslot' booking.id %}" class="btn btn-outline-dark m-2">
+                    {% if booking.state != 'canceled' %}
+                        <h5 class="card-title d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                    Edit
+                                </a>
+                                <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                    Delete
+                                </a>
+                                <a href="{% url 'adminhome:assignoneslot' booking.id %}" class="btn btn-outline-dark m-2">
+                                    {% if booking.parking_spot_id %}
+                                        Change Parking Spot
+                                    {% else %}
+                                        Assign Parking Spot
+                                    {% endif %}
+                                </a>
                                 {% if booking.parking_spot_id %}
-                                    Change Parking Spot
-                                {% else %}
-                                    Assign Parking Spot
+                                    <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">Add
+                                        Bill</a>
                                 {% endif %}
-                            </a>
-                            {% if booking.parking_spot_id %}
-                                <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">Add
-                                    Bill</a>
-                            {% endif %}
-                        </div>
-                    </h5>
+                                {% if booking.state != 'canceled' %}
+                                    <a href="{% url 'adminhome:confirmcancelbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                        Cancel Booking</a>
+                                {% endif %}
+                            </div>
+                        </h5>
+                    {% endif %}
                 {% endif %}
             {% endif %}
             <h6 class="card-subtitle mb-2 text-muted">
@@ -105,7 +111,7 @@
                 <div class="card mb-2">
                     <div class="card-body">
                         <h5 class="card-title d-flex justify-content-between align-items-center">
-                            ID: {{ bill.id }}
+                            {% if bill.unpaid_amount < 0 %}[REFUND]{% endif %} ID: {{ bill.id }}
                             <div>
                                 <a href="{% url 'adminhome:viewonebill' booking.id bill.id %}" class="btn btn-outline-dark me-2">
                                     View payment details!

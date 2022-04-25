@@ -1,0 +1,21 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+{% if error_message != "" %}
+    <div class="card text-center mx-auto mt-5 alert alert-danger">
+        <strong>{{ error_message }}</strong>
+    </div>
+{% else %}
+    <form method='POST'>{% csrf_token %}
+        <div class="card text-center mx-auto mt-5" style="max-width: 50rem;">
+            <div class="card-header">
+                <h4>Confirm Cancel!!</h4>
+            </div>
+            <div class="card-body">
+                <h5 class="card-text">Are you sure you want to cancel the booking <b>"{{ booking }}"</b>?</h5>
+                <button type="submit" class="btn btn-danger shadow-2 mb-4"  value="Confirm">Confirm</button>
+            </div>
+        </div>
+    </form>
+{% endif %}
+{% endblock content %}
