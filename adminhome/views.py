@@ -931,7 +931,7 @@ def confirmassignoneslot(request, pk, ps):
     
     if (not (parking_spot.is_active and parking_spot.parking_category_id.is_active)):
         context["error_message"] = "Parking Spot {} is inactive.".format(parking_spot)
-    elif (len(parking_spot.booking.filter(start_time__lte=booking.end_time, ).filter(end_time__gte=booking.start_time, )) != 0):
+    elif (len(parking_spot.booking.filter(start_time__lt=booking.end_time, ).filter(end_time__gt=booking.start_time, )) != 0):
         context["error_message"] = "Parking Spot {} is not completely avialable from {} to {}.".format(parking_spot, booking.start_time.date(), booking.end_time.date())
     elif request.method == 'POST':
         is_reassignnment = False
