@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Details for Bill ID#{{ bill.id }} against Booking <a href="{% url 'adminhome:viewonebooking' booking.id %}">ID#{{ booking.id }}</a></h1>
+        <h1 class="h2">Details for Bill ID#{{ bill.id }} against Booking <a href="{% url 'adminhome:viewonebooking' bill.booking_id.id %}">ID#{{ bill.booking_id.id }}</a></h1>
     </div>
 
     {% if bill.unpaid_amount != 0 %}
@@ -14,6 +14,17 @@
 
     <div class="card mb-2">
         <div class="card-body">
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser or request.user.is_staff %}
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'adminhome:addpayment' bill.booking_id.id bill.id %}" class="btn btn-outline-dark m-2">
+                                Record a cash/cheque payment
+                            </a>
+                        </div>
+                    </h5>
+                {% endif %}
+            {% endif %}
             <h6 class="card-subtitle mb-2 text-muted">
                 Details
             </h6>

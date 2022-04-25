@@ -1,9 +1,12 @@
-from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
-from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail
-from django.contrib.auth.models import User
 from datetime import datetime
 import pytz
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
+from django.contrib.auth.models import User
+
+from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail, Payment
+from .enums import PaymentMethod
 
 
 class CustomUserForm(AuthenticationForm):
@@ -173,3 +176,13 @@ class BillDetailForm(forms.ModelForm):
     class Meta:
         model = BillDetail
         fields = ['init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges', 'comments']
+
+class PaymentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PaymentForm, self).__init__(*args, **kwargs)
+        self.fields['method'] = forms.ChoiceField(choices=PaymentMethod.choices)
+        self.fields['amount'] = forms.DecimalField(label='Amount', initial=0)
+        
+    class Meta:
+        model = Payment
+        fields = ['method', 'amount']

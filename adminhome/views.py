@@ -24,10 +24,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings, BillDetail, Payment
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BillDetail, Payment
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm
+                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm, PaymentForm
+from .enums import BookingStates, ViewBookings
 
 from datetime import date
 from fpdf import FPDF
@@ -955,13 +956,13 @@ def addbill(request, bk_id):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:index'))
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
 
     if request.method == "POST":
         form = BillDetailForm(request.POST)
         if form.is_valid():
             bill = form.save(commit=False)
-            bill.bill_date = datetime.datetime.now()
+            bill.bill_date = datetime.datetime.now(pytz.timezone('US/Central'))
             bill.booking_id_id = bk_id
             bill.meter_rate = ParkingCategory.objects.get(pk=request.GET.get('pc')).utility_conversion_rate
             bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading) * bill.meter_rate
@@ -973,12 +974,45 @@ def addbill(request, bk_id):
                   template_name="adminhome/admin_add_bill.html",
                   context={"form": form})
 
+
 def viewonebill(request, bk_id, bl_id):
     if (not (request.user.is_authenticated)):
         return signin(request)
 
-    context = {"booking": Booking.objects.get(id=bk_id), "bill": BillDetail.objects.get(id=bl_id), "payments": Payment.objects.filter(bill_id=bl_id)}
+    context = {"bill": BillDetail.objects.get(id=bl_id), "payments": Payment.objects.filter(bill_id=bl_id)}
     return render(request, "adminhome/viewonebill.html", context)
+
+
+def addpayment(request, bk_id, bl_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:userhome'))
+
+    if request.method == "POST":
+        form = PaymentForm(request.POST)
+        print(form)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            bill = BillDetail.objects.get(id=bl_id)
+            if bill.unpaid_amount < payment.amount:
+                form.add_error('amount', "Payment amount can't be greater than bill's unpaid amount ${}".format(bill.unpaid_amount))
+                return render(request=request,
+                  template_name="adminhome/admin_add_payment.html",
+                  context={"form": form})
+            bill.unpaid_amount = bill.unpaid_amount - payment.amount
+            bill.save()
+            payment.time = datetime.datetime.now(pytz.timezone('US/Central'))
+            payment.bill = bill
+            payment.save()
+            return HttpResponseRedirect(reverse('adminhome:viewonebill', args=(bk_id, bl_id,)))
+    else:
+        form = PaymentForm()
+    return render(request=request,
+                  template_name="adminhome/admin_add_payment.html",
+                  context={"form": form})
+
 
 def calc_base_rent(booking):
     parking_category = booking.pc_id

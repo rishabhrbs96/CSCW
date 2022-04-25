@@ -24,7 +24,6 @@
 
     <div class="card mb-2">
         <div class="card-body">
-
             {% if request.user.is_authenticated %}
                 {% if request.user.is_superuser or request.user.is_staff %}
                     <h5 class="card-title d-flex justify-content-between align-items-center">
@@ -50,7 +49,6 @@
                     </h5>
                 {% endif %}
             {% endif %}
-
             <h6 class="card-subtitle mb-2 text-muted">
                 Parking Spot Assigned: {{ booking.parking_spot_id }}<br>
                 Parking Category Assigned: {{ booking.pc_id }}

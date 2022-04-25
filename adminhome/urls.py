@@ -47,6 +47,7 @@ urlpatterns = [
     path('bookings/<int:bk_id>/addbill', views.addbill, name='addbill'),
     # path('bookings/<int:bk_id>/bills', views.viewallbills, name='viewallbills'),
     path('bookings/<int:bk_id>/bill/<int:bl_id>', views.viewonebill, name='viewonebill'),
+    path('bookings/<int:bk_id>/bill/<int:bl_id>/addpayment', views.addpayment, name='addpayment'),
 
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/changepassword', views.changepassword, name='changepassword'),
