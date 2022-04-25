@@ -687,20 +687,24 @@ def confirmassignoneslot(request, pk, ps):
     elif (len(parking_spot.booking.filter(start_time__lte=booking.end_time, ).filter(end_time__gte=booking.start_time, )) != 0):
         context["error_message"] = "Parking Spot {} is not completely avialable from {} to {}.".format(parking_spot, booking.start_time.date(), booking.end_time.date())
     elif request.method == 'POST':
+        is_reassignnment = False
+        if booking.parking_spot_id:
+            is_reassignnment = True
         booking.parking_spot_id = parking_spot
         booking.state = BookingStates.APPROVED
         #TODO: add logic to calculate reservation cost
         reservation_cost = ((booking.end_time - booking.start_time).days)*booking.pc_id.daily_rate
-        base_bill = BillDetail(bill_date=datetime.datetime.now(pytz.timezone('US/Central')),
-                                reservation_cost=reservation_cost,
-                                init_meter_reading=0,
-                                utility_cost=0,
-                                paid_amount=0,
-                                unpaid_amount=reservation_cost,
-                                misc_charges=0,
-                                booking_id=booking
-                                )
-        base_bill.save()
+        if not is_reassignnment:
+            base_bill = BillDetail(bill_date=datetime.datetime.now(pytz.timezone('US/Central')),
+                                    reservation_cost=reservation_cost,
+                                    init_meter_reading=0,
+                                    utility_cost=0,
+                                    paid_amount=0,
+                                    unpaid_amount=reservation_cost,
+                                    misc_charges=0,
+                                    booking_id=booking
+                                    )
+            base_bill.save()
         booking.save()
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
