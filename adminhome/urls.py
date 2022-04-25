@@ -41,8 +41,9 @@ urlpatterns = [
     path('bookings/upcomingbookings/', views.viewupcomingbookings, name='viewupcomingbookings'),
     path('bookings/currentbookings/', views.viewcurrentbookings, name='viewcurrentbookings'),
     path('bookings/previousbookings/', views.viewpreviousbookings, name='viewpreviousbookings'),
-    path('bookings/<int:pk>/assignslot/', views.assignslot, name='assignslot'),
-    path('bookings/<int:pk>/assignslot/<int:ps>/confirm', views.confirmassignslot, name='confirmassignslot'),
+    path('bookings/assignslot/', views.assignslottobookings, name='assignslottobookings'),
+    path('bookings/assignslot/<int:pk>/', views.assignoneslot, name='assignoneslot'),
+    path('bookings/assignslot/<int:pk>/<int:ps>/confirm', views.confirmassignoneslot, name='confirmassignoneslot'),
     path('bookings/<int:bk_id>/addbill', views.addbill, name='addbill'),
     
     path('userhome/editprofile', views.editprofile, name='editprofile'),
@@ -54,8 +55,6 @@ urlpatterns = [
 
     path('bookings/<int:pk>/viewlease', views.viewlease, name='viewlease'),
     path('bookings/<int:pk>/signedlease', views.signedlease, name='signedlease'),
-    #TODO:Delete this below url once lease generation api is called by admin interface
-    path('viewleasetest/', views.viewlease_test, name='viewlease_test'),
 
     path('userhome/bookingpickvehicle/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.booking_pick_vehicle, name='booking_pick_vehicle'),
     path('userhome/bookingconfirmation/<int:vehicle_id>/<int:parking_category_id>/<str:start_date>/<str:end_date>/', views.create_booking, name='create_booking'),

@@ -1,10 +1,26 @@
-{% extends "admin_base.html" %} <!-- need to add admin check for all booking pages -->
+{% extends user.is_staff|yesno:"admin_base.html,user_base.html" %}
 
 {% block content %}
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Details for Booking {{ booking.id }}</h1>
     </div>
+
+    {% if booking.state == 'pending_lease' %}
+        <div class="alert alert-warning">
+            <strong>Your lease has been generated. Please sign your lease.</strong>
+        </div>
+    {% endif %}
+    {% if booking.state == 'pending_approval' %}
+        <div class="alert alert-warning">
+            <strong>Waiting for the admin to approve your documents and assign a parking slot.</strong>
+        </div>
+    {% endif %}
+    {% if booking.state == 'pending_slot' %}
+        <div class="alert alert-warning">
+            <strong>Waiting for the admin to assign a parking slot.</strong>
+        </div>
+    {% endif %}
 
     <div class="card mb-2">
         <div class="card-body">
@@ -19,7 +35,7 @@
                             <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
                                 Delete
                             </a>
-                            <a href="{% url 'adminhome:assignslot' booking.id %}" class="btn btn-outline-dark m-2">
+                            <a href="{% url 'adminhome:assignoneslot' booking.id %}" class="btn btn-outline-dark m-2">
                                 {% if booking.parking_spot_id %}
                                     Change Parking Spot
                                 {% else %}
@@ -36,7 +52,8 @@
             {% endif %}
 
             <h6 class="card-subtitle mb-2 text-muted">
-                Parking Spot: {{ booking.parking_spot_id }}
+                Parking Spot Assigned: {{ booking.parking_spot_id }}<br>
+                Parking Category Assigned: {{ booking.pc_id }}
                 <!-- TODO: Need to add link to Bill ID here. -->
             </h6>
             <div class="card-text">

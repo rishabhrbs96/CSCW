@@ -10,8 +10,9 @@ from django.utils.translation import gettext_lazy as _
 #####################################################################################
 class BookingStates(models.TextChoices):
     NEW = 'new', _('New Booking')
-    PENDING_APPROVAL = 'pending', _('Pending Approval')
+    PENDING_APPROVAL = 'pending_approval', _('Pending Approval')
     PENDING_LEASE = 'pending_lease', _('Pending Lease')
+    PENDING_SLOT = 'pending_slot', _('Pending Slot')
     REJECTED = 'rejected', _('Rejected Booking')
     APPROVED = 'approved', _('Approved Booking')
     CANCELED_BEFORE_LEASE = 'canceled_before_lease', _('Canceled Before Lease')
@@ -88,6 +89,7 @@ class Booking(models.Model):
     state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
     lease_doc_url = models.CharField(max_length=100)
     lease_is_signed_by_user = models.BooleanField()
+    lease_sign_time = models.DateTimeField(auto_now_add=False, null=True)
     admin_comments = models.CharField(max_length=20)
     
 class BillDetail(models.Model):

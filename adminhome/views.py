@@ -1,6 +1,7 @@
 import json, requests, datetime, boto3
 import random
 import time
+import pytz
 
 from django.template import context
 
@@ -277,7 +278,7 @@ def viewbookings(request, bookingsType):
             Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now()))
 
     # TODO: check the datetime.now() time-zone.
-    print("date: ", datetime.date.today())
+    # print("date: ", datetime.date.today())
 
     page = request.GET.get('page', 1)
     paginator = Paginator(bookings_list.qs, 2)
@@ -303,6 +304,26 @@ def viewpreviousbookings(request):
 
 def viewcurrentbookings(request):
     return viewbookings(request, ViewBookings.CURRENT_BOOKINGS)
+
+
+def assignslottobookings(request):
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    bookings = Booking.objects.filter(state__in=[BookingStates.PENDING_APPROVAL, BookingStates.PENDING_SLOT],start_time__gte=datetime.datetime.now(pytz.timezone('US/Central'))).order_by('lease_sign_time')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(bookings, 10)
+
+    try:
+        bookings_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        bookings_paginated = paginator.page(1)
+    except EmptyPage:
+        bookings_paginated = paginator.page(paginator.num_pages)
+
+    return render(request, "adminhome/assignslottobookings.html",
+                  {'bookings_paginated': bookings_paginated})
 
 
 def viewonebooking(request, bk_id):
@@ -645,7 +666,7 @@ def showparkingspotschedule(request, pk, start_date, end_date):
                   )
 
 
-def confirmassignslot(request, pk, ps):
+def confirmassignoneslot(request, pk, ps):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
@@ -654,23 +675,38 @@ def confirmassignslot(request, pk, ps):
     parking_spot = ParkingSpot.objects.get(id=ps)
     context["booking"] = booking
     context["parking_spot"] = parking_spot
-
-    if request.method == 'POST':
+    context["error_message"] = ""
+    
+    if (not (parking_spot.is_active and parking_spot.parking_category_id.is_active)):
+        context["error_message"] = "Parking Spot {} is inactive.".format(parking_spot)
+    elif (len(parking_spot.booking.filter(start_time__lte=booking.end_time, ).filter(end_time__gte=booking.start_time, )) != 0):
+        context["error_message"] = "Parking Spot {} is not completely avialable from {} to {}.".format(parking_spot, booking.start_time.date(), booking.end_time.date())
+    elif request.method == 'POST':
         booking.parking_spot_id = parking_spot
         booking.save()
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
-    return render(request, "confirmassignslot.html", context=context)
+    return render(request, "confirmassignoneslot.html", context=context)
 
 
-def assignslot(request, pk):
+def assignoneslot(request, pk):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     current_booking = Booking.objects.get(id=pk)
     twd = (current_booking.end_time - current_booking.start_time).days
 
+    form = VerifyVehicleForm
+
+    if request.method == 'POST':
+        vehicle = Vehicle.objects.get(pk=current_booking.vehicle_id.id)
+        vehicle.is_verified = True
+        vehicle.insurance_expiry_date = request.POST['insurance_expiry_date']
+        vehicle.save()
+        current_booking.state = BookingStates.PENDING_SLOT
+
     pc = []
+    current_booking_slot = []
     for parking_spot in current_booking.pc_id.parking_spot.all():
         if (parking_spot.is_active):
             pc.append([parking_spot, [0, []]])
@@ -700,16 +736,13 @@ def assignslot(request, pk):
                 wd = current_booking.end_time - bookings[len_bookings - 1].end_time
                 pc[-1][1][1].append([False, (100 * wd.days) / twd, ""])
                 pc[-1][1][0] += (100 * wd.days) / twd
+            
+            if (current_booking.parking_spot_id and parking_spot.id == current_booking.parking_spot_id.id):
+                current_booking_slot = pc[-1][1][1]
 
     pc.sort(reverse=True, key=lambda x: x[1][0])
 
-    return render(request,
-                  "adminhome/assignslot.html",
-                  {
-                      'current_booking': current_booking,
-                      'pc': pc
-                  }
-                  )
+    return render(request,"adminhome/assignoneslot.html",{'current_booking': current_booking,'pc': pc,'form': form, 'current_booking_slot': current_booking_slot})
 
 
 def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
@@ -740,34 +773,20 @@ def booking_pick_vehicle(request, parking_category_id, start_date, end_date):
 def create_booking(request, vehicle_id, parking_category_id, start_date, end_date):
     vehicle = Vehicle.objects.get(id=vehicle_id)
     pc = ParkingCategory.objects.get(id=parking_category_id)
-    booking_obj = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date,
+    booking = Booking(vehicle_id=vehicle, pc_id=pc, state=BookingStates.NEW, start_time=start_date,
                           end_time=end_date, lease_doc_url='', lease_is_signed_by_user=False, admin_comments='')
 
     if (request.method == "POST"):
-        booking_obj.save()
-        return render(request, "adminhome/userhome.html")
+        booking.state = BookingStates.PENDING_LEASE
+        booking.save()
+        generatelease(booking.id)
+        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id, )))
 
     return render(
         request,
         "adminhome/bookingconfirmation.html",
-        {'booking': booking_obj}
+        {'booking': booking}
     )
-
-#TODO:Delete this method once lease generation api is called by admin interface
-def viewlease_test(request):
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-    if (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseRedirect(reverse('adminhome:adminhome'))
-
-    # file return the correct lease from db
-    booking_id = 8
-    vehicle = Booking.objects.get(id=booking_id).vehicle_id
-    generatelease(booking_id)
-    lease_url = Booking.objects.get(id=booking_id).lease_doc_url
-
-    return HttpResponseRedirect(lease_url)
-
 
 def generatelease(booking_id):
 
@@ -839,7 +858,7 @@ def generatesignedlease(booking_id):
     vehicle = booking.vehicle_id
     parking_category = booking.pc_id
     user = vehicle.user_id
-    lease_sign_time = datetime.datetime.today()
+    lease_sign_time = datetime.datetime.now(pytz.timezone('US/Central'))
 
     lease_duration = (booking.end_time - booking.start_time).days
 
@@ -898,10 +917,11 @@ def generatesignedlease(booking_id):
 
     # Update booking object
     booking.lease_is_signed_by_user = True
-    # TODO:
-    '''
-    update the lease sign datetime field here with the value stored in lease_sign_time
-    '''
+    booking.lease_sign_time = lease_sign_time
+    if vehicle.is_verified:
+        booking.state = BookingStates.PENDING_SLOT
+    else:
+        booking.state = BookingStates.PENDING_APPROVAL
     booking.save()
 
 

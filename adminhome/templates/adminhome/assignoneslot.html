@@ -1,0 +1,114 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+        trigger : 'hover'
+    });
+});
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">Assign Slot: <a href="{% url 'adminhome:viewonebooking' current_booking.id %}">{{ current_booking }}</a> </h1>
+</div>
+{% if current_booking.state == 'pending_approval' %}
+  <div class="alert alert-warning">
+    <strong>Please approve the documents before assigning a slot.</strong>
+  </div>
+  <div class="card cardhover mb-2">
+            <div class="card-body">
+                <h5 class="card-title d-flex justify-content-between align-items-center">
+                    {{ current_booking.vehicle_id.name }}
+                    {#				<a href="{% url 'adminhome:verifyvehicle' current_booking.vehicle_id.id %}" class="btn btn-outline-dark me-2 stretched-link">#}
+                    {#					View#}
+                    {#					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">#}
+                    {#						<path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4v8z"/>#}
+                    {#					</svg>#}
+                    {#				</a>#}
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">User ID: {{ current_booking.vehicle_id.user_id }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Model: {{ current_booking.vehicle_id.model }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Make: {{ current_booking.vehicle_id.make }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Build: {{ current_booking.vehicle_id.build }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Color: {{ current_booking.vehicle_id.color }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted"><a href={{ current_booking.vehicle_id.insurance_doc.url }}> Insurance
+                    Doc</a></h6>
+                <form method="POST"
+                      action={% url 'adminhome:assignoneslot' current_booking.id %} enctype="multipart/form-data"> {% csrf_token %}
+                    {% for field in form %}
+                        <label class="col-sm-2" for="{{ field.auto_id }}">{{ field.label }}</label>
+                        <div class="col-sm-2"> {{ field }} </div>
+                    {% endfor %}
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{ error|escape }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary shadow-2 mb-4" value="Submit">Approve</button>
+                </form>
+            </div>
+        </div>
+{% endif %}
+<div class="container">
+  <div class="row">
+    <h4>Showing parking slots availability from {{ current_booking.start_time.date }} to {{ current_booking.end_time.date }}</h4>
+    <h5>Parking Category: {{ current_booking.pc_id }}</h5>
+  </div>
+  {% for i in current_booking_slot %}
+    <div class="row">
+      <div style="overflow-y:auto !important;">
+        <h5>Currently assigned slot</h5>
+        <a href="{% url 'adminhome:showparkingspotschedule' i.2.parking_spot_id.id current_booking.start_time.date current_booking.end_time.date%}"><h6>{{ i.2.parking_spot_id }}</h6></a>
+        <div class="progress" style="height: 20px;">
+          <div data-toggle="popover" title="Click to view {{ i.2 }}" data-bs-content="From {{ i.2.start_time.date }} to {{ i.2.end_time.date }}" onclick="location.href='{% url 'adminhome:viewonebooking' i.2.id %}';" class="progress-bar bg-warning" role="progressbar" style="width: {{ i.1 }}%; cursor: pointer;" aria-valuenow="{{ i.1 }}" aria-valuemin="0" aria-valuemax="100">{{ i.2 }}</div>
+        </div>
+      </div>
+    </div>
+    <hr>
+  {% endfor %}
+  <div class="row">
+    <div style="overflow-y:auto !important; height:70vh !important;">
+      <h5>Parking spots completely available for this duration</h5>
+      {% for i in pc %}
+        {% if i.1.0 == 100 %}
+          <a href="{% url 'adminhome:showparkingspotschedule' i.0.id current_booking.start_time.date current_booking.end_time.date%}"><h6>{{ i.0 }}</h6></a>
+          <div class="progress" style="height: 20px;">
+            {% for v in i.1.1 %}
+              <div data-toggle="popover" title="Click to assign slot!" data-bs-content="Click to assign slot {{ i.0 }} to the booking." onclick="location.href='{% url 'adminhome:confirmassignoneslot' current_booking.id i.0.id %}';" class="progress-bar bg-success" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;"></div>
+            {% endfor %}
+          </div>
+          <br>
+        {% endif %}
+      {% endfor %}
+      <hr>
+      <h5>Other Parking spots</h5>
+      {% for i in pc %}
+        {% if i.1.0 != 100 %}
+          <a href="{% url 'adminhome:showparkingspotschedule' i.0.id current_booking.start_time.date current_booking.end_time.date%}"><h6>{{ i.0 }}</h6></a>
+          <div class="progress" style="height: 20px;">
+            {% for v in i.1.1 %}
+              {% if v.0 %}
+                {% if current_booking.id == v.2.id %}
+                  <div data-toggle="popover" title="Click to view {{ v.2 }}" data-bs-content="From {{ v.2.start_time.date }} to {{ v.2.end_time.date }}" onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-warning" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+                {% else %}
+                  <div data-toggle="popover" title="Click to view {{ v.2 }}" data-bs-content="From {{ v.2.start_time.date }} to {{ v.2.end_time.date }}" onclick="location.href='{% url 'adminhome:viewonebooking' v.2.id %}';" class="progress-bar bg-danger" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;" aria-valuenow="{{ v.1 }}" aria-valuemin="0" aria-valuemax="100">{{ v.2 }}</div>
+                {% endif %}
+              {% else %}
+                <div data-toggle="popover" title="Can't assign this slot!" data-bs-content="You can't assign this slot as it isn't completely avaialble." class="progress-bar bg-success" role="progressbar" style="width: {{ v.1 }}%; cursor: pointer;"></div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <br>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock content %}
