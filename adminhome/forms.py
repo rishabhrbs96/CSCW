@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
-from .models import ParkingSpot, ParkingCategory, Booking, Vehicle
+from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail
 from django.contrib.auth.models import User
 from datetime import datetime
 import pytz
@@ -152,8 +152,24 @@ class VehicleChangeForm(forms.ModelForm):
 class VerifyVehicleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(VerifyVehicleForm, self).__init__(*args, **kwargs)
-        self.fields['insurance_expiry_date'] = forms.DateTimeField(help_text="Format yyyy-mm-dd")
+        self.fields['insurance_expiry_date'] = forms.DateTimeField(help_text="Format yyyy-mm-dd", widget=DatePickerInput)
 
     class Meta:
         model = Vehicle
         fields = ['insurance_expiry_date']
+
+
+class BillDetailForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BillDetailForm, self).__init__(*args, **kwargs)
+        self.fields['init_meter_reading'] = forms.IntegerField(label='Initial Meter Reading', required=False, initial=0)
+        self.fields['end_meter_reading'] = forms.IntegerField(label='End Meter Reading', required=False, initial=0)
+        self.fields['paid_amount'] = forms.DecimalField(label='Paid Amount', initial=0)
+        self.fields['unpaid_amount'] = forms.DecimalField(label='Unpaid Amount', initial=0)
+        self.fields['misc_charges'] = forms.DecimalField(label='Miscellaneous Charges', required=False, initial=0)
+        self.fields['comments'] = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), required=False)
+
+
+    class Meta:
+        model = BillDetail
+        fields = ['init_meter_reading', 'end_meter_reading', 'paid_amount', 'unpaid_amount', 'misc_charges', 'comments']

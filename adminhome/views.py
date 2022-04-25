@@ -23,10 +23,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BookingStates, ViewBookings, BillDetail
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-    CustomUserCreationForm, DateRangeForm, VehicleChangeForm
+                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm
 
 from datetime import date
 from fpdf import FPDF
@@ -310,8 +310,7 @@ def viewonebooking(request, bk_id):
         return signin(request)
 
     # NOTE: Logic for admin/user view is handled inside the HTML file.
-    context = {}
-    context["booking"] = Booking.objects.get(id=bk_id)
+    context = {"booking": Booking.objects.get(id=bk_id), "bills": BillDetail.objects.filter(booking_id_id=bk_id)}
     return render(request, "adminhome/viewonebooking.html", context)
 
 
@@ -534,6 +533,9 @@ def editvehicle(request, pk):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
     vehicle = Vehicle.objects.get(pk=pk)
+
+    if not vehicle.user_id_id == request.user.id:
+        return HttpResponseRedirect(reverse('adminhome:index'))
 
     if request.method == 'POST':
         form = VehicleChangeForm(request.POST, request.FILES, instance=vehicle)
@@ -934,13 +936,29 @@ def viewlease(request, pk):
             {'lease': lease_url,
              'booking': booking}
         )
-
     else:
         return HttpResponseRedirect(reverse('adminhome:userhome'))
 
 
+def addbill(request, bk_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
 
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:index'))
 
-
-
-
+    if request.method == "POST":
+        form = BillDetailForm(request.POST)
+        if form.is_valid():
+            bill = form.save(commit=False)
+            bill.bill_date = datetime.datetime.now()
+            bill.booking_id_id = bk_id
+            bill.meter_rate = ParkingCategory.objects.get(pk=request.GET.get('pc')).utility_conversion_rate
+            bill.utility_cost = (bill.end_meter_reading - bill.init_meter_reading) * bill.meter_rate
+            bill.save()
+            return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(bk_id,)))
+    else:
+        form = BillDetailForm()
+    return render(request=request,
+                  template_name="adminhome/admin_add_bill.html",
+                  context={"form": form})
