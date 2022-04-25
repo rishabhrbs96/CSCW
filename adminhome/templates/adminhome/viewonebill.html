@@ -88,11 +88,15 @@
                                 <h6 class="card-subtitle mb-2 ">ID: {{ payment.id }}</h6>
                                 <tr>
                                     <td style="font-weight: bold">Date</td>
-                                    <td>{{ payment.method}}</td>
+                                    <td>{{ payment.time}}</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight: bold">Reservation Cost</td>
-                                    <td>{{ payment.time }}</td>
+                                    <td style="font-weight: bold">Amount</td>
+                                    <td>${{ payment.amount }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold">Method</td>
+                                    <td>{{ payment.method }}</td>
                                 </tr>
                             </tbody>
                         </table>
