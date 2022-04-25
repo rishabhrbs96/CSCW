@@ -790,23 +790,12 @@ def create_booking(request, vehicle_id, parking_category_id, start_date, end_dat
     )
 
 def generatelease(booking_id):
-
     booking = Booking.objects.get(id=booking_id)
     vehicle = booking.vehicle_id
     parking_category = booking.pc_id
     user = vehicle.user_id
 
-    lease_duration = (booking.end_time - booking.start_time).days
-
-    if 7 <= lease_duration <= 30:
-        freq = 'Week'
-        price = parking_category.weekly_rate
-    elif lease_duration < 7:
-        freq = 'Day'
-        price = parking_category.daily_rate
-    else:
-        freq = 'Month'
-        price = parking_category.monthly_rate
+    freq, price = calc_base_rent(booking)
 
     lease_variables = {
         '<lease_date>': date.today().strftime("%b %d %Y"),
@@ -861,17 +850,7 @@ def generatesignedlease(booking_id):
     user = vehicle.user_id
     lease_sign_time = datetime.datetime.now(pytz.timezone('US/Central'))
 
-    lease_duration = (booking.end_time - booking.start_time).days
-
-    if 7 <= lease_duration <= 30:
-        freq = 'Week'
-        price = parking_category.weekly_rate
-    elif lease_duration < 7:
-        freq = 'Day'
-        price = parking_category.daily_rate
-    else:
-        freq = 'Month'
-        price = parking_category.monthly_rate
+    freq, price = calc_base_rent(booking)
 
     lease_variables = {
         '<lease_date>': date.today().strftime("%b %d %Y"),
@@ -981,3 +960,19 @@ def addbill(request, bk_id):
     return render(request=request,
                   template_name="adminhome/admin_add_bill.html",
                   context={"form": form})
+
+def calc_base_rent(booking):
+    parking_category = booking.pc_id
+    lease_duration = (booking.end_time - booking.start_time).days
+
+    if 7 <= lease_duration <= 30:
+        freq = 'Week'
+        price = parking_category.weekly_rate
+    elif lease_duration < 7:
+        freq = 'Day'
+        price = parking_category.daily_rate
+    else:
+        freq = 'Month'
+        price = parking_category.monthly_rate
+
+    return freq, price
