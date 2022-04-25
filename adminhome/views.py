@@ -973,6 +973,13 @@ def addbill(request, bk_id):
                   template_name="adminhome/admin_add_bill.html",
                   context={"form": form})
 
+def viewonebill(request, bk_id, bl_id):
+    if (not (request.user.is_authenticated)):
+        return signin(request)
+
+    context = {"booking": Booking.objects.get(id=bk_id), "bill": BillDetail.objects.get(id=bl_id)}
+    return render(request, "adminhome/viewonebill.html", context)
+
 def calc_base_rent(booking):
     parking_category = booking.pc_id
     lease_duration = (booking.end_time - booking.start_time).days

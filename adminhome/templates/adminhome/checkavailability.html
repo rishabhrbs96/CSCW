@@ -52,9 +52,6 @@
                             <!-- TODO: Add  parkingcategory.id to Booking-->
                             <!-- start_date end_date -->
                             <div>
-                                <!-- <a href="google" class="btn btn-outline-dark m-2">
-                                    View Details
-                                </a> -->
                                 <a href="{% url 'adminhome:booking_pick_vehicle' parkingcategory.id start_date end_date %}" class="btn btn-outline-dark me-2">
                                     Reserve a slot!
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-square-fill" viewBox="0 0 16 16">
@@ -64,7 +61,7 @@
                             </div>
                         </h5>
                         <h6 class="card-subtitle mb-2 text-muted">
-                           <button type="button" class="btn btn-outline-secondary"  data-bs-toggle="collapse" href="#collapseDetails" role="button" aria-expanded="false" aria-controls="collapseAmeneties">Click To See View Details</button>
+                           <button type="button" class="btn btn-outline-secondary"  data-bs-toggle="collapse" href="#collapseDetails" role="button" aria-expanded="false" aria-controls="collapseAmeneties">Click To View More Details</button>
                         </h6>
                         <div class="card-text collapse" id="collapseDetails">
                             <table class="table table-striped">
