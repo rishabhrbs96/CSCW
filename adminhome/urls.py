@@ -48,7 +48,8 @@ urlpatterns = [
     # path('bookings/<int:bk_id>/bills', views.viewallbills, name='viewallbills'),
     path('bookings/<int:bk_id>/bill/<int:bl_id>', views.viewonebill, name='viewonebill'),
     path('bookings/<int:bk_id>/bill/<int:bl_id>/addpayment', views.addpayment, name='addpayment'),
-
+    path('bookings/<int:bk_id>/bill/<int:bl_id>/payonline', views.payonline, name='payonline'),
+    
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/changepassword', views.changepassword, name='changepassword'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),

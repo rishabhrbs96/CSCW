@@ -1,4 +1,4 @@
-import json, requests, datetime, boto3
+import json, requests, datetime, boto3, math
 import random
 import time
 import pytz
@@ -1017,6 +1017,36 @@ def addpayment(request, bk_id, bl_id):
                   template_name="adminhome/admin_add_payment.html",
                   context={"form": form})
 
+def payonline(request, bk_id, bl_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('adminhome:index'))
+
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
+    bill = BillDetail.objects.get(id=bl_id)
+    if request.method == "POST":
+        form = PaymentForm(request.POST)
+        print(form)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            bill = BillDetail.objects.get(id=bl_id)
+            if bill.unpaid_amount < payment.amount:
+                form.add_error('amount', "Payment amount can't be greater than bill's unpaid amount ${}".format(bill.unpaid_amount))
+                return render(request=request,
+                  template_name="adminhome/admin_add_payment.html",
+                  context={"form": form})
+            bill.unpaid_amount = bill.unpaid_amount - payment.amount
+            bill.save()
+            payment.time = datetime.datetime.now(pytz.timezone('US/Central'))
+            payment.bill = bill
+            payment.save()
+            return HttpResponseRedirect(reverse('adminhome:viewonebill', args=(bk_id, bl_id,)))
+    else:
+        form = PaymentForm()
+    return render(request=request,
+                  template_name="adminhome/user_payonline.html",
+                  context={"bill": bill, "unpaid_amount_integral": int(math.modf(bill.unpaid_amount)[1]), "unpaid_amount_decimal": int(100*math.modf(bill.unpaid_amount)[0])})
 
 def calc_base_rent(booking):
     parking_category = booking.pc_id
