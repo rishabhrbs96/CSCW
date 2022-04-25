@@ -926,21 +926,19 @@ def generatesignedlease(booking_id):
     booking.save()
 
 
-def signedlease(request,pk):
+def signlease(request,pk):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
+    if (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseRedirect(reverse('adminhome:adminhome'))
+
     booking = get_object_or_404(Booking, id=pk)
-    lease_url = booking.lease_doc_url
-
+    if (booking.lease_is_signed_by_user):
+        return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
+    
     generatesignedlease(pk)
-
-    return render(
-        request,
-        "adminhome/viewlease.html",
-        {'lease': lease_url,
-         'booking': booking}
-    )
+    return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id,)))
 
 
 def viewlease(request, pk):
