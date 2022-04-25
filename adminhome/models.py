@@ -60,6 +60,9 @@ class Booking(models.Model):
     
     admin_comments = models.CharField(max_length=20)
     
+    def __str__(self):
+        return "Booking ID#{}".format(self.id)
+
 class BillDetail(models.Model):
     bill_date = models.DateTimeField(auto_now_add=False)
     reservation_cost = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
