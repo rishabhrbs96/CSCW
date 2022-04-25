@@ -684,6 +684,18 @@ def confirmassignoneslot(request, pk, ps):
     elif request.method == 'POST':
         booking.parking_spot_id = parking_spot
         booking.state = BookingStates.APPROVED
+        #TODO: add logic to calculate reservation cost
+        reservation_cost = ((booking.end_time - booking.start_time).days)*booking.pc_id.daily_rate
+        base_bill = BillDetail(bill_date=datetime.datetime.now(pytz.timezone('US/Central')),
+                                reservation_cost=reservation_cost,
+                                init_meter_reading=0,
+                                utility_cost=0,
+                                paid_amount=0,
+                                unpaid_amount=reservation_cost,
+                                misc_charges=0,
+                                booking_id=booking
+                                )
+        base_bill.save()
         booking.save()
         return HttpResponseRedirect(reverse("adminhome:viewonebooking", args=(booking.id,)))
 
