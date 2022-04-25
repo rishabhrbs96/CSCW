@@ -75,11 +75,6 @@ class Vehicle(models.Model):
     def __str__(self):
         return self.name
 
-class Payment(models.Model):
-    status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID)
-    method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CASH)
-    time = models.DateTimeField(auto_now_add=False)
-
 class Booking(models.Model):
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
     pc_id = models.ForeignKey(ParkingCategory, on_delete=models.PROTECT, related_name="booking", default=None, null=True)
@@ -104,3 +99,9 @@ class BillDetail(models.Model):
     misc_charges = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
     comments = models.TextField(null=True)
     booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name="bills")
+
+class Payment(models.Model):
+    # status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID)
+    method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CASH)
+    time = models.DateTimeField(auto_now_add=False)
+    bill = models.ForeignKey(BillDetail, on_delete=models.CASCADE, related_name="payments")
