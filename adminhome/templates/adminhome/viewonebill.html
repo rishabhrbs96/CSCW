@@ -6,7 +6,7 @@
         <h1 class="h2">Details for Bill ID#{{ bill.id }} against Booking <a href="{% url 'adminhome:viewonebooking' bill.booking_id.id %}">ID#{{ bill.booking_id.id }}</a></h1>
     </div>
 
-    {% if bill.unpaid_amount < 0 %}
+    {% if bill.unpaid_amount < 0 or bill.paid_amount < 0 %}
         <div class="alert alert-danger">
             <strong>Refund for booking ID#${{ bill.booking_id.id }}</strong>
         </div>

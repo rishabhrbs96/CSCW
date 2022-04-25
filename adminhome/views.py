@@ -420,7 +420,7 @@ def confirmcancelbooking(request, bk_id):
                                     booking_id=booking
                                     )
             refund_bill.save()
-        if ((current_time - booking.start_time).days <= booking.pc_id.cancellation_time_window):
+        if ((booking.start_time - current_time).days <= booking.pc_id.cancellation_time_window):
             penalty_bill = BillDetail(bill_date=current_time,
                                     reservation_cost=0,
                                     init_meter_reading=0,

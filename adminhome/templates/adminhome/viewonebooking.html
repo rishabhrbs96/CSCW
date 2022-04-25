@@ -111,7 +111,7 @@
                 <div class="card mb-2">
                     <div class="card-body">
                         <h5 class="card-title d-flex justify-content-between align-items-center">
-                            {% if bill.unpaid_amount < 0 %}[REFUND]{% endif %} ID: {{ bill.id }}
+                            {% if bill.unpaid_amount < 0 or bill.paid_amount < 0%}[REFUND]{% endif %} ID: {{ bill.id }}
                             <div>
                                 <a href="{% url 'adminhome:viewonebill' booking.id bill.id %}" class="btn btn-outline-dark me-2">
                                     View payment details!
