@@ -315,7 +315,7 @@ def create_booking(request, vehicle_id, parking_category_id, start_date, end_dat
 
     if (request.method == "POST"):
         booking.state = BookingStates.PENDING_LEASE
-        booking.last_modified_userid = request.user.id
+        booking.last_modified_userid = request.user
         booking.save()
         generatelease(booking.id)
         return HttpResponseRedirect(reverse('adminhome:viewlease', args=(booking.id, )))
@@ -368,7 +368,7 @@ def editbooking(request, bk_id):
     form = BookingForm(request.POST or None, instance=booking)
 
     if form.is_valid():
-        booking.last_modified_userid = request.user.id
+        booking.last_modified_userid = request.user
         form.save()
         return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
     else:
