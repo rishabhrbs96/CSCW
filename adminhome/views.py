@@ -1074,7 +1074,6 @@ def addpayment(request, bk_id, bl_id):
 
     if request.method == "POST":
         form = PaymentForm(request.POST)
-        print(form)
         if form.is_valid():
             payment = form.save(commit=False)
             bill = BillDetail.objects.get(id=bl_id)
@@ -1106,7 +1105,6 @@ def payonline(request, bk_id, bl_id):
     bill = BillDetail.objects.get(id=bl_id)
     if request.method == "POST":
         form = PaymentForm(request.POST)
-        print(form)
         if form.is_valid():
             payment = form.save(commit=False)
             bill = BillDetail.objects.get(id=bl_id)

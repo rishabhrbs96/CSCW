@@ -92,10 +92,6 @@ DATABASES = {
     }
 }
 
-import sys
-if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
-
 if 'ENV_HOST' in os.environ and os.environ['ENV_HOST'] == 'heroku':
     db_from_env = dj_database_url.config(conn_max_age=600)
     DATABASES['default'].update(db_from_env)

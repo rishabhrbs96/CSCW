@@ -3,8 +3,9 @@ from django.urls import reverse
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser, User
 from .views import *
-from .forms import CustomUserForm, CustomUserCreationForm, HomeForm, ParkingSpotForm, ParkingCategoryForm
-from .models import ParkingSpot, ParkingCategory
+from .forms import *
+from .models import *
+from .enums import *
 from django.http import HttpRequest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from http import HTTPStatus
@@ -266,6 +267,57 @@ class TestIndexView(TestCase):
         response = self.client.get(reverse('adminhome:index'))
         self.assertEqual(response.status_code, 200)
 
+class TestAdminHomeView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='user', password='pass')
+        self.super_user = User.objects.create_superuser(username='useradmin', password='passadmin')
+    
+    def test_admin_home_view_anon(self):
+        request = self.factory.get(reverse('adminhome:adminhome'))
+        # AnonymousUser are not authenticated
+        request.user = AnonymousUser()
+        response = adminhome(request)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_admin_home_view_non_admin(self):
+        request = self.factory.get(reverse('adminhome:adminhome'))
+        request.user = self.user
+        response = adminhome(request)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_admin_home_view_admin(self):
+        request = self.factory.get(reverse('adminhome:adminhome'))
+        request.user = self.super_user
+        response = adminhome(request)
+        self.assertEqual(response.status_code, 200)
+
+class TestUserHomeView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username='user', password='pass')
+        self.super_user = User.objects.create_superuser(username='useradmin', password='passadmin')
+    
+    def test_user_home_view_anon(self):
+        request = self.factory.get(reverse('adminhome:userhome'))
+        # AnonymousUser are not authenticated
+        request.user = AnonymousUser()
+        response = userhome(request)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_user_home_view_non_admin(self):
+        request = self.factory.get(reverse('adminhome:userhome'))
+        request.user = self.user
+        response = userhome(request)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_user_home_view_admin(self):
+        request = self.factory.get(reverse('adminhome:userhome'))
+        request.user = self.super_user
+        response = userhome(request)
+        self.assertEqual(response.status_code, 302)
 
 class TestCustomUserCreationForm(TestCase):
     def test_user_creation_form_correct(self):
@@ -835,3 +887,397 @@ class TesetParkingCategoryModel(TestCase):
 
         self.assertTrue(isinstance(parking_category, ParkingCategory))
         self.assertEqual(str(parking_category), parking_category.name)
+
+
+class TestAssignOneSlotView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.user = User.objects.create_user(
+            username='user', password='pass')
+        self.super_user = User.objects.create_superuser(username='useradmin', password='passadmin')
+        self.vehicle = Vehicle.objects.create(name="name",
+                                                user_id=self.user,
+                                                make="make",
+                                                model="model",
+                                                build="build",
+                                                color="color",
+                                                is_verified=True)
+        self.vehicle_unverified = Vehicle.objects.create(name="name_unverified",
+                                                user_id=self.user,
+                                                make="make",
+                                                model="model",
+                                                build="build",
+                                                color="color",
+                                                is_verified=False)
+        self.parking_category = ParkingCategory.objects.create(name="pc_1", size=1.00, daily_rate=1.0,
+                                                               weekly_rate=1.0,
+                                                               monthly_rate=1.0,
+                                                               utility_conversion_rate=1.0,
+                                                               is_active=True,
+                                                               cancellation_penalty=1.0,
+                                                               cancellation_time_window=1)
+        self.parking_spot_1 = ParkingSpot.objects.create(name="test_spot_1", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_2 = ParkingSpot.objects.create(name="test_spot_2", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_3 = ParkingSpot.objects.create(name="test_spot_3", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_4 = ParkingSpot.objects.create(name="test_spot_4", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_5 = ParkingSpot.objects.create(name="test_spot_5", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_6 = ParkingSpot.objects.create(name="test_spot_6", parking_category_id=self.parking_category,
+                                                       is_active=True)
+
+    def test_get_assignoneslot_not_admin(self):
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        
+        request = self.factory.get(reverse('adminhome:assignoneslot', kwargs={'pk': booking.id}))
+        request.user = self.user
+        response = assignoneslot(request, booking.id)
+        self.assertEqual(response.status_code, 302)
+
+        Booking.objects.all().delete()
+
+    def test_get_assignoneslot(self):
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_2 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_2,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_3 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_3,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_4 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_4,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_5 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_5,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-27", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-05-28", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_6 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_5,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-05-01", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        
+        request = self.factory.get(reverse('adminhome:assignoneslot', kwargs={'pk': booking.id}))
+        request.user = self.super_user
+        response = assignoneslot(request, booking.id)
+        self.assertEqual(response.status_code, 200)
+
+        Booking.objects.all().delete()
+
+    def test_get_assignoneslot_vehicle_unverified(self):
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle_unverified,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        insurance_expiry_data = {
+            'insurance_expiry_date': datetime.combine(datetime.strptime("2022-10-26", '%Y-%m-%d'),datetime.min.time())
+        }
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        request_response = self.client.post(reverse('adminhome:assignoneslot', args=(booking.id,)), insurance_expiry_data)
+        
+        self.assertEqual(request_response.status_code, 200)
+        
+        Booking.objects.all().delete()
+
+
+class TestShowParkingSpotScheduleView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.user = User.objects.create_user(
+            username='user', password='pass')
+        self.super_user = User.objects.create_superuser(username='useradmin', password='passadmin')
+        self.vehicle = Vehicle.objects.create(name="name",
+                                                user_id=self.user,
+                                                make="make",
+                                                model="model",
+                                                build="build",
+                                                color="color",
+                                                is_verified=True)
+        self.vehicle_unverified = Vehicle.objects.create(name="name_unverified",
+                                                user_id=self.user,
+                                                make="make",
+                                                model="model",
+                                                build="build",
+                                                color="color",
+                                                is_verified=False)
+        self.parking_category = ParkingCategory.objects.create(name="pc_1", size=1.00, daily_rate=1.0,
+                                                               weekly_rate=1.0,
+                                                               monthly_rate=1.0,
+                                                               utility_conversion_rate=1.0,
+                                                               is_active=True,
+                                                               cancellation_penalty=1.0,
+                                                               cancellation_time_window=1)
+        self.parking_spot_1 = ParkingSpot.objects.create(name="test_spot_1", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_2 = ParkingSpot.objects.create(name="test_spot_2", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_3 = ParkingSpot.objects.create(name="test_spot_3", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_4 = ParkingSpot.objects.create(name="test_spot_4", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_5 = ParkingSpot.objects.create(name="test_spot_5", parking_category_id=self.parking_category,
+                                                       is_active=True)
+        self.parking_spot_6 = ParkingSpot.objects.create(name="test_spot_6", parking_category_id=self.parking_category,
+                                                       is_active=True)
+
+    def test_get_showschedule_not_admin(self):
+        start_date = "2022-04-26"
+        end_date = "2022-04-30"
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_1.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.user
+        response = showparkingspotschedule(request, self.parking_spot_1.id, start_date, end_date)
+        self.assertEqual(response.status_code, 302)
+
+        Booking.objects.all().delete()
+
+    def test_get_showschedule(self):
+        start_date = "2022-04-26"
+        end_date = "2022-04-30"
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_2 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_2,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_3 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_3,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_4 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_4,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_5 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_5,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-27", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-05-28", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        booking_6 = Booking.objects.create(vehicle_id = self.vehicle,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_5,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-29", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-05-01", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_1.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_1.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_2.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_2.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_3.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_3.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_4.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_4.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_5.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_5.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_6.id, 'start_date': start_date, 'end_date': end_date}))
+        request.user = self.super_user
+        response = showparkingspotschedule(request, self.parking_spot_6.id, start_date, end_date)
+        self.assertEqual(response.status_code, 200)
+
+        Booking.objects.all().delete()
+    
+    def test_post_showschedule(self):
+        start_date = "2022-04-26"
+        end_date = "2022-04-30"
+        Booking.objects.all().delete()
+        booking = Booking.objects.create(vehicle_id = self.vehicle_unverified,
+                                                pc_id = self.parking_category,
+                                                parking_spot_id = self.parking_spot_1,
+                                                start_time = datetime.combine(datetime.strptime("2022-04-26", '%Y-%m-%d'),datetime.min.time()),
+                                                end_time = datetime.combine(datetime.strptime("2022-04-30", '%Y-%m-%d'),datetime.min.time()),
+                                                lease_sign_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_time = datetime.combine(datetime.strptime("2022-04-25", '%Y-%m-%d'),datetime.min.time()),
+                                                last_modified_userid = self.super_user,
+                                                state = BookingStates.PENDING_SLOT,
+                                                lease_doc_url = "url",
+                                                lease_is_signed_by_user = True)
+
+        date_range_data = {
+            'start_date': start_date,
+            'end_date': end_date
+        }
+        session = self.client.session
+        session['somekey'] = 'test'
+        session.save()
+        self.client.login(username='useradmin', password='passadmin')
+        request_response = self.client.post(reverse('adminhome:showparkingspotschedule', kwargs={'pk': self.parking_spot_1.id, 'start_date': start_date, 'end_date': end_date}), date_range_data)
+        
+        self.assertEqual(request_response.status_code, 200)
+        
+        Booking.objects.all().delete()
