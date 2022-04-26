@@ -26,7 +26,7 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib import messages
 
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BillDetail, Payment
-from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
+from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter, UnverifiedVehiclesFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, CheckAvailabilityDateRangeForm, VehicleChangeForm, BillDetailForm, \
                    PaymentForm, ShowSheduleDateRangeForm
@@ -783,12 +783,23 @@ def unverifiedvehicles(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseRedirect(reverse('adminhome:index'))
 
-    unverified_vehicles = Vehicle.objects.filter(is_verified=False)
+    unverified_vehicles_list = UnverifiedVehiclesFilter(request.GET, queryset=Vehicle.objects.filter(is_verified=False))
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(unverified_vehicles_list.qs, 2)
+
     form = VerifyVehicleForm
 
+    try:
+        unverified_vehicles_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        unverified_vehicles_paginated = paginator.page(1)
+    except EmptyPage:
+        unverified_vehicles_paginated = paginator.page(paginator.num_pages)
+
     return render(request, "adminhome/admin_view_unverified_vehicles.html",
-                  {'unverified_vehicles': unverified_vehicles,
-                   'form': form})
+                  {'filter': unverified_vehicles_list,
+                   'form': form, 'unverified_vehicles_paginated': unverified_vehicles_paginated})
 
 
 def verifyvehicle(request, pk):

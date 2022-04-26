@@ -10,7 +10,6 @@
 		{{filter.form.as_p}}
 		<input type="submit" value="Filter" class="btn btn-outline-dark shadow-2 mb-4" style="max-width: 10rem;"/>
 	</div>
-
 </form>
 {% for parkingspot in parkingspot_paginated %}
 	<div class="card cardhover mb-2">
@@ -33,6 +32,6 @@
 	</div>
 {% endfor %} 
 
-{% include "adminhome/paginator.html" with paginator=parkingspot_paginated%}
+{% include "adminhome/paginator.html" with paginator=parkingspot_paginated %}
 
 {% endblock content %}
