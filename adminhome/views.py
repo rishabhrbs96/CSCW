@@ -420,7 +420,6 @@ def confirmcancelbooking(request, bk_id):
     elif (not (booking.state==BookingStates.APPROVED or booking.state==BookingStates.PAID)):
         context["error_message"] = "Booking ID#{} hasen't been approved yet.".format(booking.id)
     elif (request.method == 'POST'):
-        #TODO: Dont execute cancelbooking() for current/previous bookings
         current_time = datetime.datetime.now(pytz.timezone('US/Central'))
         bills = booking.bills.all()
         if len(bills) != 0:
