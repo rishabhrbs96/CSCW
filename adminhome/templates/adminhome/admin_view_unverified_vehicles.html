@@ -52,4 +52,6 @@
         </div>
     {% endfor %}
 
+    {% include "adminhome/paginator.html" with paginator=unverified_vehicles_paginated %}
+
 {% endblock content %}
