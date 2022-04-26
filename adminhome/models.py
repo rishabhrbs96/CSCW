@@ -56,8 +56,7 @@ class Booking(models.Model):
     last_modified_userid = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     state = models.CharField(max_length=30, choices=BookingStates.choices, default=BookingStates.NEW)
     lease_doc_url = models.CharField(max_length=100)
-    lease_is_signed_by_user = models.BooleanField()
-    
+    lease_is_signed_by_user = models.BooleanField()    
     admin_comments = models.CharField(max_length=20)
     
 class BillDetail(models.Model):

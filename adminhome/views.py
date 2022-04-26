@@ -1,4 +1,5 @@
 import json, requests, datetime, boto3, math
+from xmlrpc.client import Boolean
 import random
 import time
 import pytz
@@ -292,7 +293,8 @@ def viewbookings(request, bookingsType):
         bookings_paginated = paginator.page(paginator.num_pages)
 
     return render(request, "adminhome/viewbookings.html",
-                  {'bookings_paginated': bookings_paginated, 'filter': bookings_list, 'bookingsType': bookingsType})
+                  {'bookings_paginated': bookings_paginated, 'filter': bookings_list, 
+                   'bookingsType': bookingsType})
 
 
 def viewupcomingbookings(request):
@@ -355,8 +357,13 @@ def viewonebooking(request, bk_id):
     bills = booking.bills.all()
     unpaid_amount = sum([bl.unpaid_amount for bl in bills])
     
+    isPreviousBooking = booking.end_time.replace(tzinfo=pytz.utc) < datetime.datetime.now(pytz.timezone('US/Central'))
+    #t1 = booking.start_time.replace(tzinfo=pytz.utc) <= datetime.datetime.now(pytz.timezone('US/Central'))
+    #t2 = booking.end_time.replace(tzinfo=pytz.utc) >= datetime.datetime.now(pytz.timezone('US/Central'))
+    isCurrentBooking = booking.start_time.replace(tzinfo=pytz.utc) <= datetime.datetime.now(pytz.timezone('US/Central')) and booking.end_time.replace(tzinfo=pytz.utc) >= datetime.datetime.now(pytz.timezone('US/Central'))
     # NOTE: Logic for admin/user view is handled inside the HTML file.
-    context = {"booking": booking, "bills": bills, "unpaid_amount": unpaid_amount}
+    context = {"booking": booking, "bills": bills, "unpaid_amount": unpaid_amount,
+               "isPreviousBooking": isPreviousBooking, "isCurrentBooking": isCurrentBooking}
     return render(request, "adminhome/viewonebooking.html", context)
 
 

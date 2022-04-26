@@ -35,27 +35,37 @@
                     {% if booking.state != 'canceled' %}
                         <h5 class="card-title d-flex justify-content-between align-items-center">
                             <div>
-                                <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
-                                    Edit
-                                </a>
-                                <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
-                                    Delete
-                                </a>
-                                <a href="{% url 'adminhome:assignoneslot' booking.id %}" class="btn btn-outline-dark m-2">
-                                    {% if booking.parking_spot_id %}
-                                        Change Parking Spot
-                                    {% else %}
-                                        Assign Parking Spot
+                                {% if isPreviousBooking == False and isCurrentBooking == False %}
+                                    <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                        Edit
+                                    </a>
+
+                                    <a href="{% url 'adminhome:deletebooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                        Delete
+                                    </a>
+
+                                    <a href="{% url 'adminhome:assignoneslot' booking.id %}" class="btn btn-outline-dark m-2">
+                                        {% if booking.parking_spot_id %}
+                                            Change Parking Spot
+                                        {% else %}
+                                            Assign Parking Spot
+                                        {% endif %}
+                                    </a>
+
+                                    {% if booking.state != 'canceled' %}
+                                        <a href="{% url 'adminhome:confirmcancelbooking' booking.id %}" class="btn btn-outline-dark m-2">
+                                            Cancel Booking
+                                        </a>
                                     {% endif %}
-                                </a>
+
+                                {% endif %}
+
                                 {% if booking.parking_spot_id %}
-                                    <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">Add
-                                        Bill</a>
+                                    <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">
+                                        Add Bill
+                                    </a>
                                 {% endif %}
-                                {% if booking.state != 'canceled' %}
-                                    <a href="{% url 'adminhome:confirmcancelbooking' booking.id %}" class="btn btn-outline-dark m-2">
-                                        Cancel Booking</a>
-                                {% endif %}
+                                
                             </div>
                         </h5>
                     {% endif %}
