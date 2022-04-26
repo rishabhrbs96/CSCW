@@ -33,6 +33,7 @@
                         <h5 class="card-title d-flex justify-content-between align-items-center">
                             <div>
                                 {% if request.user.is_superuser or request.user.is_staff %}
+                                {% if isPreviousBooking == False and isCurrentBooking == False %}
                                     {% if booking.state != 'canceled' %}
                                         <a href="{% url 'adminhome:editbooking' booking.id %}" class="btn btn-outline-dark m-2">
                                             Edit
@@ -44,12 +45,6 @@
                                                 Assign Parking Spot
                                             {% endif %}
                                         </a>
-                                        {% if booking.parking_spot_id %}
-                                            <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">
-                                                Add Bill
-                                            </a>
-                                        {% endif %}
-                                    <!-- #TODO: Dont execute cancelbooking() for current/previous bookings -->
                                         <a href="{% url 'adminhome:confirmcancelbooking' booking.id %}" class="btn btn-outline-dark m-2">
                                             Cancel Booking
                                         </a>
@@ -58,6 +53,13 @@
                                         Delete Booking
                                     </a>
                                 {% endif %}
+                                {% endif %}
+                                {% if booking.parking_spot_id %}
+                                    <a href="{% url 'adminhome:addbill' booking.id %}?pc={{booking.pc_id_id}}" class="btn btn-outline-dark m-2">
+                                        Add Bill
+                                    </a>
+                                {% endif %}
+                                
                             </div>
                         </h5>
             {% endif %}
