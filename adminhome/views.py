@@ -31,6 +31,7 @@ from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, 
                    CustomUserCreationForm, CheckAvailabilityDateRangeForm, VehicleChangeForm, BillDetailForm, \
                    PaymentForm, ShowSheduleDateRangeForm
 from .enums import BookingStates, ViewBookings
+from .utils import isPreviousBooking, isCurrentBooking
 
 from datetime import date
 from fpdf import FPDF
@@ -264,7 +265,7 @@ def viewbookings(request, bookingsType):
             Booking.objects.filter(start_time__gte=datetime.datetime.now(), vehicle_id__user_id=request.user))
         elif (bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
-            Booking.objects.filter(end_time__lte=datetime.datetime.now(), vehicle_id__user_id=request.user))
+            Booking.objects.filter(end_time__lt=datetime.datetime.now(), vehicle_id__user_id=request.user))
         else:
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
             Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now(),
@@ -275,7 +276,7 @@ def viewbookings(request, bookingsType):
                                           queryset=Booking.objects.filter(start_time__gte=datetime.datetime.now()))
         elif (bookingsType == ViewBookings.PREVIOUS_BOOKINGS):
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=Booking.objects.filter(
-                end_time__lte=datetime.datetime.now()))
+                end_time__lt=datetime.datetime.now()))
         else:
             bookings_list = PreviousAndCurrentBookingFilter(request.GET, queryset=
             Booking.objects.filter(start_time__lte=datetime.datetime.now(), end_time__gte=datetime.datetime.now()))
@@ -358,13 +359,11 @@ def viewonebooking(request, bk_id):
     bills = booking.bills.all()
     unpaid_amount = sum([bl.unpaid_amount for bl in bills])
     
-    isPreviousBooking = booking.end_time.replace(tzinfo=pytz.utc) < datetime.datetime.now(pytz.timezone('US/Central'))
-    #t1 = booking.start_time.replace(tzinfo=pytz.utc) <= datetime.datetime.now(pytz.timezone('US/Central'))
-    #t2 = booking.end_time.replace(tzinfo=pytz.utc) >= datetime.datetime.now(pytz.timezone('US/Central'))
-    isCurrentBooking = booking.start_time.replace(tzinfo=pytz.utc) <= datetime.datetime.now(pytz.timezone('US/Central')) and booking.end_time.replace(tzinfo=pytz.utc) >= datetime.datetime.now(pytz.timezone('US/Central'))
     # NOTE: Logic for admin/user view is handled inside the HTML file.
-    context = {"booking": booking, "bills": bills, "unpaid_amount": unpaid_amount,
-               "isPreviousBooking": isPreviousBooking, "isCurrentBooking": isCurrentBooking}
+    context = {
+                "booking": booking, "bills": bills, "unpaid_amount": unpaid_amount,
+                "isPreviousBooking": isPreviousBooking(booking), "isCurrentBooking": isCurrentBooking(booking)
+              }
     return render(request, "adminhome/viewonebooking.html", context)
 
 
@@ -374,13 +373,17 @@ def editbooking(request, bk_id):
 
     booking = get_object_or_404(Booking, id=bk_id)
     form = BookingForm(request.POST or None, instance=booking)
+    error_msg = ""
+
+    if (isPreviousBooking(booking) == True or isCurrentBooking(booking) == True):
+        error_msg = "Booking ID#{} has already been completed.".format(booking.id) if (isPreviousBooking(booking) == True) else "Booking ID#{} is currently active.".format(booking.id)
 
     if form.is_valid():
         booking.last_modified_userid = request.user
         form.save()
         return HttpResponseRedirect(reverse('adminhome:viewonebooking', args=(form.instance.id,)))
     else:
-        return render(request=request, template_name="adminhome/editbooking.html", context={"form": form})
+        return render(request=request, template_name="adminhome/editbooking.html", context={"form": form, "error_message": error_msg})
 
 
 def deletebooking(request, bk_id):
@@ -390,6 +393,10 @@ def deletebooking(request, bk_id):
     context = {}
     booking = get_object_or_404(Booking, id=bk_id)
     context["booking"] = booking
+    context["error_message"] = ""
+
+    if (isPreviousBooking(booking) == True or isCurrentBooking(booking) == True):
+        context["error_message"] = "Booking ID#{} has already been completed.".format(booking.id) if (isPreviousBooking(booking) == True) else "Booking ID#{} is currently active.".format(booking.id)
 
     if request.method == 'POST':
         booking.delete()
@@ -406,7 +413,9 @@ def confirmcancelbooking(request, bk_id):
     context["booking"] = booking
     context["error_message"] = ""
 
-    if (booking.state==BookingStates.CANCELED):
+    if (isPreviousBooking(booking) == True or isCurrentBooking(booking) == True):
+        context["error_message"] = "Booking ID#{} has already been completed.".format(booking.id) if (isPreviousBooking(booking) == True) else "Booking ID#{} is currently active.".format(booking.id)
+    elif (booking.state==BookingStates.CANCELED):
         context["error_message"] = "Booking ID#{} has already been canceled.".format(booking.id)
     elif (not (booking.state==BookingStates.APPROVED or booking.state==BookingStates.PAID)):
         context["error_message"] = "Booking ID#{} hasen't been approved yet.".format(booking.id)
