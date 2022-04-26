@@ -1,5 +1,5 @@
 import django_filters
-from .models import  ParkingCategory, ParkingSpot, Booking
+from .models import  ParkingCategory, ParkingSpot, Booking, Vehicle
 from .forms import DatePickerInput
 
 class ParkingCatergoryFilter(django_filters.FilterSet):
@@ -36,3 +36,9 @@ class PreviousAndCurrentBookingFilter(django_filters.FilterSet):
     class Meta:
         model = Booking
         fields = ('parking_spot_id', 'state', 'vehicle_id__user_id',)
+
+class UnverifiedVehiclesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Vehicle
+        fields = ('user_id',)

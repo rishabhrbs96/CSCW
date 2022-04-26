@@ -5,8 +5,14 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Unverified Vehicles</h1>
     </div>
+    <form method="get">
+        <div class="container">
+            {{filter.form.as_p}}
+            <input type="submit" value="Filter" class="btn btn-outline-dark shadow-2 mb-4" style="max-width: 10rem;"/>
+        </div>
+    </form>
 
-    {% for unverified_vehicle in unverified_vehicles %}
+    {% for unverified_vehicle in unverified_vehicles_paginated %}
         <div class="card cardhover mb-2">
             <div class="card-body">
                 <h5 class="card-title d-flex justify-content-between align-items-center">
