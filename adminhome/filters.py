@@ -19,7 +19,7 @@ class BookingFilter(django_filters.FilterSet):
 
     class Meta:
         model = Booking
-        fields = ('parking_spot_id', 'start_time', 'end_time', 'lease_is_signed_by_user', 'state',)
+        fields = ('parking_spot_id', 'lease_is_signed_by_user', 'state', 'vehicle_id__user_id',)
         # fields = {
         #     'parking_spot_id': ['exact'], 
         #     'start_time': ['gte'], 
@@ -35,4 +35,4 @@ class PreviousAndCurrentBookingFilter(django_filters.FilterSet):
 
     class Meta:
         model = Booking
-        fields = ('parking_spot_id', 'start_time', 'end_time', 'state',)
+        fields = ('parking_spot_id', 'state', 'vehicle_id__user_id',)
