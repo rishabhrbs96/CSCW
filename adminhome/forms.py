@@ -110,7 +110,7 @@ class ParkingSpotForm(forms.ModelForm):
 class DatePickerInput(forms.DateInput):
         input_type = 'date'
 
-class DateRangeForm(forms.Form):
+class CheckAvailabilityDateRangeForm(forms.Form):
     start_date = forms.DateField(widget=DatePickerInput)
     end_date = forms.DateField(widget=DatePickerInput)
 
@@ -123,6 +123,19 @@ class DateRangeForm(forms.Form):
             raise forms.ValidationError("Start date should be greater than today's date {}.".format(today_date))
         if end_date <= start_date:
             raise forms.ValidationError("End date should be strictly greater than start date.")
+
+
+class ShowSheduleDateRangeForm(forms.Form):
+    start_date = forms.DateField(widget=DatePickerInput)
+    end_date = forms.DateField(widget=DatePickerInput)
+
+    def clean(self):
+        super().clean()
+        start_date = self.cleaned_data.get("start_date")
+        end_date = self.cleaned_data.get("end_date")
+        if end_date <= start_date:
+            raise forms.ValidationError("End date should be strictly greater than start date.")
+
 
 class BookingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

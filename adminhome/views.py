@@ -27,7 +27,8 @@ from django.contrib import messages
 from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BillDetail, Payment
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
-                   CustomUserCreationForm, DateRangeForm, VehicleChangeForm, BillDetailForm, PaymentForm
+                   CustomUserCreationForm, CheckAvailabilityDateRangeForm, VehicleChangeForm, BillDetailForm, \
+                   PaymentForm, ShowSheduleDateRangeForm
 from .enums import BookingStates, ViewBookings
 
 from datetime import date
@@ -831,7 +832,7 @@ def checkavailability(request):
     if (request.method == "POST"):
         start_date = request.POST['start_date']
         end_date = request.POST['end_date']
-        form = DateRangeForm(request.POST)
+        form = CheckAvailabilityDateRangeForm(request.POST)
         if form.is_valid():
             form.clean()
             for parking_category in parking_categories_all:
@@ -845,7 +846,7 @@ def checkavailability(request):
                     if(_count > 0):
                         parking_categories_available.append(parking_category)
     else:
-        form = DateRangeForm
+        form = CheckAvailabilityDateRangeForm
     return render(
         request,
         "adminhome/checkavailability.html",
@@ -861,6 +862,16 @@ def checkavailability(request):
 def showparkingspotschedule(request, pk, start_date, end_date):
     if (not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser))):
         return HttpResponseRedirect(reverse('adminhome:index'))
+    
+    form = ShowSheduleDateRangeForm()
+
+    if (request.method == "POST"):
+        form = ShowSheduleDateRangeForm(request.POST)
+        if form.is_valid():
+            form.clean()
+            start_date = request.POST['start_date']
+            end_date = request.POST['end_date']
+
     start_time = datetime.datetime.combine(datetime.datetime.strptime(start_date, '%Y-%m-%d'),
                                            datetime.datetime.min.time())
     end_time = datetime.datetime.combine(datetime.datetime.strptime(end_date, '%Y-%m-%d'), datetime.datetime.min.time())
@@ -910,6 +921,7 @@ def showparkingspotschedule(request, pk, start_date, end_date):
     return render(request,
                   "adminhome/showparkingspotschedule.html",
                   {
+                      'form': form,
                       'start_date': start_date,
                       'end_date': end_date,
                       'parking_spot': parking_spot,
