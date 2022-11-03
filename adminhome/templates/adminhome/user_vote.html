@@ -2,7 +2,7 @@
   	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-bookings">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseBookings" aria-expanded="false" aria-controls="flush-collapseOne">
-        		Create A Room
+        		Poll
       	</button>
     	</h2>
     	<div id="flush-collapseBookings" class="accordion-collapse collapse" aria-labelledby="flush-bookings" data-bs-parent="#sidebarAccordion">
@@ -10,8 +10,13 @@
 					<ul class="nav flex-column mb-2">
 						
 						<li class="nav-item">
-							<a class="nav-link" href="{% url 'adminhome:createaroom' %}">
-								Create A Room
+							<a class="nav-link" href="{% url 'adminhome:poll' %}">
+								Create A Poll
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'adminhome:vote' %}">
+								Vote Now
 							</a>
 						</li>
 						<!-- <li class="nav-item">
@@ -41,15 +46,15 @@
 	<div class="accordion-item">
     	<h2 class="accordion-header" id="flush-profile">
       	<button class="accordion-button collapsed sidebar-heading" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseProfile" aria-expanded="false" aria-controls="flush-collapseOne">
-        	Settings
+        	Room Settings
       	</button>
     	</h2>
     	<div id="flush-collapseProfile" class="accordion-collapse collapse" aria-labelledby="flush-profile" data-bs-parent="#sidebarAccordion">
       		<div class="accordion-body">
 				<ul class="nav flex-column mb-2">
                     <li class="nav-item">
-						<a class="nav-link" href="{% url 'adminhome:viewprofile' %}">
-							View Profile
+						<a class="nav-link" href="{% url 'adminhome:room' %}">
+							Back To Room
 						</a>
 					</li>
 					<!-- <li class="nav-item">

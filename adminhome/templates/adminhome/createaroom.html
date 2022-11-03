@@ -1,0 +1,17 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Create New Room</h1>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="">Room Name:</label>
+            <input class="col-sm-10" type="text" id="fname" name="fname" value="New Room"><br>
+        </div>
+    </form>
+
+    <a href="{% url 'adminhome:room' %}" class="btn btn-primary shadow-2 mb-4">Create</a>
+
+{% endblock content %}

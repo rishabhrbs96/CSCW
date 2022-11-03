@@ -747,6 +747,17 @@ def editprofile(request):
                   template_name="adminhome/user_editprofile.html",
                   context={"form": form})
 
+def vote(request):
+    return render(request, "adminhome/vote.html", {'user': request.user})
+
+def poll(request):
+    return render(request, "adminhome/poll.html", {'user': request.user})
+
+def createaroom(request):
+    return render(request, "adminhome/createaroom.html", {'user': request.user})
+
+def room(request):
+    return render(request, "adminhome/room.html", {'user': request.user})
 
 def viewprofile(request):
     if not request.user.is_authenticated:

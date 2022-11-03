@@ -5,7 +5,7 @@ This rental agreement is made on the <lease_date>, between <user_name> and Camer
 Park , with its principal office located at 1425 Turtle Creek, Lufkin, Texas 75904, referred to herein as Lessor, and
 (Lessee-Guest) referred to herein as Lessee.
 Lessor leases to Lessee and Lessee leases from Lessor, for the term of this agreement, RV Spot #<parking_spot> of the
-Cameron RV Park and being hereafter referred to as RV Spot (whether one or more), and pursuant to the following terms and conditions:
+Watch-With-Ags and being hereafter referred to as RV Spot (whether one or more), and pursuant to the following terms and conditions:
 
 Rent: Lessee agrees to pay as rental $ <price> / <lease_frequency> for RV spot(s) beginning <start_date> through <end_date> payable without demand, either by credit card or check on 1st of each month.
 Utilities/Cleaning: Lessor shall pay for all water, electricity, cable, and internet and other utilities supplied.
@@ -17,7 +17,7 @@ Governing Law: This agreement shall be governed by, construed, and enforced in a
 Waivers: Waiver by Lessor of any breach of any covenant or duty of Lessee under this agreement is not a waiver of a breach of any other covenant or duty of Lessee, or of any subsequent breach of the same covenant or duty.
 Counterparts: If this agreement is executed in multiple counterparts, all counterparts taken together constitute this agreement. Copies of signatures to this agreement are effective as original signatures.
 
-Cameron RV Park Rules:
+Watch-With-Ags Rules:
 
 QUIET TIME: 10 p.m. / 7 a.m - please be considerate of others. No loud music at any time.
 CHECK-OUT TIME IS 1:00 P.M.-Due to previous reservations, if you plan on staying longer, the earlier you re-register, the better your chance of keeping your site.
@@ -26,19 +26,19 @@ SEWER: Sewer connection - a positive sewer seal at both ends of sewer hose is re
 CHILDREN: We want the children to be safe & have a good time, but always under the watchful eyes of a parent/guardian. Please use good judgement if you decide to leave your children at the park when you are gone. We are not responsible for their safety or welfare. You are liable for their behavior.
 PETS: Please maintain control of your pets. The limit is for only 2 pets allowed on leash. Owners must clean up after their pets. Do not leave pets tethered on a leash or chain or in a pen outside overnight or when you are absent. Absolutely no pets other than service animals are allowed in the office or laundry! The same rules apply for cats as for dogs. Cats are inside pets only. If outside, they must be on a leash with the owner at all times. These rules are for health reasons as well as the respect for others. NO AGGRESSIVE BREED DOGS ARE ALLOWED IN THE PARK.
 TRASH: Dumpster located in the park is for personal trash only. All garbage must be bagged & tied, boxes broken down. DO NOT leave trash outside by your RV. Cleanliness of the park is important to us. Sites are to be kept clean and orderly, as determined by management. Please leave laundry as you would like to find them. If they are in need of attention, please notify the manager. Washing vehicles in the park is prohibited, however; keeping your RV clean and in good repair is required.
-Internet: Wireless Internet is for our guests. Cameron RV Park is not responsible for the operations of this Service. For problems contact: Tengo Internet at (866) 968-3646.
+Internet: Wireless Internet is for our guests. Watch-With-Ags is not responsible for the operations of this Service. For problems contact: Tengo Internet at (866) 968-3646.
 NO FIREWORKS ALLOWED. NO OPEN FIREARMS DISPLAYED.
 PARKING: Two vehicles only per RV space if your space is large enough. Please park parallel to your RV out of the main drives.
-CLOTHS LINES ARE NOT ALLOWED. ELECTRIC SPACE HEATERS ARE NOT ALLOWED. NO CHEATER BOXES OR PIGTAILS ALLOWED. Cameron RV Park is not responsible for any electrical components on RVs.
+CLOTHS LINES ARE NOT ALLOWED. ELECTRIC SPACE HEATERS ARE NOT ALLOWED. NO CHEATER BOXES OR PIGTAILS ALLOWED. Watch-With-Ags is not responsible for any electrical components on RVs.
 CONDUCT: Disorderly conduct, drunkenness, illegal drugs, obscene language, obnoxious, disruptive or vulgar behavior will not be tolerated. They will be reason for immediate eviction without refund.
-DRUGS: Illegal drugs of any form are prohibited on the property of Cameron RV Park. Person caught in violation of this rule are subject to immediate eviction without a refund. Persons knowing of any illegal activity are encouraged to notify the management immediately. Any information reported will be strictly confidential.
+DRUGS: Illegal drugs of any form are prohibited on the property of Watch-With-Ags. Person caught in violation of this rule are subject to immediate eviction without a refund. Persons knowing of any illegal activity are encouraged to notify the management immediately. Any information reported will be strictly confidential.
 LIABILITY: All park facilities and equipment of the park is intended for the convenience of the guests. Any and all persons using the facilities do at THEIR OWN RISK and consent. The park management is NOT RESPONSIBLE for accident due to fire, theft, wind, flood, personal negligence, acts of God or other unfortunate circumstances. The registered guest is financially responsible for all individuals or pets at their site for any or all damage to the park.
 These rules are for health, cleanliness, legality and welfare of all.
 MANAGEMENT RESERVES THE RIGHT TO EVICT OR REFUSE SERVICE TO ANY PERSON OR PERSONS WHO BREAK OR DISREGARD ANY RULES WITHOUT REFUND. MANANGEMENT RESERVES THE RIGHT TO REFUSE ANYONE. MANAGEMENT RESERVES THE RIGHT TO MAKE CHANGES TO THE RULES, REGULATIONS AND FEES WHEN NECESSARY.
 We know most RV'ers to be some of the most helpful, honest and kind people in the world with good common sense, needing no written rules as they already honor the welfare and rights of others. These rules are to guide those who do not yet respect the property and rights of others.
 WITNESS our signatures as of the day and date first above stated.
 
-LESSOR: Cameron RV Park
+LESSOR: Watch-With-Ags
 
 LESSEE: <user_name>
 Print Name/Phone Number

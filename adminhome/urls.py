@@ -54,6 +54,10 @@ urlpatterns = [
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/changepassword', views.changepassword, name='changepassword'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
+    path('userhome/createaroom', views.createaroom, name='createaroom'),
+    path('room/3qRcV', views.room, name='room'),
+    path('poll', views.poll, name='poll'),
+    path('vote', views.vote, name='vote'),
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),
