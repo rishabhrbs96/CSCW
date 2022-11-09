@@ -696,6 +696,11 @@ def doedit(request):
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
 
+def video(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/video.html")
+
 
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()

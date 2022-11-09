@@ -58,6 +58,7 @@ urlpatterns = [
     path('room/3qRcV', views.room, name='room'),
     path('poll', views.poll, name='poll'),
     path('vote', views.vote, name='vote'),
+    path('video', views.video, name='video'),
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),

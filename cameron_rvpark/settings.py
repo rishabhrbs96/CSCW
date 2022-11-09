@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # 'fontawesomefree',
     'storages',
     'django_filters',
+    'channels' ,
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'cameron_rvpark.wsgi.application'
-
+ASGI_APPLICATION = 'cameron_rvpark.asgi.application'
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': "channels.layers.InMemoryChannelLayer"
+#     }
+# }
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

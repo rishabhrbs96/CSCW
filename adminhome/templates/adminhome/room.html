@@ -89,7 +89,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 </style>
 
-
+<link rel="stylesheet" type="text/css" href="{% static 'adminhome/main.css' %}">
 
 </head>
 <body>
@@ -108,14 +108,41 @@ body {font-family: Arial, Helvetica, sans-serif;}
 		<div class="row">
             {% include "adminhome/user_vote.html" %}
 			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+				<div class="container">
+          <!-- <div class="row">
+            <div class="col">
+              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Room: New Room</h1>
                     <h5>Share Room: <a href="http://localhost:8000/room/3qRcV">http://localhost:8000/room/3qRcV</a></h5>
                 </div>
+            </div>
+          </div> -->
+          <div class="row">
+            <div class="col-md-9">
+              <button id="join-btn">Join Group Video Call</button>
 
+    <div id="stream-wrapper">
+        <div id="video-streams"></div>
+
+        <div id="stream-controls">
+            <button id="leave-btn">Leave Stream</button>
+            <button id="mic-btn">Mic On</button>
+            <button id="camera-btn">Camera on</button>
+        </div>
+    </div>
+            </div>
+            <div class="col-md-3">
+              <button class="open-button" onclick="openForm()">Chat</button>
+            </div>
+          </div>
+        </div>
+        
+        
+
+        
                 
 
-                <button class="open-button" onclick="openForm()">Chat</button>
+                
 
 <div class="chat-popup" id="myForm">
   <form action="/action_page.php" class="form-container">
@@ -131,6 +158,8 @@ body {font-family: Arial, Helvetica, sans-serif;}
 			</main>
 		</div>
 	</div>
+  <script src="{% static 'adminhome/AgoraRTC_N-4.7.3.js' %}"></script>
+<script src="{% static 'adminhome/main.js' %}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script>
         function openForm() {
