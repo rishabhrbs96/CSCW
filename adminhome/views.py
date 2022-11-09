@@ -701,7 +701,6 @@ def video(request):
         return HttpResponseRedirect(reverse('adminhome:index'))
     return render(request, "adminhome/video.html")
 
-
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
 
