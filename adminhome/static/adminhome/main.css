@@ -1,5 +1,5 @@
 #join-btn{
-    position: fixed;
+    position: relative;
     top:50%;
     left:50%;
     margin-top:-50px;
