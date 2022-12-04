@@ -25,11 +25,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib import messages
 
-from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BillDetail, Payment
+from .models import Booking, ParkingSpot, ParkingCategory, Vehicle, BillDetail, Payment, Poll
 from .filters import ParkingCatergoryFilter, ParkingSpotFilter, BookingFilter, PreviousAndCurrentBookingFilter, UnverifiedVehiclesFilter
 from .forms import BookingForm, ParkingCategoryForm, ParkingSpotForm, HomeForm, CustomUserForm, \
                    CustomUserCreationForm, CheckAvailabilityDateRangeForm, VehicleChangeForm, BillDetailForm, \
-                   PaymentForm, ShowSheduleDateRangeForm
+                   PaymentForm, ShowSheduleDateRangeForm, CreatePollForm
 from .enums import BookingStates, ViewBookings
 from .utils import isPreviousBooking, isCurrentBooking
 
@@ -696,15 +696,10 @@ def doedit(request):
 def index(request):
     return render(request, "adminhome/index.html", {"metadata": get_home_metedata()})
 
-def video(request):
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect(reverse('adminhome:index'))
-    return render(request, "adminhome/video.html")
-
 def get_home_metedata():
     return requests.get('https://d1dmjo0dbygy5s.cloudfront.net/home_metadata.json').json()
 
-
+#### CSCW: START ####
 def userhome(request):
     if (not request.user.is_authenticated):
         return HttpResponseRedirect(reverse('adminhome:index'))
@@ -751,11 +746,19 @@ def editprofile(request):
                   template_name="adminhome/user_editprofile.html",
                   context={"form": form})
 
+def video(request):
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect(reverse('adminhome:index'))
+    return render(request, "adminhome/video.html")
+
 def vote(request):
     return render(request, "adminhome/vote.html", {'user': request.user})
 
 def poll(request):
     return render(request, "adminhome/poll.html", {'user': request.user})
+
+def pollresults(request):
+    return render(request, "adminhome/pollresults.html", {'user': request.user})
 
 def createaroom(request):
     return render(request, "adminhome/createaroom.html", {'user': request.user})
@@ -774,7 +777,7 @@ def viewprofile(request):
     vehicles = user.vehicle_set.all()
 
     return render(request, "adminhome/user_viewprofile.html", {'user': user, 'vehicles': vehicles})
-
+#### CSCW: END ####
 
 def addvehicle(request):
     if not request.user.is_authenticated:

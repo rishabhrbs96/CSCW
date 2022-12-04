@@ -81,3 +81,15 @@ class Payment(models.Model):
     time = models.DateTimeField(auto_now_add=False)
     bill = models.ForeignKey(BillDetail, on_delete=models.CASCADE, related_name="payments")
     amount = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
+
+#### CSCW: Begin ####
+class Poll(models.Model):
+    option_one = models.CharField(max_length=60)
+    option_two = models.CharField(max_length=60)
+    option_three = models.CharField(max_length=60)
+
+    options_one_count = models.IntegerField(default=0)
+    options_two_count = models.IntegerField(default=0)
+    options_three_count = models.IntegerField(default=0)
+    
+#### CSCW: End ####

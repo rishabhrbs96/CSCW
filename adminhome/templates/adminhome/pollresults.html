@@ -1,6 +1,7 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,9 +15,9 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'adminhome/sidebar.css' %}"> 
 	<link rel="stylesheet" type="text/css" href="{% static 'adminhome/card.css' %}">
 
-  <style>
-  body {font-family: Arial, Helvetica, sans-serif;}
-  * {box-sizing: border-box;}
+    <style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
 
 /* Button used to open the chat form - fixed at the bottom of the page */
 .open-button {
@@ -88,7 +89,6 @@
   opacity: 1;
 }
 </style>
-
 </head>
 
 <body>
@@ -103,28 +103,50 @@
 			</div>
 		</div>
 	</header>
+
 	<div class="container-fluid">
 		<div class="row">
       {% include "adminhome/user_vote.html" %}
 			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Vote for a Video: Watch With Aggies</h1>
-        </div>
+               <h1 class="h2">View Poll Results: Watch With Aggies</h1>
+            </div>
 
-        <form action="/action_page.php">
-          <h3>Select a movie to watch:</h3>
-            <input type="radio" id="html" name="fav_language" value="HTML">
-            <label for="html">Video 1</label><br>
-            <input type="radio" id="css" name="fav_language" value="CSS">
-            <label for="css">Video 2</label><br>
-            <input type="radio" id="css" name="fav_language" value="CSS">
-            <label for="css">Video 3</label><br>
-        </form>
+            <div class="row">
+               <div class="col-lg-8 col-lg-offset-2">
+                   <div class="panel panel-default">
+                       {% comment %} <div class="panel-heading">
+                           <h3 class="panel-title">Poll Result</h3>
+                       </div> {% endcomment %}
+           
+                       <div class="panel-body">
+                           <h3>Poll Results</h3>
+                       </div>
+           
+                       <br>
+                       <ul class="list-group">
+                           <li class="list-group-item">Video 1    &mdash;  <strong>2</strong></li>
+                           <li class="list-group-item">Video 2    &mdash;  <strong>0</strong></li>
+                           <li class="list-group-item">Video 3    &mdash;  <strong>1</strong></li>
+                       </ul>
+           
+                       <br>
+                       <br>
+                       <div class="panel-footer">
+                           Total &mdash; <strong>3</strong>
+                       </div>
+                       <br>
+           
+                   </div>
+               </div>
+           </div>
+            
+            <a href="{% url 'adminhome:room' %}" class="btn btn-primary shadow-2 mb-4">Go to Watch Party Room!</a>
+         </main>
 
-        <a href="{% url 'adminhome:pollresults' %}" class="btn btn-primary shadow-2 mb-4">Vote</a>
-			</main>
 		</div>
 	</div>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

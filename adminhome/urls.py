@@ -51,14 +51,17 @@ urlpatterns = [
     path('bookings/<int:bk_id>/bill/<int:bl_id>/addpayment', views.addpayment, name='addpayment'),
     path('bookings/<int:bk_id>/bill/<int:bl_id>/payonline', views.payonline, name='payonline'),
     
+    #### CSCW: Begin ####
     path('userhome/editprofile', views.editprofile, name='editprofile'),
     path('userhome/changepassword', views.changepassword, name='changepassword'),
     path('userhome/viewprofile', views.viewprofile, name='viewprofile'),
     path('userhome/createaroom', views.createaroom, name='createaroom'),
     path('room/3qRcV', views.room, name='room'),
     path('poll', views.poll, name='poll'),
+    path('pollresults', views.pollresults, name='pollresults'),
     path('vote', views.vote, name='vote'),
     path('video', views.video, name='video'),
+    #### CSCW: End ####
 
     path('userhome/addvehicle', views.addvehicle, name='addvehicle'),
     path('userhome/editvehicle/<int:pk>/', views.editvehicle, name='editvehicle'),

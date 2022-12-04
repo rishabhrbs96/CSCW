@@ -2,10 +2,11 @@ from datetime import datetime
 import pytz
 
 from django import forms
+from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
 
-from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail, Payment
+from .models import ParkingSpot, ParkingCategory, Booking, Vehicle, BillDetail, Payment, Poll
 from .enums import PaymentMethod
 
 
@@ -199,3 +200,9 @@ class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = ['method', 'amount']
+
+#### CSCW: Begin ####
+class CreatePollForm(ModelForm):
+    class Meta:
+        model = Poll
+        fields = ['option_one', 'option_two', 'option_three']
